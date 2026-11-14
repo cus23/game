@@ -55,8 +55,9 @@
 .lock-shortcuts{width:100%;display:flex;justify-content:space-between;padding:0 12px}.lock-shortcuts span{width:43px;height:43px;border-radius:50%;background:#24222b99;border:1px solid #ffffff55;display:grid;place-items:center;font-size:19px}
 .unlock-prompt{background:none;border:0;color:#ffffffd9;font-size:12px;padding:4px 15px 0;letter-spacing:.3px}
 .home-indicator,.passcode-home{width:135px;height:5px;border-radius:9px;background:#fff;margin:0 auto 1px}
-.passcode-screen{position:absolute;inset:0;z-index:999;pointer-events:none;display:none;flex-direction:column;align-items:center;background:linear-gradient(180deg,#181720f2,#101017f8);backdrop-filter:blur(35px);-webkit-backdrop-filter:blur(35px);padding:calc(env(safe-area-inset-top) + 12px) 24px calc(env(safe-area-inset-bottom) + 10px)}
-.passcode-screen.show{display:flex;pointer-events:auto}
+dialog.passcode-screen{position:fixed;inset:0;width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;padding:calc(env(safe-area-inset-top) + 12px) 24px calc(env(safe-area-inset-bottom) + 10px);border:0;overflow:hidden;flex-direction:column;align-items:center;background:linear-gradient(180deg,#181720f2,#101017f8);color:#fff;backdrop-filter:blur(35px);-webkit-backdrop-filter:blur(35px)}
+dialog.passcode-screen[open]{display:flex}
+dialog.passcode-screen::backdrop{background:#08070dcc}
 .passcode-top{width:100%;display:flex;justify-content:space-between;align-items:center;font-size:14px;color:#fff}.passcode-top button{background:none;border:0;color:#d6c6d0;font-size:14px;padding:8px 0}
 .passcode-title{margin-top:48px;font-size:17px;color:#fff;font-weight:500}
 .passcode-dots{display:flex;gap:18px;margin-top:27px}.passcode-dots i{width:11px;height:11px;border:1px solid #ffffffb8;border-radius:50%;background:transparent}.passcode-dots i.filled{background:#fff}
@@ -106,7 +107,7 @@
   <div class="lock-notifications"><button type="button" class="notif" data-open-passcode><div class="notif-app"><span class="notif-icon">J</span><span>訊息</span><span class="notif-ago">現在</span></div><strong>Jake</strong>你到家了嗎？回我一下。</button><button type="button" class="notif" data-open-passcode><div class="notif-app"><span class="notif-icon">J</span><span>訊息</span><span class="notif-ago">1 分鐘前</span></div><strong>Jake</strong>我看到你了。</button></div>
   <div class="lock-bottom"><div class="lock-shortcuts"><span>◉</span><span>⌁</span></div><button type="button" class="unlock-prompt" data-open-passcode>點擊訊息或向上滑動來解鎖　⌃</button><div class="home-indicator"></div></div>
 </div>
-  <div class="passcode-screen" id="passcodeScreen"><div class="passcode-top"><button onclick="hidePasscode()">取消</button><span>輸入密碼</span><span></span></div><div class="passcode-title">輸入密碼以解鎖 iPhone</div><div class="passcode-dots" id="passcodeDots"><i></i><i></i><i></i><i></i></div><div class="passcode-error" id="passcodeError"> </div><div class="keypad" id="keypad"><button onclick="pressDigit('1')">1<small></small></button><button onclick="pressDigit('2')">2<small>ABC</small></button><button onclick="pressDigit('3')">3<small>DEF</small></button><button onclick="pressDigit('4')">4<small>GHI</small></button><button onclick="pressDigit('5')">5<small>JKL</small></button><button onclick="pressDigit('6')">6<small>MNO</small></button><button onclick="pressDigit('7')">7<small>PQRS</small></button><button onclick="pressDigit('8')">8<small>TUV</small></button><button onclick="pressDigit('9')">9<small>WXYZ</small></button><span></span><button onclick="pressDigit('0')">0<small></small></button><button class="delete-key" onclick="deleteDigit()">⌫</button></div><div class="passcode-emergency">緊急服務</div><div class="passcode-home"></div></div>
+  <dialog class="passcode-screen" id="passcodeScreen"><div class="passcode-top"><button onclick="hidePasscode()">取消</button><span>輸入密碼</span><span></span></div><div class="passcode-title">輸入密碼以解鎖 iPhone</div><div class="passcode-dots" id="passcodeDots"><i></i><i></i><i></i><i></i></div><div class="passcode-error" id="passcodeError"> </div><div class="keypad" id="keypad"><button onclick="pressDigit('1')">1<small></small></button><button onclick="pressDigit('2')">2<small>ABC</small></button><button onclick="pressDigit('3')">3<small>DEF</small></button><button onclick="pressDigit('4')">4<small>GHI</small></button><button onclick="pressDigit('5')">5<small>JKL</small></button><button onclick="pressDigit('6')">6<small>MNO</small></button><button onclick="pressDigit('7')">7<small>PQRS</small></button><button onclick="pressDigit('8')">8<small>TUV</small></button><button onclick="pressDigit('9')">9<small>WXYZ</small></button><span></span><button onclick="pressDigit('0')">0<small></small></button><button class="delete-key" onclick="deleteDigit()">⌫</button></div><div class="passcode-emergency">緊急服務</div><div class="passcode-home"></div></dialog>
 
  <div class="call" id="call"><div><div class="tag">INCOMING CALL</div><div class="avatar" style="margin:35px auto 0">J</div><h2>Jake</h2><p id="callSub">正在撥打給你…</p></div><div class="callactions"><div><button class="decline" onclick="endCall()">✕</button><p>拒絕</p></div><div><button class="accept" onclick="answerCall()">☎</button><p>接聽</p></div></div></div>
 </div>
@@ -126,14 +127,15 @@ const scenes=[
 function vibrate(pattern=[100,60,160]){try{if(navigator.vibrate)navigator.vibrate(pattern)}catch(e){}}
 function openScreen(id){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('.nav').forEach(x=>x.classList.toggle('active',x.dataset.screen===id))}
 let passcode='';
-function unlockPhone(){if(unlocked)return;unlocked=true;$('lock').classList.add('hide');$('passcodeScreen').classList.remove('show');vibrate([40])}
-function showPasscode(){if(unlocked)return;passcode='';updatePasscodeDots();$('passcodeError').textContent='';$('passcodeScreen').classList.add('show')}
-function hidePasscode(){$('passcodeScreen').classList.remove('show');passcode='';updatePasscodeDots()}
+function unlockPhone(){if(unlocked)return;unlocked=true;if($('passcodeScreen').open)$('passcodeScreen').close();$('lock').classList.add('hide');vibrate([40])}
+function showPasscode(){if(unlocked)return;passcode='';updatePasscodeDots();$('passcodeError').textContent='';const screen=$('passcodeScreen');if(!screen.open)screen.showModal()}
+function hidePasscode(){const screen=$('passcodeScreen');if(screen.open)screen.close();passcode='';updatePasscodeDots()}
 function updatePasscodeDots(){document.querySelectorAll('#passcodeDots i').forEach((dot,i)=>dot.classList.toggle('filled',i<passcode.length))}
 function pressDigit(d){if(passcode.length>=4)return;passcode+=d;updatePasscodeDots();if(passcode.length===4){if(passcode==='1115'){ $('passcodeError').textContent='';vibrate([45,35,80]);setTimeout(()=>{unlockPhone()},180)}else{ $('passcodeError').textContent='密碼錯誤，請重試';vibrate([90,45,90]);setTimeout(()=>{passcode='';updatePasscodeDots()},650)}}}
 function deleteDigit(){if(passcode.length){passcode=passcode.slice(0,-1);updatePasscodeDots();$('passcodeError').textContent=''}}
 // Delegated tap handling: notifications and the unlock prompt open the passcode screen.
-document.addEventListener('click',e=>{const trigger=e.target.closest('[data-open-passcode]');if(trigger){e.preventDefault();showPasscode()}},true);
+document.addEventListener('click',e=>{const target=e.target instanceof Element?e.target:null;const trigger=target&&target.closest('[data-open-passcode]');if(trigger){e.preventDefault();showPasscode()}},true);
+$('passcodeScreen').addEventListener('cancel',e=>{e.preventDefault();hidePasscode()});
 $('lock').addEventListener('touchstart',e=>{if(e.touches.length===1)lockTouchY=e.touches[0].clientY},{passive:true});
 $('lock').addEventListener('touchend',e=>{if(lockTouchY===null)return;const end=e.changedTouches[0].clientY;if(lockTouchY-end>28)showPasscode();lockTouchY=null},{passive:true});
 $('lock').addEventListener('touchcancel',()=>{lockTouchY=null},{passive:true});
