@@ -325,12 +325,13 @@ function load(){
         state.fear=clamp(Number(d.fear)||8);
         state.scene=Math.min(8,Math.max(0,d.scene));
         state.choices=Array.isArray(d.choices)?d.choices:[];
-        state.clues=Array.isArray(d.clues)?d.clues:[];
+        state.clues=[];
+        const savedClues=Array.isArray(d.clues)?d.clues:[];
         state.history=Array.isArray(d.history)?d.history:[];
         state.ended=!!d.ended;
         if(d.unlocked)unlock();
         updateStats();
-        state.clues.forEach(addClue);
+        savedClues.forEach(addClue);
         if(state.ended||state.scene>=8)ending();
         else{
           openView("story");
