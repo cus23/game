@@ -36,7 +36,11 @@ const clueData = {
   web:{title:"搜尋結果：社區監視器",desc:"論壇貼文：有人在凌晨反覆出現在同一棟公寓的電梯鏡面裡。\n\n管理員回覆：監視器畫面中，電梯內只有住戶一人。鏡面反射卻多出另一個人。\n\n貼文附圖已失效。最後更新時間：今天 23:46。",icon:"⌕"},
   location:{title:"位置共享異常",desc:"Jake 的位置顯示在你家樓下。\n\n但點開詳細資訊後，裝置名稱變成：\n「你的 iPhone」\n\n位置更新：現在。\n距離：0 公尺。",icon:"◎"},
   voicemail:{title:"語音信箱 · 00:03",desc:"（背景有電梯抵達的提示音。）\n\nJake：「你是不是把門鎖換了？」\n\n（停頓 4 秒。）\n\nJake：「沒關係，我有備份鑰匙。」\n\n（很輕的敲門聲。三下。）",icon:"◖"},
-  camera:{title:"前鏡頭截圖",desc:"你按下快門時，畫面裡只有你自己。\n\n但照片存進相簿後，背景多出一隻手。\n\n那隻手搭在你的肩膀上。\n\n你沒有感覺到有人碰你。",icon:"▣"}
+  camera:{title:"前鏡頭截圖",desc:"你按下快門時，畫面裡只有你自己。\n\n但照片存進相簿後，背景多出一隻手。\n\n那隻手搭在你的肩膀上。\n\n你沒有感覺到有人碰你。",icon:"▣"},
+  mirror:{title:"電梯鏡面異常",desc:"照片裡的你站在電梯左側。鏡面裡卻多了一個人，站在你原本的位置。\n\n影像時間：23:44。\n相片建立時間：23:44。\n\n你記得那時候，電梯裡只有你一個人。",icon:"🪞"},
+  voice:{title:"語音備忘錄 · 未命名",desc:"錄音長度：00:17。\n\n00:02　電梯抵達提示音。\n00:05　你的聲音：「我到家了。」\n00:09　另一個聲音：「我知道。」\n00:14　門鎖轉動聲。\n\n錄音建立於今天 23:39。那時你還在路上。",icon:"◖"},
+  door:{title:"門外的影子",desc:"門縫下方有一道影子。它沒有移動。\n\n你打開相機閃光燈後，影子消失了。\n\n但門外的感應燈沒有亮。",icon:"▰"}
+
 };
 const stageClues = {1:"photo",2:"note",3:"web",4:"location",5:"voicemail",6:"camera"};
 function clone(x){return JSON.parse(JSON.stringify(x))}
@@ -121,9 +125,10 @@ function advanceStage(n){
 function updateBadges(){
   $("messageBadge").textContent=state.stage>=7?"1":"2";
   $("phoneBadge").textContent=state.stage>=5?"2":"1";
+  $("homeObjective").textContent=objectives[state.stage]||objectives[8];
 }
 function renderApp(){
-  const titleMap={messages:"訊息",phone:"電話",photos:"照片",notes:"備忘錄",safari:"Safari",findmy:"尋找",files:"檔案",settings:"設定",camera:"相機"};
+  const titleMap={messages:"訊息",phone:"電話",photos:"照片",notes:"備忘錄",safari:"Safari",findmy:"尋找",files:"檔案",settings:"設定",camera:"相機",voice:"語音備忘錄"};
   $("appTitle").textContent=titleMap[state.activeApp]||"";
   $("backLabel").textContent=state.activeApp==="messages"&&state.selectedContact?"訊息":"主畫面";
   $("appAction").textContent=state.activeApp==="messages"?"編輯":state.activeApp==="photos"?"選取":"";
@@ -186,7 +191,11 @@ function sendMessage(raw){
     if(state.stage>=7){finalChoice(text);return}
   }
   save();renderApp();
+  const conversation=$("conversation");
+  const typing=conversation?el("div","typing",contact==="mina"?"Mina 正在輸入⋯":"Jake 正在輸入⋯"):null;
+  if(typing){conversation.append(typing);conversation.scrollTop=conversation.scrollHeight}
   setTimeout(()=>{
+    if(typing)typing.remove();
     const reply=contact==="mina"?minaReply(text):jakeReply(text);
     state.logs[contact].push({from:"them",text:reply,time:nowTime()});
     save();if(state.activeApp==="messages"&&state.selectedContact===contact)renderApp();
@@ -263,7 +272,7 @@ function showPhoto(id){
   const desc=id==="photo"?clueData.photo.desc:id==="door"?"照片裡的門牌號碼是你的房號。拍攝角度來自走廊盡頭。你住在這層樓的最裡面。":id==="mirror"?"鏡子裡多了一個人影。你放大照片後，發現那個人站在拍攝者身後。照片資訊顯示：拍攝裝置是你的 iPhone。":"這張照片沒有拍攝時間。檔案大小 0 KB，卻能正常預覽。";
   card.append(el("h3","",title),el("p","",desc));
   if(id==="photo")card.append(button("查看照片資訊","evidence-action",()=>{addClue("photo");advanceStage(2);showClueDetail("photo")}));
-  else card.append(button("加入線索","evidence-action",()=>{addClue("photo");advanceStage(2);toast("已保存照片")}));
+  else card.append(button("保存這張照片","evidence-action",()=>{addClue(clueData[id]?id:"photo");advanceStage(2);toast("已保存到案件紀錄")}));
   root.append(button("‹　返回照片","secondary-app-button",renderApp),card);
 }
 function showClueDetail(id){
@@ -318,7 +327,19 @@ function renderEnding(root){
   const c=el("div","progress-card");c.append(el("h3","",title),el("p","",body));root.append(c);
   root.append(button("重新開始新存檔","primary-app-button",resetGame));
 }
-function renderVoice(root){\n  root.append(el("h2","","語音備忘錄"),el("p","intro","所有錄音　・　最近項目"));\n  const card=el("div","progress-card");card.append(el("h3","","未命名錄音"),el("p","","今天 23:39　・　00:17\\n\\n你不記得自己錄過這段音訊。"));root.append(card);\n  root.append(button("▶　播放錄音","primary-app-button",()=>{const p=el("div","progress-card");p.append(el("h3","","錄音轉文字"),el("p","",clueData.voice.desc));root.append(p);addClue("voice");toast("錄音已加入案件紀錄")}));\n  root.append(button("返回主畫面","secondary-app-button",goHome));\n}\nfunction renderSettings(root){
+function renderVoice(root){
+  root.append(el("h2","","語音備忘錄"),el("p","intro","所有錄音　・　最近項目"));
+  const card=el("div","progress-card");
+  card.append(el("h3","","未命名錄音"),el("p","","今天 23:39　・　00:17\n\n你不記得自己錄過這段音訊。"));
+  root.append(card);
+  root.append(button("▶　播放錄音","primary-app-button",()=>{
+    const p=el("div","progress-card");
+    p.append(el("h3","","錄音轉文字"),el("p","",clueData.voice.desc));
+    root.append(p);addClue("voice");toast("錄音已加入案件紀錄");
+  }));
+  root.append(button("返回主畫面","secondary-app-button",goHome));
+}
+function renderSettings(root){
   root.append(el("h2","","設定"),el("p","intro","AFTERIMAGE　・　iPhone"));
   const list=el("div","app-list");
   [["飛航模式","關閉"],["通知","已開啟"],["聲音與觸覺回饋","開啟"],["iCloud 備份","同步中…"],["關於本裝置","iPhone 18 Pro"]].forEach(x=>{const row=el("div","list-row");const m=el("div","list-main");m.append(el("strong","",x[0]),el("small","",x[1]));row.append(m,el("span","chevron","›"));list.append(row)});
