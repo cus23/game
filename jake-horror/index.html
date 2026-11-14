@@ -13,74 +13,223 @@
 </head>
 <body>
 <main id="phone" class="phone">
-  <div class="wallpaper"></div>
-  <header class="status-bar"><span id="statusTime">23:48</span><span class="status-right"><span>●●●</span><span>⌁</span><span class="battery"><i></i></span></span></header>
-  <div class="dynamic-island"><span class="island-camera"></span></div>
-
-  <section id="lockScreen" class="lock-screen">
-    <div class="lock-date" id="lockDate">11月15日 星期日</div>
-    <div class="lock-clock" id="lockClock">23:48</div>
-    <div class="lock-weather">台北　・　陰雨　18°</div>
-    <div class="lock-widget"><span>星期日</span><strong>沒有安排的夜晚</strong><small>你確定嗎？</small></div>
-    <div class="lock-notifications" id="lockNotifications">
-      <button class="lock-notification" data-open-passcode><span class="notification-app"><i>J</i> 訊息 <time>現在</time></span><strong>Jake</strong><span>到家了嗎？我剛剛好像看到你。</span></button>
-      <button class="lock-notification" data-open-passcode><span class="notification-app"><i class="system-icon">◉</i> 尋找 <time>1 分鐘前</time></span><strong>位置共享通知</strong><span>Jake 已開始與你分享位置。</span></button>
-    </div>
-    <div class="lock-bottom"><button class="lock-shortcut" id="lockFlash">◉</button><button class="lock-shortcut" id="lockCamera">⌁</button></div>
-    <button class="swipe-hint" data-open-passcode>向上滑動以解鎖</button>
-    <div class="home-indicator"></div>
-  </section>
-
-  <section id="passcodeScreen" class="passcode-screen" aria-hidden="true">
-    <div class="passcode-top"><button id="cancelPasscode">取消</button><span>輸入密碼</span><span></span></div>
-    <div class="passcode-center"><p>輸入密碼以解鎖 iPhone</p><div class="passcode-dots" id="passcodeDots"><i></i><i></i><i></i><i></i></div><p class="passcode-error" id="passcodeError"></p>
-      <div class="keypad" id="keypad">
-        <button data-digit="1">1</button><button data-digit="2">2<small>ABC</small></button><button data-digit="3">3<small>DEF</small></button>
-        <button data-digit="4">4<small>GHI</small></button><button data-digit="5">5<small>JKL</small></button><button data-digit="6">6<small>MNO</small></button>
-        <button data-digit="7">7<small>PQRS</small></button><button data-digit="8">8<small>TUV</small></button><button data-digit="9">9<small>WXYZ</small></button>
-        <span></span><button data-digit="0">0</button><button id="deleteDigit" class="delete-key">⌫</button>
-      </div>
-    </div>
-    <div class="passcode-bottom">緊急服務<div class="home-indicator"></div></div>
-  </section>
-
-  <section id="homeScreen" class="home-screen hidden">
-    <div class="home-widgets">
-      <div class="widget weather-widget"><span class="widget-label">台北</span><strong>18°</strong><small>陰雨　稍後有雨</small><i>☾</i></div>
-      <div class="widget calendar-widget"><span class="widget-label">11月15日 星期日</span><strong>沒有行程</strong><small id="homeObjective">今晚很自由。</small></div>
-    </div>
-    <div class="app-grid">
-      <button class="app-icon" data-app="messages"><span class="app-art messages-art">●</span><b>訊息</b><i class="app-badge" id="messageBadge">2</i></button>
-      <button class="app-icon" data-app="phone"><span class="app-art phone-art">⌕</span><b>電話</b><i class="app-badge" id="phoneBadge">1</i></button>
-      <button class="app-icon" data-app="photos"><span class="app-art photos-art"><i></i></span><b>照片</b></button>
-      <button class="app-icon" data-app="notes"><span class="app-art notes-art">≡</span><b>備忘錄</b></button>
-      <button class="app-icon" data-app="safari"><span class="app-art safari-art">◉</span><b>Safari</b></button>
-      <button class="app-icon" data-app="findmy"><span class="app-art find-art">◎</span><b>尋找</b></button>
-      <button class="app-icon" data-app="files"><span class="app-art files-art">▰</span><b>檔案</b></button>
-      <button class="app-icon" data-app="voice"><span class="app-art voice-art">◖</span><b>語音備忘錄</b></button>
-      <button class="app-icon" data-app="settings"><span class="app-art settings-art">⚙</span><b>設定</b></button>
-    </div>
-    <div class="home-dock">
-      <button class="app-icon" data-app="phone"><span class="app-art phone-art">⌕</span></button>
-      <button class="app-icon" data-app="messages"><span class="app-art messages-art">●</span></button>
-      <button class="app-icon" data-app="safari"><span class="app-art safari-art">◉</span></button>
-      <button class="app-icon" data-app="camera"><span class="app-art camera-art">▣</span></button>
-    </div>
-    <div class="home-indicator"></div>
-  </section>
-
-  <section id="appScreen" class="app-screen hidden">
-    <header class="app-topbar"><button id="appBack" class="app-back">‹ <span id="backLabel">主畫面</span></button><strong id="appTitle">訊息</strong><button id="appAction" class="app-action"></button></header>
-    <div id="appContent" class="app-content"></div>
-    <div class="app-home-area"><button class="home-indicator" id="appHome" aria-label="返回主畫面"></button></div>
-  </section>
-
-  <section id="incomingCall" class="incoming-call hidden">
-    <div class="call-topline">來電</div><div class="caller-avatar">J</div><h2 id="callerName">Jake</h2><p id="callerSub">iPhone 行動電話</p>
-    <div class="call-buttons"><button id="declineCall"><i>×</i><span>拒絕</span></button><button id="answerCall"><i>⌕</i><span>接聽</span></button></div>
-  </section>
-  <section id="callScreen" class="call-screen hidden"><div class="call-topline">通話中</div><div class="caller-avatar">J</div><h2>Jake</h2><p id="callTimer">00:01</p><div class="call-transcript" id="callTranscript"></div><button id="endCall">結束通話</button></section>
-  <div id="toast" class="toast"></div>
+<div class="wallpaper">
+</div>
+<header class="status-bar">
+<span id="statusTime">23:48</span>
+<span class="status-right">
+<span>●●●</span>
+<span>⌁</span>
+<span class="battery">
+<i>
+</i>
+</span>
+</span>
+</header>
+<div class="dynamic-island">
+<span class="island-camera">
+</span>
+</div>
+<section id="lockScreen" class="lock-screen">
+<div class="lock-date" id="lockDate">11月15日 星期日</div>
+<div class="lock-clock" id="lockClock">23:48</div>
+<div class="lock-weather">台北　・　陰雨　18°</div>
+<div class="lock-widget">
+<span>星期日</span>
+<strong>沒有安排的夜晚</strong>
+<small>你確定嗎？</small>
+</div>
+<div class="lock-notifications" id="lockNotifications">
+<button class="lock-notification" data-open-passcode>
+<span class="notification-app">
+<i>J</i> 訊息 <time>現在</time>
+</span>
+<strong>Jake</strong>
+<span>到家了嗎？我剛剛好像看到你。</span>
+</button>
+<button class="lock-notification" data-open-passcode>
+<span class="notification-app">
+<i class="system-icon">◉</i> 尋找 <time>1 分鐘前</time>
+</span>
+<strong>位置共享通知</strong>
+<span>Jake 已開始與你分享位置。</span>
+</button>
+</div>
+<div class="lock-bottom">
+<button class="lock-shortcut" id="lockFlash">◉</button>
+<button class="lock-shortcut" id="lockCamera">⌁</button>
+</div>
+<button class="swipe-hint" data-open-passcode>向上滑動以解鎖</button>
+<div class="home-indicator">
+</div>
+</section>
+<section id="passcodeScreen" class="passcode-screen" aria-hidden="true">
+<div class="passcode-top">
+<button id="cancelPasscode">取消</button>
+<span>輸入密碼</span>
+<span>
+</span>
+</div>
+<div class="passcode-center">
+<p>輸入密碼以解鎖 iPhone</p>
+<div class="passcode-dots" id="passcodeDots">
+<i>
+</i>
+<i>
+</i>
+<i>
+</i>
+<i>
+</i>
+</div>
+<p class="passcode-error" id="passcodeError">
+</p>
+<div class="keypad" id="keypad">
+<button data-digit="1">1</button>
+<button data-digit="2">2<small>ABC</small>
+</button>
+<button data-digit="3">3<small>DEF</small>
+</button>
+<button data-digit="4">4<small>GHI</small>
+</button>
+<button data-digit="5">5<small>JKL</small>
+</button>
+<button data-digit="6">6<small>MNO</small>
+</button>
+<button data-digit="7">7<small>PQRS</small>
+</button>
+<button data-digit="8">8<small>TUV</small>
+</button>
+<button data-digit="9">9<small>WXYZ</small>
+</button>
+<span>
+</span>
+<button data-digit="0">0</button>
+<button id="deleteDigit" class="delete-key">⌫</button>
+</div>
+</div>
+<div class="passcode-bottom">緊急服務<div class="home-indicator">
+</div>
+</div>
+</section>
+<section id="homeScreen" class="home-screen hidden">
+<div class="home-widgets">
+<div class="widget weather-widget">
+<span class="widget-label">台北</span>
+<strong>18°</strong>
+<small>陰雨　稍後有雨</small>
+<i>☾</i>
+</div>
+<div class="widget calendar-widget">
+<span class="widget-label">11月15日 星期日</span>
+<strong>沒有行程</strong>
+<small id="homeObjective">今晚很自由。</small>
+</div>
+</div>
+<div class="app-grid">
+<button class="app-icon" data-app="messages">
+<span class="app-art messages-art">●</span>
+<b>訊息</b>
+<i class="app-badge" id="messageBadge">2</i>
+</button>
+<button class="app-icon" data-app="phone">
+<span class="app-art phone-art">⌕</span>
+<b>電話</b>
+<i class="app-badge" id="phoneBadge">1</i>
+</button>
+<button class="app-icon" data-app="photos">
+<span class="app-art photos-art">
+<i>
+</i>
+</span>
+<b>照片</b>
+</button>
+<button class="app-icon" data-app="notes">
+<span class="app-art notes-art">≡</span>
+<b>備忘錄</b>
+</button>
+<button class="app-icon" data-app="safari">
+<span class="app-art safari-art">◉</span>
+<b>Safari</b>
+</button>
+<button class="app-icon" data-app="findmy">
+<span class="app-art find-art">◎</span>
+<b>尋找</b>
+</button>
+<button class="app-icon" data-app="files">
+<span class="app-art files-art">▰</span>
+<b>檔案</b>
+</button>
+<button class="app-icon" data-app="voice">
+<span class="app-art voice-art">◖</span>
+<b>語音備忘錄</b>
+</button>
+<button class="app-icon" data-app="settings">
+<span class="app-art settings-art">⚙</span>
+<b>設定</b>
+</button>
+</div>
+<div class="home-dock">
+<button class="app-icon" data-app="phone">
+<span class="app-art phone-art">⌕</span>
+</button>
+<button class="app-icon" data-app="messages">
+<span class="app-art messages-art">●</span>
+</button>
+<button class="app-icon" data-app="safari">
+<span class="app-art safari-art">◉</span>
+</button>
+<button class="app-icon" data-app="camera">
+<span class="app-art camera-art">▣</span>
+</button>
+</div>
+<div class="home-indicator">
+</div>
+</section>
+<section id="appScreen" class="app-screen hidden">
+<header class="app-topbar">
+<button id="appBack" class="app-back">‹ <span id="backLabel">主畫面</span>
+</button>
+<strong id="appTitle">訊息</strong>
+<button id="appAction" class="app-action">
+</button>
+</header>
+<div id="appContent" class="app-content">
+</div>
+<div class="app-home-area">
+<button class="home-indicator" id="appHome" aria-label="返回主畫面">
+</button>
+</div>
+</section>
+<section id="incomingCall" class="incoming-call hidden">
+<div class="call-topline">來電</div>
+<div class="caller-avatar">J</div>
+<h2 id="callerName">Jake</h2>
+<p id="callerSub">iPhone 行動電話</p>
+<div class="call-buttons">
+<button id="declineCall">
+<i>×</i>
+<span>拒絕</span>
+</button>
+<button id="answerCall">
+<i>⌕</i>
+<span>接聽</span>
+</button>
+</div>
+</section>
+<section id="callScreen" class="call-screen hidden">
+<div class="call-topline">通話中</div>
+<div class="caller-avatar">J</div>
+<h2>Jake</h2>
+<p id="callTimer">00:01</p>
+<div class="call-transcript" id="callTranscript">
+</div>
+<button id="endCall">結束通話</button>
+</section>
+<div id="toast" class="toast">
+</div>
 </main>
-<script src="./game.js" defer></script>
-</body></html>
+<script src="./game.js" defer>
+</script>
+</body>
+</html>
