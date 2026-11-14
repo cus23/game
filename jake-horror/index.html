@@ -40,10 +40,31 @@
 .callactions{display:flex;gap:55px}.callactions button{width:65px;height:65px;border:0;border-radius:50%;color:white;font-size:23px}.accept{background:#39865c}.decline{background:#b33d4e}
 .note{font-size:10px;color:#827783;line-height:1.6}
 .bar{height:5px;background:#342a36;border-radius:5px;overflow:hidden;margin-top:10px}.bar i{display:block;height:100%;background:linear-gradient(90deg,#934454,#e29ba6);width:25%}
-.lock{position:absolute;inset:0;z-index:5;background:linear-gradient(160deg,#20131d,#0c0a0f 70%);display:flex;flex-direction:column;align-items:center;padding:calc(env(safe-area-inset-top) + 55px) 25px calc(env(safe-area-inset-bottom) + 25px);text-align:center;touch-action:pan-y;user-select:none;-webkit-user-select:none}
-.lock.hide{display:none}.lock .date{font-size:11px;color:#d9b9c5;letter-spacing:2px}.lock .clock{font-family:Georgia;font-size:70px;margin:12px 0 38px}
-.notif{width:100%;padding:13px;border-radius:14px;background:#ffffff12;border:1px solid #ffffff20;text-align:left;margin:6px 0;font-size:11px}
-.notif strong{display:block;margin-bottom:4px}.unlock{margin-top:auto}
+.lock{position:absolute;inset:0;z-index:20;overflow:hidden;background:radial-gradient(ellipse at 50% 25%,#79505e 0%,#35232f 38%,#111018 100%);display:flex;flex-direction:column;align-items:center;padding:calc(env(safe-area-inset-top) + 12px) 22px calc(env(safe-area-inset-bottom) + 12px);text-align:center;touch-action:pan-y;user-select:none;-webkit-user-select:none;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",sans-serif}
+.lock:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#120e1640,#120e1620 42%,#09080c99);pointer-events:none}
+.lock>*{position:relative;z-index:1}.lock.hide{display:none}
+.ios-lock-status{width:100%;display:flex;justify-content:space-between;padding:2px 7px;font-size:13px;font-weight:600}
+.ios-lock-date{margin-top:52px;font-size:17px;font-weight:500;letter-spacing:.2px;color:#fff}
+.lock .clock{font-size:88px;line-height:1;font-weight:200;letter-spacing:-5px;margin:3px 0 2px;color:#fff;font-variant-numeric:tabular-nums}
+.lock-weather{font-size:12px;color:#ffffffc9;margin-top:5px}
+.lock-notifications{width:100%;margin-top:45px;display:grid;gap:9px}
+.notif{width:100%;padding:12px 14px;border-radius:19px;background:#f4edf22b;border:1px solid #ffffff38;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);text-align:left;font-size:13px;color:#fff;box-shadow:0 5px 20px #0002}
+.notif strong{display:block;font-size:14px;font-weight:650;margin:5px 0 2px}
+.notif-app{display:flex;align-items:center;gap:7px;font-size:10px;color:#ffffffd9}.notif-icon{width:19px;height:19px;border-radius:6px;background:#43a86d;display:grid;place-items:center;font-size:12px;font-weight:700;color:#fff}.notif-ago{margin-left:auto;color:#ffffffa8}
+.lock-bottom{margin-top:auto;width:100%;display:flex;flex-direction:column;align-items:center;gap:15px}
+.lock-shortcuts{width:100%;display:flex;justify-content:space-between;padding:0 12px}.lock-shortcuts span{width:43px;height:43px;border-radius:50%;background:#24222b99;border:1px solid #ffffff55;display:grid;place-items:center;font-size:19px}
+.unlock-prompt{background:none;border:0;color:#ffffffd9;font-size:12px;padding:4px 15px 0;letter-spacing:.3px}
+.home-indicator,.passcode-home{width:135px;height:5px;border-radius:9px;background:#fff;margin:0 auto 1px}
+.passcode-screen{position:absolute;inset:0;z-index:3;display:none;flex-direction:column;align-items:center;background:linear-gradient(180deg,#181720f2,#101017f8);backdrop-filter:blur(35px);-webkit-backdrop-filter:blur(35px);padding:calc(env(safe-area-inset-top) + 12px) 24px calc(env(safe-area-inset-bottom) + 10px)}
+.passcode-screen.show{display:flex}
+.passcode-top{width:100%;display:flex;justify-content:space-between;align-items:center;font-size:14px;color:#fff}.passcode-top button{background:none;border:0;color:#d6c6d0;font-size:14px;padding:8px 0}
+.passcode-title{margin-top:48px;font-size:17px;color:#fff;font-weight:500}
+.passcode-dots{display:flex;gap:18px;margin-top:27px}.passcode-dots i{width:11px;height:11px;border:1px solid #ffffffb8;border-radius:50%;background:transparent}.passcode-dots i.filled{background:#fff}
+.passcode-error{height:23px;margin-top:12px;font-size:12px;color:#ff9ca8}
+.keypad{width:min(290px,100%);display:grid;grid-template-columns:repeat(3,1fr);gap:13px 22px;margin-top:10px}
+.keypad button{width:68px;height:68px;justify-self:center;border:0;border-radius:50%;background:#ffffff1b;color:#fff;font-size:29px;font-weight:300;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;cursor:pointer}
+.keypad button:active{background:#ffffff48}.keypad small{font-size:8px;letter-spacing:1.5px;margin-top:4px;min-height:8px}.keypad .delete-key{background:transparent;font-size:21px}
+.passcode-emergency{margin-top:auto;margin-bottom:15px;font-size:12px;color:#ffffffc9}.passcode-home{flex:none}
 .ending{border:1px solid #a65465;background:#261820;padding:17px;border-radius:15px}
 @media(max-width:600px){body{padding:0;display:block;background:#100d12}.phone{width:100vw;height:100dvh;height:100svh;min-height:0;border:0;border-radius:0;box-shadow:none}.status{padding-top:calc(env(safe-area-inset-top) + 8px);height:calc(env(safe-area-inset-top) + 34px)}.bottom{padding-bottom:env(safe-area-inset-bottom);height:calc(66px + env(safe-area-inset-bottom))}.lock{padding-top:calc(env(safe-area-inset-top) + 70px)}}@media(max-height:700px){.hero{min-height:175px}.content{gap:9px;padding:13px}}@media(display-mode:standalone){body{padding:0;display:block}.phone{width:100vw;height:100dvh;min-height:0;border:0;border-radius:0;box-shadow:none}}
 </style>
@@ -78,7 +99,14 @@
   <button class="nav" data-screen="phone" onclick="openScreen('phone')"><b>☎</b>電話</button>
   <button class="nav" data-screen="diary" onclick="openScreen('diary')"><b>▧</b>備忘錄</button>
  </nav>
- <div class="lock" id="lock"><div class="date">SATURDAY · 23:48</div><div class="clock">23:48</div><div class="notif"><strong>Jake　·　現在</strong>你到家了嗎？回我一下。</div><div class="notif"><strong>Jake　·　1 分鐘前</strong>我看到你了。</div><button class="btn unlock" onclick="unlockPhone()">點擊或向上滑動以解鎖　↑</button></div>
+ <div class="lock" id="lock">
+  <div class="ios-lock-status"><span>●</span><span>◉　◉　▰</span></div>
+  <div class="ios-lock-date">11月15日 星期日</div><div class="clock">01:17</div>
+  <div class="lock-weather">台北　・　夜間</div>
+  <div class="lock-notifications"><div class="notif"><div class="notif-app"><span class="notif-icon">J</span><span>訊息</span><span class="notif-ago">現在</span></div><strong>Jake</strong>你到家了嗎？回我一下。</div><div class="notif"><div class="notif-app"><span class="notif-icon">J</span><span>訊息</span><span class="notif-ago">1 分鐘前</span></div><strong>Jake</strong>我看到你了。</div></div>
+  <div class="lock-bottom"><div class="lock-shortcuts"><span>◉</span><span>⌁</span></div><button class="unlock-prompt" onclick="showPasscode()">向上滑動來解鎖　⌃</button><div class="home-indicator"></div></div>
+  <div class="passcode-screen" id="passcodeScreen"><div class="passcode-top"><button onclick="hidePasscode()">取消</button><span>輸入密碼</span><span></span></div><div class="passcode-title">輸入密碼以解鎖 iPhone</div><div class="passcode-dots" id="passcodeDots"><i></i><i></i><i></i><i></i></div><div class="passcode-error" id="passcodeError"> </div><div class="keypad" id="keypad"><button onclick="pressDigit('1')">1<small></small></button><button onclick="pressDigit('2')">2<small>ABC</small></button><button onclick="pressDigit('3')">3<small>DEF</small></button><button onclick="pressDigit('4')">4<small>GHI</small></button><button onclick="pressDigit('5')">5<small>JKL</small></button><button onclick="pressDigit('6')">6<small>MNO</small></button><button onclick="pressDigit('7')">7<small>PQRS</small></button><button onclick="pressDigit('8')">8<small>TUV</small></button><button onclick="pressDigit('9')">9<small>WXYZ</small></button><span></span><button onclick="pressDigit('0')">0<small></small></button><button class="delete-key" onclick="deleteDigit()">⌫</button></div><div class="passcode-emergency">緊急服務</div><div class="passcode-home"></div></div>
+</div>
  <div class="call" id="call"><div><div class="tag">INCOMING CALL</div><div class="avatar" style="margin:35px auto 0">J</div><h2>Jake</h2><p id="callSub">正在撥打給你…</p></div><div class="callactions"><div><button class="decline" onclick="endCall()">✕</button><p>拒絕</p></div><div><button class="accept" onclick="answerCall()">☎</button><p>接聽</p></div></div></div>
 </div>
 <script>
@@ -94,9 +122,15 @@ const scenes=[
 ];
 function vibrate(pattern=[100,60,160]){try{if(navigator.vibrate)navigator.vibrate(pattern)}catch(e){}}
 function openScreen(id){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('.nav').forEach(x=>x.classList.toggle('active',x.dataset.screen===id))}
+let passcode='';
 function unlockPhone(){if(unlocked)return;unlocked=true;$('lock').classList.add('hide');vibrate([40])}
+function showPasscode(){if(unlocked)return;passcode='';updatePasscodeDots();$('passcodeError').textContent='';$('passcodeScreen').classList.add('show')}
+function hidePasscode(){$('passcodeScreen').classList.remove('show');passcode='';updatePasscodeDots()}
+function updatePasscodeDots(){document.querySelectorAll('#passcodeDots i').forEach((dot,i)=>dot.classList.toggle('filled',i<passcode.length))}
+function pressDigit(d){if(passcode.length>=4)return;passcode+=d;updatePasscodeDots();if(passcode.length===4){if(passcode==='1115'){ $('passcodeError').textContent='';vibrate([45,35,80]);setTimeout(()=>{unlockPhone()},180)}else{ $('passcodeError').textContent='密碼錯誤，請重試';vibrate([90,45,90]);setTimeout(()=>{passcode='';updatePasscodeDots()},650)}}}
+function deleteDigit(){if(passcode.length){passcode=passcode.slice(0,-1);updatePasscodeDots();$('passcodeError').textContent=''}}
 $('lock').addEventListener('touchstart',e=>{if(e.touches&&e.touches.length===1)lockTouchY=e.touches[0].clientY},{passive:true});
-$('lock').addEventListener('touchend',e=>{if(lockTouchY===null)return;const endY=e.changedTouches&&e.changedTouches[0]?e.changedTouches[0].clientY:lockTouchY;if(lockTouchY-endY>35)unlockPhone();lockTouchY=null},{passive:true});
+$('lock').addEventListener('touchend',e=>{if(lockTouchY===null)return;const endY=e.changedTouches&&e.changedTouches[0]?e.changedTouches[0].clientY:lockTouchY;if(lockTouchY-endY>35)showPasscode();lockTouchY=null},{passive:true});
 function startGame(){if(!unlocked)unlockPhone();scene=0;openScreen('story');renderScene()}
 function renderScene(){const s=scenes[scene];$('sceneTag').textContent=s.tag;$('chapterLabel').textContent=s.tag.split('·')[0];$('sceneTitle').textContent=s.title;$('storyText').textContent=s.text;$('storyChoices').innerHTML='';s.choices.forEach((c,i)=>{let b=document.createElement('button');b.className='btn'+(i===0?'':' secondary');b.textContent=(i+1)+'. '+c[0];b.onclick=()=>choose(c);$('storyChoices').appendChild(b)})}
 function choose(c){trust=Math.max(0,Math.min(100,trust+c[1]));fear=Math.max(0,Math.min(100,fear+c[2]));$('trustBar').style.width=trust+'%';$('fearBar').style.width=fear+'%';addMessage(c[0],'me');const replies={question:['왜這樣問？','我只是剛好經過。'],soft:['乖。到家記得鎖門。','我不想你淋雨。'],distant:['好，我等你。','只是想知道你平安。'],look:['你看不到我也沒關係。','我一直都在。'],silent:['你是不是不想理我？','沒關係，我等。'],where:['就在附近。','你不用找我。'],drunk:['沒有喝。','我很清醒。'],quiet:['你不說話，我也知道你在聽。'],boundary:['我知道。對不起。','我只是太在意你了。'],boundary2:['那你可以告訴我你在哪嗎？'],tomorrow:['好。明天見。','晚安，別鎖門太早。'],peephole:['看到了什麼？','不要緊張。'],friend:['你要找誰？','我可以陪你。'],door:['是我。','開一下門，好嗎？'],talk:['好。我聽你說。'],block:['……','訊息已送達。'],leave:['我知道了。','那你先休息。']};let arr=replies[c[3]]||['我知道了。'];addMessage(arr[0],'jake',arr[1]||'');if(scene===1){setTimeout(()=>incomingCall(),700)}if(scene===3){setTimeout(()=>{vibrate([220,90,220]);$('callSub').textContent='Jake 正在呼叫你…'},500)}scene++;if(scene<scenes.length){setTimeout(()=>renderScene(),500)}else{setTimeout(()=>showEnding(),500)}}
