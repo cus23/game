@@ -129,7 +129,7 @@ function renderApp(){
   $("appAction").textContent=state.activeApp==="messages"?"編輯":state.activeApp==="photos"?"選取":"";
   const content=$("appContent");content.innerHTML="";
   $("appScreen").className="app-screen "+(state.activeApp==="messages"?"messages-screen":"");
-  const renderers={messages:renderMessages,phone:renderPhone,photos:renderPhotos,notes:renderNotes,safari:renderSafari,findmy:renderFindMy,files:renderFiles,settings:renderSettings,camera:renderCamera};
+  const renderers={messages:renderMessages,phone:renderPhone,photos:renderPhotos,notes:renderNotes,safari:renderSafari,findmy:renderFindMy,files:renderFiles,settings:renderSettings,camera:renderCamera,voice:renderVoice};
   (renderers[state.activeApp]||renderFiles)(content);
 }
 function el(tag,cls,text){
@@ -279,7 +279,7 @@ function renderNotes(root){
 function showNote(){
   const root=$("appContent");root.innerHTML="";
   const card=el("div","app-note");card.append(el("h3","","不要開門"),el("p","",clueData.note.desc),el("div","note-meta","最後編輯：現在　・　同步中…"));root.append(card);
-  root.append(button("檢查編輯紀錄","primary-app-button",()=>{addClue("note");advanceStage(3);toast("建立者：你自己？")}));
+  root.append(button("檢查編輯紀錄","primary-app-button",()=>{addClue("note");advanceStage(3);toast("建立者：你自己？")}));\n  root.append(button("還原已刪除的最後一行","secondary-app-button",()=>{state.flags.noteRestored=true;addClue("note");toast("還原內容：我沒有帶鑰匙。")}));
   root.append(button("返回備忘錄","secondary-app-button",renderApp));
 }
 function renderSafari(root){
@@ -301,7 +301,7 @@ function renderFindMy(root){
   const map=el("div","map-panel");map.append(el("div","map-roads"),el("span","map-pin","●"));root.append(map);
   root.append(el("p","map-caption","Jake　・　位置共享中\n最後更新：現在　　距離：18 公尺"));
   root.append(button("更新位置","primary-app-button",()=>{map.querySelector(".map-pin").style.left="50%";map.querySelector(".map-pin").style.top="58%";root.querySelector(".map-caption").textContent="Jake　・　位置共享中\n最後更新：現在　　距離：0 公尺";addClue("location");advanceStage(5)}));
-  root.append(button("停止分享我的位置","secondary-app-button",()=>toast("無法停止共享：此裝置目前不在你的帳號中")));
+  root.append(button("播放聲音","secondary-app-button",()=>{state.flags.soundPlayed=true;toast("聲音似乎是從你家裡傳出來的。");state.fear=Math.min(100,state.fear+9);save()}));\n  root.append(button("停止分享我的位置","secondary-app-button",()=>toast("無法停止共享：此裝置目前不在你的帳號中")));
 }
 function renderFiles(root){
   root.append(el("h2","","案件紀錄"),el("p","intro","AFTERIMAGE　・　私人調查檔案"));
@@ -318,7 +318,7 @@ function renderEnding(root){
   const c=el("div","progress-card");c.append(el("h3","",title),el("p","",body));root.append(c);
   root.append(button("重新開始新存檔","primary-app-button",resetGame));
 }
-function renderSettings(root){
+function renderVoice(root){\n  root.append(el("h2","","語音備忘錄"),el("p","intro","所有錄音　・　最近項目"));\n  const card=el("div","progress-card");card.append(el("h3","","未命名錄音"),el("p","","今天 23:39　・　00:17\\n\\n你不記得自己錄過這段音訊。"));root.append(card);\n  root.append(button("▶　播放錄音","primary-app-button",()=>{const p=el("div","progress-card");p.append(el("h3","","錄音轉文字"),el("p","",clueData.voice.desc));root.append(p);addClue("voice");toast("錄音已加入案件紀錄")}));\n  root.append(button("返回主畫面","secondary-app-button",goHome));\n}\nfunction renderSettings(root){
   root.append(el("h2","","設定"),el("p","intro","AFTERIMAGE　・　iPhone"));
   const list=el("div","app-list");
   [["飛航模式","關閉"],["通知","已開啟"],["聲音與觸覺回饋","開啟"],["iCloud 備份","同步中…"],["關於本裝置","iPhone 18 Pro"]].forEach(x=>{const row=el("div","list-row");const m=el("div","list-main");m.append(el("strong","",x[0]),el("small","",x[1]));row.append(m,el("span","chevron","›"));list.append(row)});
