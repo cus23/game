@@ -199,7 +199,7 @@ function sendMessage(raw){
     const reply=contact==="mina"?minaReply(text):jakeReply(text);
     state.logs[contact].push({from:"them",text:reply,time:nowTime()});
     save();if(state.activeApp==="messages"&&state.selectedContact===contact)renderApp();
-    if(contact==="jake"&&state.stage===1&&state.logs.jake.filter(x=>x.from==="me").length>=2){
+    if(contact==="jake"&&state.stage===1&&!state.flags.photoHintSent&&state.logs.jake.filter(x=>x.from==="me").length>=2){\n      state.flags.photoHintSent=true;
       state.logs.jake.push({from:"them",text:"我剛剛傳了一張照片給你。你看一下，是不是你家樓下？",time:nowTime()});advanceStage(1);save();if(state.activeApp==="messages")renderApp();
     }
     if(contact==="mina"&&/電話|打給|call/.test(text))incomingCall("Mina 正在撥打給你");
