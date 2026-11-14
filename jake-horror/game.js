@@ -131,7 +131,7 @@ function renderApp(){
   const titleMap={messages:"訊息",phone:"電話",photos:"照片",notes:"備忘錄",safari:"Safari",findmy:"尋找",files:"檔案",settings:"設定",camera:"相機",voice:"語音備忘錄"};
   $("appTitle").textContent=titleMap[state.activeApp]||"";
   $("backLabel").textContent=state.activeApp==="messages"&&state.selectedContact?"訊息":"主畫面";
-  $("appAction").textContent=state.activeApp==="messages"?"編輯":state.activeApp==="photos"?"選取":"";
+  $("appAction").textContent="";
   const content=$("appContent");content.innerHTML="";
   $("appScreen").className="app-screen "+(state.activeApp==="messages"?"messages-screen":"");
   const renderers={messages:renderMessages,phone:renderPhone,photos:renderPhotos,notes:renderNotes,safari:renderSafari,findmy:renderFindMy,files:renderFiles,settings:renderSettings,camera:renderCamera,voice:renderVoice};
@@ -436,4 +436,6 @@ function bind(){
   $("homeScreen").addEventListener("touchend",e=>{if(startY!==null&&startY-e.changedTouches[0].clientY>90)toast("沒有新的通知");startY=null},{passive:true});
 }
 loadSave();bind();updateClock();setInterval(updateClock,15000);updateBadges();
+document.addEventListener("visibilitychange",()=>{if(document.hidden)save()});
+window.addEventListener("pagehide",save);
 })();
