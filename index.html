@@ -58,7 +58,7 @@ function go(app){S.app=app;save();render()}
 function render(){
  const sc=$('screen');if(!S.started){renderIntro();return}
  if(S.app==='home')renderHome();else if(S.app==='kkt')renderKKT();else if(S.app==='wvs')renderWVS();else if(S.app==='story')renderStory();else if(S.app==='feed')renderFeed();else if(S.app==='album')renderAlbum();else if(S.app==='calendar')renderCalendar();else if(S.app==='notes')renderNotes();else if(S.app==='settings')renderSettings();else renderHome();
- document.querySelectorAll('[data-back]').forEach(b=>b.onclick=()=>go(b.dataset.back));
+
 }
 function renderIntro(){
  $('screen').innerHTML='<div class="content" style="padding-top:32px"><div class="eyebrow">A FAN-MADE INTERACTIVE PHONE SIMULATOR</div><div class="heading" style="font-size:30px;letter-spacing:-1.4px">AFTERGLOW<span style="color:#aaa4c8">.</span></div><div class="sub">六條可能的故事線，從一則訊息開始。</div><div class="storyart" style="height:145px"><span style="z-index:1">✧　☾　✧</span></div><div class="eyebrow">01 / YOUR NAME</div><input id="playerName" class="field" maxlength="14" value="'+esc(S.name)+'" placeholder="輸入你在故事裡的名字" style="margin:9px 0 18px"><div class="eyebrow">02 / CHOOSE YOUR PERSON</div><div class="heading" style="font-size:18px">選擇一位曖昧對象</div><p class="sub">開始後會進入專屬的一對一故事線。其他成員不會自動成為你的戀愛對象。</p><div class="membergrid" style="margin-top:13px">'+cast.map(x=>'<button class="member '+(S.member===x.id?'active':'')+'" data-pick="'+x.id+'">'+av(x)+'<b>'+x.name+'</b><small>'+x.kr+' · '+x.cn+'<br>'+x.tag+'</small></button>').join('')+'</div><button class="primary" id="start" style="margin-top:16px" '+(!S.member?'disabled':'')+'>進入手機　→</button><p class="sub" style="text-align:center;font-size:9px;margin-top:12px">非官方粉絲創作｜所有角色訊息、事件與行程皆為虛構</p></div>';
@@ -179,5 +179,6 @@ function renderSettings(){
 function download(name,text){const a=document.createElement('a'),url=URL.createObjectURL(new Blob([text],{type:'application/json'}));a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 function showLock(){if(!S.started)return;$('lock').classList.remove('hide');$('lockTime').textContent=time();$('lockNotif').innerHTML='<b>AFTERGLOW · '+m().name+'</b>'+(S.messages.length?esc(S.messages[S.messages.length-1].tr||S.messages[S.messages.length-1].text):'你的故事正在等你回來。')}
 $('unlock').onclick=()=>$('lock').classList.add('hide');
+$('screen').addEventListener('click',e=>{const b=e.target.closest('[data-back]');if(b)go(b.dataset.back)});
 load();render();$('statusTime').textContent=time();setInterval(()=>$('statusTime').textContent=time(),15000);
 </script></main></div></body></html>
