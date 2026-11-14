@@ -302,20 +302,36 @@ function renderSafari(root){
 function runSearch(query){
   const results=$("webResults");if(!results)return;
   results.innerHTML="";
-  const c=el("div","browser-result");c.append(el("small","","搜尋結果　・　23:46"),el("h3","","你不是第一個遇到這種事的人"),el("p","",clueData.web.desc));results.append(c);
-  results.append(button("開啟討論串並保存","primary-app-button",()=>{addClue("web");advanceStage(4);toast("搜尋紀錄已保存")}));
+  const q=String(query||"").toLowerCase();
+  const heading=/airtag|追蹤|裝置/.test(q)?"附近裝置偵測到未知配件":/地址|位置|公寓|監視/.test(q)?"你不是第一個遇到這種事的人":"搜尋結果：有人也看過同一個影子";
+  const c=el("div","browser-result");
+  c.append(el("small","","搜尋結果　・　23:46"),el("h3","",heading),el("p","",clueData.web.desc));
+  results.append(c);
+  results.append(button("開啟討論串並保存","primary-app-button",()=>{
+    addClue("web");advanceStage(4);toast("搜尋紀錄已保存");
+  }));
 }
 function renderFindMy(root){
   root.append(el("h2","","尋找"),el("p","intro","你的位置　・　現在"));
-  const map=el("div","map-panel");map.append(el("div","map-roads"),el("span","map-pin","●"));root.append(map);
+  const map=el("div","map-panel");
+  map.append(el("div","map-roads"),el("span","map-pin","●"));root.append(map);
   root.append(el("p","map-caption","Jake　・　位置共享中\n最後更新：現在　　距離：18 公尺"));
-  root.append(button("更新位置","primary-app-button",()=>{map.querySelector(".map-pin").style.left="50%";map.querySelector(".map-pin").style.top="58%";root.querySelector(".map-caption").textContent="Jake　・　位置共享中\n最後更新：現在　　距離：0 公尺";addClue("location");advanceStage(5)}));
-  root.append(button("播放聲音","secondary-app-button",()=>{state.flags.soundPlayed=true;toast("聲音似乎是從你家裡傳出來的。");state.fear=Math.min(100,state.fear+9);save()}));\n  root.append(button("停止分享我的位置","secondary-app-button",()=>toast("無法停止共享：此裝置目前不在你的帳號中")));
+  root.append(button("更新位置","primary-app-button",()=>{
+    map.querySelector(".map-pin").style.left="50%";
+    map.querySelector(".map-pin").style.top="58%";
+    root.querySelector(".map-caption").textContent="Jake　・　位置共享中\n最後更新：現在　　距離：0 公尺";
+    addClue("location");advanceStage(5);
+  }));
+  root.append(button("播放聲音","secondary-app-button",()=>{
+    state.flags.soundPlayed=true;toast("聲音似乎是從你家裡傳出來的。");
+    state.fear=Math.min(100,state.fear+9);save();
+  }));
+  root.append(button("停止分享我的位置","secondary-app-button",()=>toast("無法停止共享：此裝置目前不在你的帳號中")));
 }
 function renderFiles(root){
   root.append(el("h2","","案件紀錄"),el("p","intro","AFTERIMAGE　・　私人調查檔案"));
   const card=el("div","progress-card");card.append(el("h3","","目前目標"),el("p","",""+(objectives[state.stage]||objectives[8])));root.append(card);
-  root.append(el("div","section-label","已收集線索　"+state.clues.length+" / 6"));
+  root.append(el("div","section-label","已收集線索　"+state.clues.length+" / 9"));
   state.clues.forEach(id=>{const d=clueData[id],row=el("div","clue-row");row.append(el("span","clue-dot",d.icon));const text=el("div");text.append(el("strong","",d.title),el("p","",d.desc.slice(0,72)+"…"));row.append(text);root.append(row)});
   if(!state.clues.length)root.append(el("p","intro","目前沒有線索。請從手機裡的 App 開始調查。"));
   if(state.stage===8)renderEnding(root);
@@ -351,9 +367,30 @@ function renderSettings(root){
 }
 function renderCamera(root){
   root.append(el("h2","","相機"),el("p","intro","後置相機　・　照片模式"));
-  const preview=el("div","evidence-visual");preview.style.height="min(55vh,420px)";preview.style.borderRadius="18px";preview.style.background="radial-gradient(ellipse at 53% 48%,#34343d,#090b11 65%)";preview.textContent="";preview.style.position="relative";
-  const cross=el("span","","＋");cross.style.cssText="position:absolute;inset:0;display:grid;place-items:center;color:#ffffff50;font-size:30px;font-weight:200";preview.append(cross);root.append(preview);
-  root.append(button("拍攝","primary-app-button",()=>{preview.style.background="radial-gradient(ellipse at 54% 45%,#806b79,#1b1b26 45%,#08090d)";preview.textContent="";const ghost=el("span","","✋");ghost.style.cssText="font-size:65px;opacity:.75;transform:rotate(-18deg)";preview.append(ghost);addClue("camera");advanceStage(7);toast("照片已儲存到相簿");}));
+  const preview=el("div","evidence-visual");
+  preview.style.height="min(55vh,420px)";preview.style.borderRadius="18px";
+  preview.style.background="radial-gradient(ellipse at 53% 48%,#34343d,#090b11 65%)";
+  preview.style.position="relative";
+  const cross=el("span","","＋");
+  cross.style.cssText="position:absolute;inset:0;display:grid;place-items:center;color:#ffffff50;font-size:30px;font-weight:200";
+  preview.append(cross);root.append(preview);
+  root.append(button("拍攝照片","primary-app-button",()=>{
+    preview.style.background="radial-gradient(ellipse at 54% 45%,#806b79,#1b1b26 45%,#08090d)";
+    preview.textContent="";const ghost=el("span","","✋");
+    ghost.style.cssText="font-size:65px;opacity:.75;transform:rotate(-18deg)";
+    preview.append(ghost);addClue("camera");advanceStage(7);toast("照片已儲存到相簿");
+  }));
+  root.append(button("切換前鏡頭","secondary-app-button",()=>{
+    preview.style.background="radial-gradient(ellipse at 50% 40%,#9b7883,#25212c 50%,#090b12)";
+    preview.textContent="";const face=el("span","","◉");
+    face.style.cssText="font-size:68px;opacity:.6";preview.append(face);
+    state.flags.frontCamera=true;state.fear=Math.min(100,state.fear+8);save();
+    toast("前鏡頭：偵測到另一張臉");
+  }));
+  root.append(button("錄影 10 秒","secondary-app-button",()=>{
+    preview.textContent="REC　00:10";preview.style.color="#ff4d60";
+    addClue("door");advanceStage(7);toast("影片已儲存");
+  }));
   root.append(button("返回主畫面","secondary-app-button",goHome));
 }
 function incomingCall(name){
