@@ -1,0 +1,641 @@
+
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AFTER HOURS</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Noto+Sans+TC:wght@400;700;900&display=swap');
+
+:root {
+  --bg: #090b13;
+  --panel: #111624;
+  --cyan: #66f6e5;
+  --pink: #ff568e;
+  --white: #edf2ff;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--white);
+  font-family: 'Space Mono', 'Noto Sans TC', monospace;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: .15;
+  background-image: linear-gradient(#26334a 1px, transparent 1px),
+    linear-gradient(90deg, #26334a 1px, transparent 1px);
+  background-size: 35px 35px;
+}
+
+.app {
+  width: min(94%, 540px);
+  padding: 24px 0;
+  position: relative;
+}
+
+header { margin-bottom: 22px; }
+
+.eyebrow {
+  color: var(--cyan);
+  font-size: 10px;
+  letter-spacing: 4px;
+}
+
+h1 {
+  font-size: clamp(30px, 8vw, 46px);
+  margin: 8px 0 3px;
+  letter-spacing: -3px;
+}
+
+.subtitle {
+  color: #77839d;
+  font-size: 11px;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 9px;
+  margin-bottom: 12px;
+}
+
+.stat {
+  background: var(--panel);
+  border: 1px solid #253047;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.stat small {
+  display: block;
+  color: #8190a8;
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+
+.stat strong {
+  display: block;
+  font-size: 20px;
+  margin-top: 5px;
+}
+
+#score { color: var(--cyan); }
+#lives { color: var(--pink); }
+
+.game-wrap {
+  position: relative;
+  border: 1px solid #35445d;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #0b1020;
+  box-shadow: 0 0 40px #66f6e511;
+}
+
+canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  touch-action: none;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: #080c16dd;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 25px;
+  backdrop-filter: blur(5px);
+}
+
+.overlay.hidden { display: none; }
+
+.overlay h2 {
+  font-size: 25px;
+  margin: 0 0 12px;
+  color: var(--cyan);
+}
+
+.overlay p {
+  font-family: 'Noto Sans TC', sans-serif;
+  font-size: 12px;
+  line-height: 2;
+  color: #b4bfd3;
+  max-width: 300px;
+}
+
+button {
+  border: 1px solid var(--cyan);
+  color: var(--bg);
+  background: var(--cyan);
+  padding: 12px 30px;
+  margin-top: 16px;
+  border-radius: 5px;
+  font-family: inherit;
+  font-weight: bold;
+  cursor: pointer;
+  transition: .2s;
+}
+
+button:hover {
+  background: transparent;
+  color: var(--cyan);
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 14px;
+  color: #8793a9;
+  font-size: 10px;
+}
+
+#pause {
+  margin: 0;
+  padding: 7px 15px;
+  font-size: 10px;
+  background: transparent;
+  color: var(--cyan);
+}
+
+.mobile-controls {
+  display: none;
+  gap: 12px;
+  margin-top: 15px;
+  justify-content: center;
+}
+
+.mobile-controls button {
+  width: 75px;
+  height: 48px;
+  margin: 0;
+  padding: 0;
+  font-size: 20px;
+  background: #151d2c;
+  color: var(--cyan);
+}
+
+footer {
+  text-align: center;
+  color: #49546b;
+  font-size: 9px;
+  margin-top: 25px;
+  letter-spacing: 2px;
+}
+
+@media(max-width: 600px) {
+  .mobile-controls { display: flex; }
+  .controls { font-size: 9px; }
+}
+</style>
+</head>
+<body>
+
+<main class="app">
+  <header>
+    <div class="eyebrow">INDEPENDENT ARCADE PROJECT / 001</div>
+    <h1>AFTER HOURS<span style="color:var(--pink)">.</span></h1>
+    <div class="subtitle">Some nights are harder than others.</div>
+  </header>
+
+  <section class="stats">
+    <div class="stat">
+      <small>SCORE</small>
+      <strong id="score">0000</strong>
+    </div>
+    <div class="stat">
+      <small>BEST</small>
+      <strong id="best">0000</strong>
+    </div>
+    <div class="stat">
+      <small>ENERGY</small>
+      <strong id="lives">♥ ♥ ♥</strong>
+    </div>
+  </section>
+
+  <div class="game-wrap">
+    <canvas id="game" width="480" height="640"></canvas>
+
+    <div class="overlay" id="overlay">
+      <div class="eyebrow">SYSTEM ONLINE</div>
+      <h2 id="overlayTitle">READY?</h2>
+      <p id="overlayText">
+        午夜已經開始。<br>
+        有些東西正在靠近。<br>
+        保持冷靜，別被抓到。
+      </p>
+      <button id="startBtn">START GAME →</button>
+    </div>
+  </div>
+
+  <div class="controls">
+    <span>← → MOVE &nbsp; / &nbsp; SPACE PAUSE</span>
+    <button id="pause">PAUSE [ P ]</button>
+  </div>
+
+  <div class="mobile-controls">
+    <button id="left">←</button>
+    <button id="right">→</button>
+  </div>
+
+  <footer>AFTER HOURS © 2026 · SURVIVE THE NIGHT</footer>
+</main>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+const W = canvas.width;
+const H = canvas.height;
+
+const $ = id => document.getElementById(id);
+
+let player, objects, particles, score, lives;
+let running = false;
+let paused = false;
+let gameOver = false;
+let frame = 0;
+let difficulty = 1;
+let keys = {};
+let lastTime = 0;
+let animationId = null;
+
+let best = Number(localStorage.getItem("afterHoursBest") || 0);
+$("best").textContent = String(best).padStart(4, "0");
+
+function reset() {
+  player = {
+    x: W / 2 - 17,
+    y: H - 85,
+    w: 34,
+    h: 34,
+    speed: 6
+  };
+
+  objects = [];
+  particles = [];
+  score = 0;
+  lives = 3;
+  frame = 0;
+  difficulty = 1;
+  gameOver = false;
+
+  updateStats();
+}
+
+function updateStats() {
+  $("score").textContent = String(score).padStart(4, "0");
+  $("lives").textContent = "♥ ".repeat(lives).trim() || "—";
+}
+
+function random(min, max) {
+  return Math.random() * (max - min) + min;
+}
+
+function spawn() {
+  const size = random(18, 38);
+
+  objects.push({
+    x: random(5, W - size - 5),
+    y: -size,
+    w: size,
+    h: size,
+    speed: random(2.5, 4.5) * difficulty,
+    type: Math.random() < 0.17 ? "good" : "bad",
+    rotation: random(0, Math.PI * 2),
+    spin: random(-0.04, 0.04)
+  });
+}
+
+function drawBackground() {
+  ctx.fillStyle = "#0b1020";
+  ctx.fillRect(0, 0, W, H);
+
+  // Stars
+  for (let i = 0; i < 60; i++) {
+    const x = (i * 97) % W;
+    const y = (i * 173 + frame * 0.35) % H;
+
+    ctx.fillStyle = i % 3 === 0 ? "#66f6e566" : "#ffffff30";
+    ctx.fillRect(x, y, 2, 2);
+  }
+
+  // Horizon
+  ctx.strokeStyle = "#26344e";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, H - 48);
+  ctx.lineTo(W, H - 48);
+  ctx.stroke();
+
+  ctx.fillStyle = "#26344e";
+  ctx.font = "10px monospace";
+  ctx.fillText("SECTOR 07", 15, 25);
+  ctx.fillText("NIGHT " + Math.floor(frame / 600 + 1), W - 100, 25);
+}
+
+function drawPlayer() {
+  const x = player.x;
+  const y = player.y;
+
+  ctx.save();
+  ctx.shadowBlur = 20;
+  ctx.shadowColor = "#66f6e5";
+
+  ctx.fillStyle = "#66f6e5";
+  ctx.beginPath();
+  ctx.moveTo(x + player.w / 2, y);
+  ctx.lineTo(x + player.w, y + player.h);
+  ctx.lineTo(x + player.w / 2, y + player.h - 9);
+  ctx.lineTo(x, y + player.h);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = "#0b1020";
+  ctx.fillRect(x + 13, y + 18, 8, 7);
+
+  ctx.restore();
+}
+
+function drawObjects() {
+  for (const o of objects) {
+    ctx.save();
+    ctx.translate(o.x + o.w / 2, o.y + o.h / 2);
+    ctx.rotate(o.rotation);
+
+    if (o.type === "good") {
+      ctx.shadowBlur = 18;
+      ctx.shadowColor = "#66f6e5";
+      ctx.fillStyle = "#66f6e5";
+      ctx.fillRect(-o.w / 2, -o.h / 2, o.w, o.h);
+      ctx.fillStyle = "#0b1020";
+      ctx.font = "bold 16px monospace";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("+", 0, 0);
+    } else {
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = "#ff568e";
+      ctx.fillStyle = "#ff568e";
+      ctx.beginPath();
+      ctx.moveTo(0, -o.h / 2);
+      ctx.lineTo(o.w / 2, 0);
+      ctx.lineTo(0, o.h / 2);
+      ctx.lineTo(-o.w / 2, 0);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    ctx.restore();
+  }
+}
+
+function collision(a, b) {
+  const padding = 5;
+  return (
+    a.x + padding < b.x + b.w &&
+    a.x + a.w - padding > b.x &&
+    a.y + padding < b.y + b.h &&
+    a.y + a.h - padding > b.y
+  );
+}
+
+function burst(x, y, color) {
+  for (let i = 0; i < 12; i++) {
+    particles.push({
+      x, y,
+      vx: random(-3, 3),
+      vy: random(-3, 3),
+      life: 30,
+      color
+    });
+  }
+}
+
+function drawParticles() {
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i];
+
+    p.x += p.vx;
+    p.y += p.vy;
+    p.life--;
+
+    ctx.globalAlpha = Math.max(0, p.life / 30);
+    ctx.fillStyle = p.color;
+    ctx.fillRect(p.x, p.y, 4, 4);
+    ctx.globalAlpha = 1;
+
+    if (p.life <= 0) particles.splice(i, 1);
+  }
+}
+
+function endGame() {
+  running = false;
+  gameOver = true;
+
+  if (score > best) {
+    best = score;
+    localStorage.setItem("afterHoursBest", best);
+    $("best").textContent = String(best).padStart(4, "0");
+  }
+
+  $("overlayTitle").textContent = "NIGHT OVER";
+  $("overlayText").innerHTML =
+    `FINAL SCORE: <strong style="color:#66f6e5">${score}</strong><br>
+     ${score >= best ? "A new record has been recorded." : "The night remembers everything."}`;
+
+  $("startBtn").textContent = "TRY AGAIN →";
+  $("overlay").classList.remove("hidden");
+}
+
+function update() {
+  if (!running || paused) return;
+
+  frame++;
+  difficulty = 1 + Math.min(frame / 1800, 2.5);
+
+  if (keys.ArrowLeft || keys.a) {
+    player.x -= player.speed;
+  }
+
+  if (keys.ArrowRight || keys.d) {
+    player.x += player.speed;
+  }
+
+  player.x = Math.max(0, Math.min(W - player.w, player.x));
+
+  const spawnRate = Math.max(16, 48 - Math.floor(difficulty * 8));
+  if (frame % spawnRate === 0) spawn();
+
+  for (let i = objects.length - 1; i >= 0; i--) {
+    const o = objects[i];
+
+    o.y += o.speed;
+    o.rotation += o.spin;
+
+    if (collision(player, o)) {
+      burst(o.x + o.w / 2, o.y + o.h / 2,
+        o.type === "good" ? "#66f6e5" : "#ff568e");
+
+      if (o.type === "good") {
+        score += 50;
+      } else {
+        lives--;
+      }
+
+      objects.splice(i, 1);
+      updateStats();
+
+      if (lives <= 0) {
+        endGame();
+        return;
+      }
+      continue;
+    }
+
+    if (o.y > H + 50) {
+      objects.splice(i, 1);
+      if (o.type === "bad") score += 10;
+      updateStats();
+    }
+  }
+}
+
+function render() {
+  drawBackground();
+  drawObjects();
+  drawPlayer();
+  drawParticles();
+}
+
+function loop(timestamp) {
+  if (!running) return;
+
+  const dt = Math.min(timestamp - lastTime, 40);
+  lastTime = timestamp;
+
+  // Frame-based game with stable refresh behavior
+  if (!paused && dt >= 0) update();
+  render();
+
+  animationId = requestAnimationFrame(loop);
+}
+
+function start() {
+  cancelAnimationFrame(animationId);
+  reset();
+
+  running = true;
+  paused = false;
+
+  $("pause").textContent = "PAUSE [ P ]";
+  $("overlay").classList.add("hidden");
+
+  lastTime = performance.now();
+  animationId = requestAnimationFrame(loop);
+}
+
+function togglePause() {
+  if (!running || gameOver) return;
+
+  paused = !paused;
+  $("pause").textContent = paused ? "RESUME [ P ]" : "PAUSE [ P ]";
+
+  if (paused) {
+    $("overlayTitle").textContent = "PAUSED";
+    $("overlayText").textContent = "Take a breath. The night can wait.";
+    $("startBtn").textContent = "RESUME →";
+    $("overlay").classList.remove("hidden");
+  } else {
+    $("overlay").classList.add("hidden");
+  }
+}
+
+$("startBtn").addEventListener("click", () => {
+  if (paused && !gameOver) {
+    paused = false;
+    $("pause").textContent = "PAUSE [ P ]";
+    $("overlay").classList.add("hidden");
+  } else {
+    start();
+  }
+});
+
+$("pause").addEventListener("click", togglePause);
+
+document.addEventListener("keydown", e => {
+  if (["ArrowLeft", "ArrowRight", " "].includes(e.key)) {
+    e.preventDefault();
+  }
+
+  keys[e.key] = true;
+
+  if (e.key === " " || e.key.toLowerCase() === "p") {
+    if (!e.repeat) togglePause();
+  }
+});
+
+document.addEventListener("keyup", e => {
+  keys[e.key] = false;
+});
+
+function mobileMove(key, value) {
+  keys[key] = value;
+}
+
+$("left").addEventListener("pointerdown", () => mobileMove("ArrowLeft", true));
+$("left").addEventListener("pointerup", () => mobileMove("ArrowLeft", false));
+$("left").addEventListener("pointerleave", () => mobileMove("ArrowLeft", false));
+$("left").addEventListener("pointercancel", () => mobileMove("ArrowLeft", false));
+
+$("right").addEventListener("pointerdown", () => mobileMove("ArrowRight", true));
+$("right").addEventListener("pointerup", () => mobileMove("ArrowRight", false));
+$("right").addEventListener("pointerleave", () => mobileMove("ArrowRight", false));
+$("right").addEventListener("pointercancel", () => mobileMove("ArrowRight", false));
+
+let pointerDown = false;
+
+canvas.addEventListener("pointerdown", e => {
+  pointerDown = true;
+  canvas.setPointerCapture(e.pointerId);
+  moveToPointer(e);
+});
+
+canvas.addEventListener("pointermove", e => {
+  if (pointerDown && running && !paused) moveToPointer(e);
+});
+
+canvas.addEventListener("pointerup", () => pointerDown = false);
+canvas.addEventListener("pointercancel", () => pointerDown = false);
+
+function moveToPointer(e) {
+  const rect = canvas.getBoundingClientRect();
+  const x = (e.clientX - rect.left) / rect.width * W;
+  player.x = Math.max(0, Math.min(W - player.w, x - player.w / 2));
+}
+
+// Initial screen
+reset();
+render();
+</script>
+</body>
+</html>
