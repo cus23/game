@@ -288,7 +288,8 @@ function renderNotes(root){
 function showNote(){
   const root=$("appContent");root.innerHTML="";
   const card=el("div","app-note");card.append(el("h3","","不要開門"),el("p","",clueData.note.desc),el("div","note-meta","最後編輯：現在　・　同步中…"));root.append(card);
-  root.append(button("檢查編輯紀錄","primary-app-button",()=>{addClue("note");advanceStage(3);toast("建立者：你自己？")}));\n  root.append(button("還原已刪除的最後一行","secondary-app-button",()=>{state.flags.noteRestored=true;addClue("note");toast("還原內容：我沒有帶鑰匙。")}));
+  root.append(button("檢查編輯紀錄","primary-app-button",()=>{addClue("note");advanceStage(3);toast("建立者：你自己？")}));
+  root.append(button("還原已刪除的最後一行","secondary-app-button",()=>{state.flags.noteRestored=true;addClue("note");toast("還原內容：我沒有帶鑰匙。")}));
   root.append(button("返回備忘錄","secondary-app-button",renderApp));
 }
 function renderSafari(root){
