@@ -101,7 +101,7 @@
  </nav>
  <div class="lock" id="lock">
   <div class="ios-lock-status"><span>●</span><span>◉　◉　▰</span></div>
-  <div class="ios-lock-date">11月15日 星期日</div><div class="clock">01:17</div>
+  <div class="ios-lock-date" id="lockDate">11月15日 星期日</div><div class="clock" id="lockClock">02:23</div>
   <div class="lock-weather">台北　・　夜間</div>
   <div class="lock-notifications"><div class="notif"><div class="notif-app"><span class="notif-icon">J</span><span>訊息</span><span class="notif-ago">現在</span></div><strong>Jake</strong>你到家了嗎？回我一下。</div><div class="notif"><div class="notif-app"><span class="notif-icon">J</span><span>訊息</span><span class="notif-ago">1 分鐘前</span></div><strong>Jake</strong>我看到你了。</div></div>
   <div class="lock-bottom"><div class="lock-shortcuts"><span>◉</span><span>⌁</span></div><button class="unlock-prompt" onclick="showPasscode()">向上滑動來解鎖　⌃</button><div class="home-indicator"></div></div>
@@ -111,6 +111,8 @@
 </div>
 <script>
 const $=id=>document.getElementById(id);
+function updateLockClock(){const now=new Date();$('lockClock').textContent=now.toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit',hour12:false});$('lockDate').textContent=now.toLocaleDateString('zh-TW',{month:'long',day:'numeric',weekday:'long'});}
+updateLockClock();setInterval(updateLockClock,15000);
 let trust=50,fear=8,scene=0,unlocked=false,callAnswered=false,lockTouchY=null;
 const scenes=[
 {tag:"CHAPTER 01 · 23:48",title:"雨夜的訊息",text:"雨下得很大。你剛走出便利商店，手機亮了。\n\nJake：到家了跟我說。\n\n你們認識三個星期。他總是很貼心，記得你的飲料、課表，甚至知道你哪天比較累。\n\n只是今天，你根本沒告訴他自己出門。",choices:[["「你怎麼知道我在外面？」",0,8,"question"],["「快到了，謝謝你。」",8,0,"soft"],["「我現在不方便回訊息。」",-5,3,"distant"]]},
