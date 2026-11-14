@@ -1,0 +1,21 @@
+{
+  "id": "./",
+  "name": "STAY WITH ME — Jake Route",
+  "short_name": "STAY WITH ME",
+  "lang": "zh-Hant",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait",
+  "background_color": "#100d12",
+  "theme_color": "#100d12",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
