@@ -657,6 +657,12 @@ button:active {
   height:100%;
   gap:12px
 }
+
+.app-screen.messages-screen .app-content {
+  display:flex;
+  flex-direction:column;
+  overflow:hidden
+}
 .chat-contact-head {
   display:flex;
   align-items:center;
