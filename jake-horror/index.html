@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#100d12"><title>STAY WITH ME — Jake route</title>
+<style>
+:root{--bg:#100d12;--panel:#1c1720;--panel2:#29212c;--red:#bd5361;--pink:#d98c98;--muted:#a99eaa;--white:#f7f0f2;--line:#ffffff18}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% 0,#39202b 0,#100d12 55%);color:var(--white);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh;display:grid;place-items:center;padding:18px}
+.phone{width:min(420px,100%);height:min(850px,94dvh);min-height:650px;border:1px solid #ffffff2a;border-radius:36px;background:#100d12;box-shadow:0 28px 90px #000b;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.status{height:34px;padding:10px 23px 0;display:flex;justify-content:space-between;font-size:11px;letter-spacing:.4px;color:#eee}
+.top{height:58px;padding:8px 17px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
+.brand{font-size:11px;letter-spacing:3px;color:var(--pink)}.chapter{font-size:11px;color:var(--muted)}
+.screen{display:none;flex:1;min-height:0;overflow:auto}.screen.active{display:flex;flex-direction:column}
+.bottom{height:66px;display:flex;justify-content:space-around;align-items:center;border-top:1px solid var(--line);background:#17121a}
+.nav{background:none;border:0;color:#8d818f;font-size:10px;display:grid;gap:5px;justify-items:center}.nav b{font-size:18px;font-weight:400}.nav.active{color:var(--pink)}
+.hero{padding:28px 23px 18px;background:linear-gradient(160deg,#48232f,#1b151e 68%);min-height:220px;display:flex;flex-direction:column;justify-content:flex-end}
+.kicker{font-size:10px;letter-spacing:3px;color:#e8a5ad}.hero h1{font-family:Georgia,serif;font-weight:400;font-size:34px;line-height:1.08;margin:10px 0}.hero p{font-size:12px;line-height:1.7;color:#d2c3ca;margin:0;max-width:310px}
+.content{padding:18px;display:flex;flex-direction:column;gap:13px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:17px;padding:15px}
+.card h3{font-size:13px;margin:0 0 7px}.card p{font-size:12px;color:#c2b5c0;line-height:1.7;margin:0}
+.btn{border:1px solid #b45c6c;background:linear-gradient(135deg,#a9475a,#713344);color:white;padding:13px 15px;border-radius:13px;font-size:12px;text-align:left;width:100%;cursor:pointer}
+.btn.secondary{background:#211a24;border-color:#ffffff22;color:#eee}.btn:active{transform:scale(.985)}
+.tag{font-size:9px;letter-spacing:2px;color:var(--pink);text-transform:uppercase}
+.storyline{font-size:14px;line-height:1.95;color:#eee0e5;white-space:pre-line}
+.choices{display:grid;gap:9px;margin-top:14px}
+.chathead{padding:12px 16px;display:flex;align-items:center;gap:11px;border-bottom:1px solid var(--line)}
+.avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#8b4658,#281b2b);display:grid;place-items:center;font-family:Georgia;font-size:18px}
+.chathead strong{font-size:13px}.chathead small{display:block;color:#9f919e;font-size:10px;margin-top:3px}
+.messages{padding:16px;display:flex;flex-direction:column;gap:12px;overflow:auto;flex:1}
+.msg{max-width:82%;padding:11px 13px;border-radius:15px;font-size:12px;line-height:1.65;white-space:pre-line}
+.msg.jake{align-self:flex-start;background:#2a222d;border:1px solid #ffffff10;border-top-left-radius:4px}
+.msg.me{align-self:flex-end;background:#713b4a;border-top-right-radius:4px}
+.trans{font-size:10px;color:#b8aab6;display:block;margin-top:5px}
+.time{text-align:center;color:#796e7a;font-size:9px;letter-spacing:1px;margin:5px}
+.replyarea{padding:12px 15px 16px;border-top:1px solid var(--line);background:#17121a}
+.replyarea .hint{font-size:10px;color:#a99daa;margin-bottom:9px}
+.reply{display:block;width:100%;margin:7px 0;padding:11px 12px;border-radius:12px;border:1px solid #ffffff20;background:#241d28;color:#eee;text-align:left;font-size:11px}
+.call{position:absolute;inset:0;z-index:10;background:radial-gradient(circle at 50% 25%,#633443,#130f16 65%);display:none;flex-direction:column;align-items:center;justify-content:space-between;padding:70px 25px 55px;text-align:center}
+.call.show{display:flex}.call .avatar{width:92px;height:92px;font-size:38px}.call h2{font-family:Georgia;font-weight:400;font-size:30px;margin:22px 0 6px}.call p{color:#c9b9c2;font-size:12px}
+.callactions{display:flex;gap:55px}.callactions button{width:65px;height:65px;border:0;border-radius:50%;color:white;font-size:23px}.accept{background:#39865c}.decline{background:#b33d4e}
+.note{font-size:10px;color:#827783;line-height:1.6}
+.bar{height:5px;background:#342a36;border-radius:5px;overflow:hidden;margin-top:10px}.bar i{display:block;height:100%;background:linear-gradient(90deg,#934454,#e29ba6);width:25%}
+.lock{position:absolute;inset:34px 0 0;z-index:5;background:linear-gradient(160deg,#20131d,#0c0a0f 70%);display:flex;flex-direction:column;align-items:center;padding:55px 25px 25px;text-align:center}
+.lock.hide{display:none}.lock .date{font-size:11px;color:#d9b9c5;letter-spacing:2px}.lock .clock{font-family:Georgia;font-size:70px;margin:12px 0 38px}
+.notif{width:100%;padding:13px;border-radius:14px;background:#ffffff12;border:1px solid #ffffff20;text-align:left;margin:6px 0;font-size:11px}
+.notif strong{display:block;margin-bottom:4px}.unlock{margin-top:auto}
+.ending{border:1px solid #a65465;background:#261820;padding:17px;border-radius:15px}
+@media(max-height:700px){.phone{height:96dvh;min-height:0}.hero{min-height:175px}.content{gap:9px;padding:13px}}
+</style>
+</head>
+<body>
+<div class="phone">
+ <div class="status"><span>01:17</span><span>◉ ◉ ▰</span></div>
+ <div class="top"><span class="brand">STAY WITH ME</span><span class="chapter" id="chapterLabel">PROLOGUE · 01</span></div>
+ <section class="screen active" id="home">
+  <div class="hero"><span class="kicker">A PSYCHOLOGICAL THRILLER</span><h1>Don't leave<br>me on read.</h1><p>你以為這是一段普通的曖昧關係。直到他開始記得，你沒有告訴過他的事。</p></div>
+  <div class="content">
+   <div class="card"><span class="tag">JAKE ROUTE</span><h3 style="margin-top:8px">沈載倫 / SIM JAEYUN</h3><p>「我只是想確認你安全到家了。這樣也不行嗎？」</p></div>
+   <button class="btn" onclick="startGame()">開始故事　→</button>
+   <button class="btn secondary" onclick="openScreen('chat')">查看訊息紀錄</button>
+   <p class="note">本作為虛構同人心理驚悚遊戲，角色訊息、事件與對話皆為創作，與真實人物無關。建議戴耳機遊玩。</p>
+  </div>
+ </section>
+ <section class="screen" id="story"><div class="content" style="flex:1"><span class="tag" id="sceneTag">CHAPTER 01 · 23:48</span><h2 id="sceneTitle" style="font:400 26px Georgia;margin:0">雨夜</h2><div class="storyline" id="storyText"></div><div class="choices" id="storyChoices"></div></div></section>
+ <section class="screen" id="chat">
+  <div class="chathead"><div class="avatar">J</div><div><strong>Jake</strong><small id="online">最後上線時間：剛剛</small></div><span style="margin-left:auto;color:#d98c98">♡</span></div>
+  <div class="messages" id="messages"><div class="time">今天 23:48</div><div class="msg jake">집 도착했어?<span class="trans">到家了嗎？</span></div></div>
+  <div class="replyarea"><div class="hint">選擇你的回覆 · 無法自由輸入</div><div id="chatReplies"></div></div>
+ </section>
+ <section class="screen" id="phone">
+  <div class="hero" style="min-height:160px"><span class="kicker">PHONE</span><h1>通話紀錄</h1><p>有些來電，你不確定該不該接。</p></div>
+  <div class="content"><div class="card"><h3>Jake　♡</h3><p>未接來電 · 23:51<br>未接來電 · 23:53<br>來電 · 00:06</p></div><button class="btn" onclick="incomingCall()">讓手機再次響起　↗</button><button class="btn secondary" onclick="openScreen('story')">回到目前劇情</button></div>
+ </section>
+ <section class="screen" id="diary"><div class="content"><span class="tag">PRIVATE NOTE</span><h2 style="font:400 27px Georgia;margin:0">備忘錄</h2><div class="card"><h3>今天不太對勁</h3><p id="diaryText">他怎麼會知道我幾點離開？我明明沒有跟他說。</p></div><div class="card"><h3>關係狀態</h3><p>信任感</p><div class="bar"><i id="trustBar"></i></div><p style="margin-top:12px">不安程度</p><div class="bar"><i id="fearBar" style="width:20%;background:#b64b5b"></i></div></div><p class="note">選項會影響角色對你的反應，也會改變後續事件。沒有單純的好／壞答案。</p></div></section>
+ <nav class="bottom">
+  <button class="nav active" data-screen="home" onclick="openScreen('home')"><b>⌂</b>首頁</button>
+  <button class="nav" data-screen="chat" onclick="openScreen('chat')"><b>▤</b>訊息</button>
+  <button class="nav" data-screen="phone" onclick="openScreen('phone')"><b>☎</b>電話</button>
+  <button class="nav" data-screen="diary" onclick="openScreen('diary')"><b>▧</b>備忘錄</button>
+ </nav>
+ <div class="lock" id="lock"><div class="date">SATURDAY · 23:48</div><div class="clock">23:48</div><div class="notif"><strong>Jake　·　現在</strong>你到家了嗎？回我一下。</div><div class="notif"><strong>Jake　·　1 分鐘前</strong>我看到你了。</div><button class="btn unlock" onclick="unlockPhone()">向上滑動以解鎖　↑</button></div>
+ <div class="call" id="call"><div><div class="tag">INCOMING CALL</div><div class="avatar" style="margin:35px auto 0">J</div><h2>Jake</h2><p id="callSub">正在撥打給你…</p></div><div class="callactions"><div><button class="decline" onclick="endCall()">✕</button><p>拒絕</p></div><div><button class="accept" onclick="answerCall()">☎</button><p>接聽</p></div></div></div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+let trust=50,fear=8,scene=0,unlocked=false,callAnswered=false;
+const scenes=[
+{tag:"CHAPTER 01 · 23:48",title:"雨夜的訊息",text:"雨下得很大。你剛走出便利商店，手機亮了。\n\nJake：到家了跟我說。\n\n你們認識三個星期。他總是很貼心，記得你的飲料、課表，甚至知道你哪天比較累。\n\n只是今天，你根本沒告訴他自己出門。",choices:[["「你怎麼知道我在外面？」",0,8,"question"],["「快到了，謝謝你。」",8,0,"soft"],["「我現在不方便回訊息。」",-5,3,"distant"]]},
+{tag:"CHAPTER 01 · 23:53",title:"第二則訊息",text:"訊息顯示已讀。幾秒後，他傳來一張照片。\n\n照片裡是你家巷口的路燈。角度像是從對街拍的。\n\nJake：這邊路燈壞掉了，走亮一點的地方。\n\n你停下腳步。巷口明明就在前面。",choices:[["「你現在在我家附近？」",-2,12,"question"],["「你在哪裡？我看不到你。」",0,10,"look"],["先不回覆，直接回家。",-3,7,"silent"]]},
+{tag:"CHAPTER 02 · 00:06",title:"凌晨來電",text:"手機突然震動。螢幕上顯示 Jake。\n\n你接起來，電話那頭很安靜，只有一點風聲。\n\nJake：「終於接了。」\n\n他的聲音聽起來很疲倦，像是已經等了很久。",choices:[["「你到底在哪裡？」",-2,12,"where"],["「你是不是喝醉了？」",5,0,"drunk"],["保持沉默，聽他說。",-4,5,"quiet"]]},
+{tag:"CHAPTER 02 · 00:09",title:"他知道的事",text:"Jake：「你今天穿那件灰色外套，很適合你。」\n\n你低頭看著自己的袖口。\n\nJake：「不要怕。我沒有要做什麼。我只是……不喜歡不知道你在哪裡。」\n\n他停了一下。\n\n「你也不喜歡我突然消失，對吧？」",choices:[["「這不是一回事。」",0,10,"boundary"],["「我沒有要你一直報備。」",-2,8,"boundary2"],["「你先回去，我們明天談。」",4,3,"tomorrow"]]},
+{tag:"CHAPTER 03 · 00:17",title:"門外的人",text:"你終於回到家。門鎖轉動時，手機又亮了。\n\nJake：開門前先看一下貓眼。\n\n你僵住。\n\n下一秒，門外傳來三下很輕的敲門聲。\n\n叩、叩、叩。",choices:[["透過貓眼查看。",-3,12,"peephole"],["打電話給朋友。",2,0,"friend"],["直接詢問門外的人是誰。",-5,8,"door"]]},
+{tag:"CHAPTER 03 · 00:20",title:"最後一個選擇",text:"門外沒有聲音了。手機傳來最後一則訊息。\n\nJake：我知道你現在很害怕。\n\nJake：但你只要開口叫我，我就會在。\n\n你看著螢幕。游標閃爍，像是在等你做決定。",choices:[["「Jake，我們需要談談。」",5,-3,"talk"],["封鎖他的聯絡方式。",0,-8,"block"],["「你先離開，我不想見你。」",3,-5,"leave"]]}
+];
+function vibrate(pattern=[100,60,160]){try{if(navigator.vibrate)navigator.vibrate(pattern)}catch(e){}}
+function openScreen(id){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('.nav').forEach(x=>x.classList.toggle('active',x.dataset.screen===id))}
+function unlockPhone(){unlocked=true;$('lock').classList.add('hide');vibrate([40])}
+function startGame(){if(!unlocked)unlockPhone();scene=0;openScreen('story');renderScene()}
+function renderScene(){const s=scenes[scene];$('sceneTag').textContent=s.tag;$('chapterLabel').textContent=s.tag.split('·')[0];$('sceneTitle').textContent=s.title;$('storyText').textContent=s.text;$('storyChoices').innerHTML='';s.choices.forEach((c,i)=>{let b=document.createElement('button');b.className='btn'+(i===0?'':' secondary');b.textContent=(i+1)+'. '+c[0];b.onclick=()=>choose(c);$('storyChoices').appendChild(b)})}
+function choose(c){trust=Math.max(0,Math.min(100,trust+c[1]));fear=Math.max(0,Math.min(100,fear+c[2]));$('trustBar').style.width=trust+'%';$('fearBar').style.width=fear+'%';addMessage(c[0],'me');const replies={question:['왜這樣問？','我只是剛好經過。'],soft:['乖。到家記得鎖門。','我不想你淋雨。'],distant:['好，我等你。','只是想知道你平安。'],look:['你看不到我也沒關係。','我一直都在。'],silent:['你是不是不想理我？','沒關係，我等。'],where:['就在附近。','你不用找我。'],drunk:['沒有喝。','我很清醒。'],quiet:['你不說話，我也知道你在聽。'],boundary:['我知道。對不起。','我只是太在意你了。'],boundary2:['那你可以告訴我你在哪嗎？'],tomorrow:['好。明天見。','晚安，別鎖門太早。'],peephole:['看到了什麼？','不要緊張。'],friend:['你要找誰？','我可以陪你。'],door:['是我。','開一下門，好嗎？'],talk:['好。我聽你說。'],block:['……','訊息已送達。'],leave:['我知道了。','那你先休息。']};let arr=replies[c[3]]||['我知道了。'];addMessage(arr[0],'jake',arr[1]||'');if(scene===1){setTimeout(()=>incomingCall(),700)}if(scene===3){setTimeout(()=>{vibrate([220,90,220]);$('callSub').textContent='Jake 正在呼叫你…'},500)}scene++;if(scene<scenes.length){setTimeout(()=>renderScene(),500)}else{setTimeout(()=>showEnding(),500)}}
+function addMessage(t,who,translation=''){let d=document.createElement('div');d.className='msg '+(who==='me'?'me':'jake');d.textContent=t;if(translation){let s=document.createElement('span');s.className='trans';s.textContent=translation;d.appendChild(s)}$('messages').appendChild(d);$('messages').scrollTop=$('messages').scrollHeight}
+function incomingCall(){vibrate([250,100,250,100,400]);$('call').classList.add('show')}
+function answerCall(){callAnswered=true;vibrate([70]);$('callSub').textContent='已接通 · 00:01';setTimeout(()=>{$('callSub').textContent='Jake：「我只是想聽聽你的聲音。」'},700);setTimeout(()=>{$('call').classList.remove('show');addMessage('我只是想聽聽你的聲音。','jake');openScreen('chat')},2200)}
+function endCall(){$('call').classList.remove('show');addMessage('未接來電','jake');}
+function showEnding(){openScreen('story');$('sceneTag').textContent='END OF DEMO';$('chapterLabel').textContent='ENDING';$('sceneTitle').textContent=fear>trust?'你還在聽嗎？':'未完待續';$('storyText').textContent=fear>trust?'你把手機翻面放在桌上。螢幕暗下去之前，又亮了一次。\\n\\nJake：我不會逼你。\\n\\nJake：但你知道，我總會找到你的。':'你決定把話說清楚。電話那頭沉默了很久。\\n\\nJake：「好。那明天，我們好好談。」\\n\\n他掛斷了電話。你卻沒有立刻放下手機。';$('storyChoices').innerHTML='<div class="ending"><span class="tag">DEMO COMPLETE</span><p class="storyline">信任值：'+trust+'　／　不安值：'+fear+'<br>目前版本為序章＋三章節試玩。你的選擇已改變對話與結局走向。</p></div><button class="btn" onclick="location.reload()">重新開始</button><button class="btn secondary" onclick="openScreen(\\'chat\\')">查看完整訊息</button>'}
+function chatOptions(){const opts=['「你現在在哪裡？」','「我到家了。」','「你可以不要一直找我嗎？」'];$('chatReplies').innerHTML='';opts.forEach((t,i)=>{let b=document.createElement('button');b.className='reply';b.textContent=t;b.onclick=()=>{addMessage(t,'me');let r=[['在你附近。','你不用擔心。'],['很好。把門鎖好。','晚安。'],['對不起。我只是怕你不理我。','我會注意。']][i];setTimeout(()=>addMessage(r[0],'jake',r[1]),500)};$('chatReplies').appendChild(b)})}
+chatOptions();
+</script>
+</body></html>
