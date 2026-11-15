@@ -3,7 +3,8 @@ const STORE='ikeDay_attendance_v2';
 const START='2026-05-08';
 const te=new TextEncoder(),td=new TextDecoder();
 const PASSWORD_CHECK='15WclAORKD85Z3ymfYxpJbqbJ1obv4WDSf1OP9hzzQk=';
-let records={},key=null,view=new Date(),selected=null,salt=null,sessionPassword='';
+const SEED_DATA={"salt":"nLqy2rUtg/0x0szn3bXceg==","iv":"IKuoDhhSANLMRBXD","ciphertext":"kkmKTdIaSwYIJ3Q4LhDDTRQnphyQp8utQXtFS0ohAEbyASEP3fvRSwEGADXTvxYhI233FzHZkl3m4Ha7xqJfIGtd6otOnH7b/vzIX+AQh8lggiImcoophmrYHpfk8AT5+yq8fTyDT06KdxZyHULhHHyZ3yGDsY3ggZkUb6h7A2ucTgjw+zS5k9S+wli82iLgz1r2VosdOD83KhyOklyL+bTntUTjJSWU1wRWCgs7rfCl8UarU+VPJ1YoyJsYgqsbrusIRcSeEC7sxgIzJtIEgoGv/27BNqLYXaohsyl+c2EAJlldvGlJ2f2/u6UOIFBzk1DP7vu4LqvfNWoh/4OMqcK2lQt/f//NWaYju/PPUanVVaQRq9v0LE1St18P5eUoOIEbZiVcs4sjCeOZBAFIoFGctSIJ2Jz+iStyBXXxBn7k7eRjIWjt+6pIdaLGo+MlLRDMfQWbVw/C4gayDG3XIASLeAZlKCszfqqYpKwrRgPmh78PshUeC3sl7txGkAJqomQ59PogVCfeIC6XQEWTRY2N58MdN0lGJ3P2OmLSIqY8H/ul9Ss2TvjDJC2aSP0LRJBhX0wJ77yXA+vsL3Jn3izlX7ep9ec75Aq/YuGoC4ulRRGbdSIXCJcaudn1LAxeJGmtC7Eo2vxMUUdvzc/fivGIwP9Jn3CfWBRz88LJbrvgtehjfRoW6pOjs50XEkMJhrQ2NeL+qqDZheaFtxh8aZFltnWzjkQIXw9FZa9pBpUIFOUM2W3iigzIMU97wXyjpkKM5s0NoeC02nGOJy2MSNRwKB2UOR3cKcO361Nb4N+KZQlSng+tZPMSnNeXTtJOqNdzffYzuCrwCOJiqmpzPWfHYqde0ew0+uUKJXHLLsy05vf+8l6xS/zcI9zc0PjRvF5VinWsqaJUUj1LJY7P6xfqWl3rTZgJnc/7KM/wR4Ou1f+zWz9DKKPk7fDzKpauyDbY4/PktR/pzgo6f4bND2jA+3s4bo8lTFSReq+I2c3uCsQ4j3JHuYSK416k296/KLewTeumIF6OcJ8UlLl+DlwwUNXGXeogjLW+fzKbXG6lxpbkLpfr3bOvFmttbBYbH1imZMxdMx25wja8daC1t4xGiKa7Re398jAxrdYKlxDwWP1LN4ZNCFEFxjkPYCdyf/Rw0LbSHLmlIIxjicXGsIJ1UpUEocGVJXlRm5kwTytim2mRSmfQQ3UuJSi8Y4cr8AalTPFTC7DXEsH6"};
+let records={},key=null,view=new Date(),selected=null,salt=null,sessionPassword='',seedApplied=false;
 
 function b64(bytes){return btoa(String.fromCharCode(...new Uint8Array(bytes)))}
 function unb64(value){return Uint8Array.from(atob(value),c=>c.charCodeAt(0))}
@@ -33,15 +34,27 @@ async function decryptBackup(backup,password){
   }
   return {data,rawSalt,derived};
 }
+async function applySeedIfNeeded(){
+  let changed=false;
+  for(const [date,status] of Object.entries(records)){if(status!=='yes'){delete records[date];changed=true}}
+  if(!seedApplied){
+    const seedKey=await deriveEncryptionKey(sessionPassword,unb64(SEED_DATA.salt));
+    const plain=await crypto.subtle.decrypt({name:'AES-GCM',iv:unb64(SEED_DATA.iv)},seedKey,unb64(SEED_DATA.ciphertext));
+    const seed=JSON.parse(td.decode(plain));
+    for(const date of seed.dates){if(records[date]!=='yes'){records[date]='yes';changed=true}}
+    seedApplied=true;changed=true;
+  }
+  if(changed)await persist();
+}
 async function persist(){
-  const backup=await encryptRecords({records},salt,key);
+  const backup=await encryptRecords({records,seedApplied},salt,key);
   localStorage.setItem(STORE,JSON.stringify(backup));
 }
 function toast(message){const el=$('toast');el.textContent=message;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1900)}
 function localDate(date){return [date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-')}
 function today(){return localDate(new Date())}
 function showTracker(){ $('lockScreen').hidden=true;$('tracker').hidden=false;render() }
-function lock(){key=null;salt=null;records={};selected=null;sessionPassword='';$('tracker').hidden=true;$('lockScreen').hidden=false;$('password').value='';$('lockError').textContent=''}
+function lock(){key=null;salt=null;records={};selected=null;sessionPassword='';seedApplied=false;$('tracker').hidden=true;$('lockScreen').hidden=false;$('password').value='';$('lockError').textContent=''}
 $('unlockForm').addEventListener('submit',async event=>{
   event.preventDefault();$('lockError').textContent='';
   const password=$('password').value;
@@ -50,18 +63,19 @@ $('unlockForm').addEventListener('submit',async event=>{
     const saved=localStorage.getItem(STORE);
     if(saved){
       const opened=await decryptBackup(JSON.parse(saved),password);
-      records=opened.data.records;salt=opened.rawSalt;key=opened.derived;
+      records=opened.data.records;salt=opened.rawSalt;key=opened.derived;seedApplied=!!opened.data.seedApplied;
     }else{
-      records={};salt=crypto.getRandomValues(new Uint8Array(16));key=await deriveEncryptionKey(password,salt);await persist();
+      records={};salt=crypto.getRandomValues(new Uint8Array(16));key=await deriveEncryptionKey(password,salt);seedApplied=false;
     }
-    sessionPassword=password;$('password').value='';showTracker();
+    sessionPassword=password;await applySeedIfNeeded();$('password').value='';showTracker();
   }catch(error){key=null;$('lockError').textContent=error.message==='The operation failed for an operation-specific reason.'?'無法解密資料，請確認備份與密碼。':error.message}
 });
 $('lockBtn').addEventListener('click',lock);
 function render(){
   renderCalendar();
   $('markPanel').hidden=!selected;
-  if(selected){$('selectedDate').textContent=selected.replaceAll('-','.');}
+  if(selected){$('selectedDate').textContent=selected.replaceAll('-','.');$('markYes').textContent=records[selected]==='yes'?'🐾 已標記有來':'🐾 有來';}
+  renderYearChart();
 }
 function renderCalendar(){
   const year=view.getFullYear(),month=view.getMonth(),first=new Date(year,month,1).getDay(),count=new Date(year,month+1,0).getDate();
@@ -70,12 +84,12 @@ function renderCalendar(){
   for(let i=0;i<first;i++)grid.append(document.createElement('div'));
   for(let day=1;day<=count;day++){
     const date=year+'-'+String(month+1).padStart(2,'0')+'-'+String(day).padStart(2,'0');
-    const status=records[date];
+    const marked=records[date]==='yes';
     const button=document.createElement('button');
-    button.type='button';button.className='day'+(status?' '+status:'')+(selected===date?' selected':'')+(date===today()?' today':'');
+    button.type='button';button.className='day'+(marked?' yes':'')+(selected===date?' selected':'')+(date===today()?' today':'');
     button.disabled=date<START||date>today();
-    button.setAttribute('aria-label',date+(status==='yes'?' 有來':status==='no'?' 沒來':' 未標記'));
-    button.innerHTML='<span class="num">'+day+'</span><span class="mark">'+(status==='yes'?'🐕':status==='no'?'🐾':'')+'</span>';
+    button.setAttribute('aria-label',date+(marked?' 有來':' 未標記'));
+    button.innerHTML='<span class="num">'+day+'</span><span class="mark">'+(marked?'🐾':'')+'</span>';
     button.addEventListener('click',()=>{selected=date;render()});
     grid.append(button);
   }
@@ -84,19 +98,29 @@ function renderCalendar(){
 }
 async function setStatus(status){
   if(!selected)return;
-  records[selected]=status;
-  try{await persist();render();toast(status==='yes'?'已標記：有來 🦮':'已標記：沒來 🐾')}
+  if(status==='yes')records[selected]='yes';
+  try{await persist();render();toast('已標記：有來 🐾')}
   catch{toast('儲存失敗，請再試一次')}
 }
 $('markYes').addEventListener('click',()=>setStatus('yes'));
-$('markNo').addEventListener('click',()=>setStatus('no'));
 $('clearMark').addEventListener('click',async()=>{
   if(!selected||!records[selected])return;
   delete records[selected];
-  try{await persist();render();toast('已清除標記')}catch{toast('儲存失敗')}
+  try{await persist();render();toast('已取消標記')}catch{toast('儲存失敗')}
 });
 $('prevMonth').addEventListener('click',()=>{view=new Date(view.getFullYear(),view.getMonth()-1,1);renderCalendar()});
 $('nextMonth').addEventListener('click',()=>{const next=new Date(view.getFullYear(),view.getMonth()+1,1);if(next<=new Date(new Date().getFullYear(),new Date().getMonth(),1)){view=next;renderCalendar()}});
+function renderYearChart(){
+  const counts=Array(12).fill(0);
+  for(const [date,status] of Object.entries(records)){if(status==='yes'&&date.startsWith('2026-'))counts[Number(date.slice(5,7))-1]++}
+  const total=counts.reduce((a,b)=>a+b,0);$('yearTotal').textContent=total;
+  const max=Math.max(5,Math.ceil(Math.max(...counts)/5)*5),base=142,chartHeight=112,barW=26,gap=25,startX=31;
+  let svg='<svg viewBox="0 0 650 190" role="img" aria-label="2026 每月有來天數：'+counts.join('、')+'">';
+  for(let v=0;v<=max;v+=5){const y=base-(v/max)*chartHeight;svg+='<line x1="27" y1="'+y+'" x2="635" y2="'+y+'" stroke="#f0e8e2" stroke-dasharray="3 5"/><text x="18" y="'+(y+3)+'" text-anchor="end" fill="#b4a9a2" font-size="9">'+v+'</text>'}
+  counts.forEach((value,i)=>{const x=startX+i*(barW+gap),h=value/max*chartHeight,y=base-h;svg+='<rect x="'+x+'" y="'+(value?y:base-2)+'" width="'+barW+'" height="'+Math.max(value?4:2,h)+'" rx="8" fill="'+(value?'#dfa39a':'#eee8e3')+'"/>';if(value)svg+='<text x="'+(x+barW/2)+'" y="'+(y-8)+'" text-anchor="middle" fill="#a8756e" font-size="10" font-weight="600">'+value+'</text>';svg+='<text x="'+(x+barW/2)+'" y="164" text-anchor="middle" fill="#9e938d" font-size="10">'+(i+1)+'月</text>'});
+  svg+='<text x="635" y="184" text-anchor="end" fill="#c1b5ae" font-size="8">2026 · MONTHLY DAYS</text></svg>';
+  $('yearChart').innerHTML=svg;
+}
 $('exportBtn').addEventListener('click',()=>{
   const data=localStorage.getItem(STORE);if(!data){toast('目前沒有可匯出的資料');return}
   const url=URL.createObjectURL(new Blob([JSON.stringify(JSON.parse(data),null,2)],{type:'application/json'}));
@@ -108,8 +132,8 @@ $('importFile').addEventListener('change',async event=>{
     const backup=JSON.parse(await file.text());
     const opened=await decryptBackup(backup,sessionPassword);
     if(!confirm('匯入會取代目前這個瀏覽器的標記紀錄，確定繼續？'))return;
-    records=opened.data.records;salt=opened.rawSalt;key=opened.derived;
-    await persist();render();toast('JSON 備份已匯入');
+    records=opened.data.records;salt=opened.rawSalt;key=opened.derived;seedApplied=!!opened.data.seedApplied;
+    await applySeedIfNeeded();render();toast('JSON 備份已匯入');
   }catch(error){toast(error.message==='The operation failed for an operation-specific reason.'?'備份無法解密，請確認檔案。':error.message)}
   finally{event.target.value=''}
 });
