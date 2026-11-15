@@ -1,1 +1,70 @@
-<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f7f3ef"><title>ikeDay — Jake DM Archive</title><link rel="icon" href="./icon.svg"><link rel="stylesheet" href="./styles.css"></head><body><header><a class="brand"><i>i</i><span>ikeDay<small>JAKE'S DM DAYS · PRIVATE ARCHIVE</small></span></a><span id="lockState">● LOCKED</span><button id="lockBtn" hidden>鎖定</button></header><main><section id="lockScreen" class="lock"><div class="art"><div class="sun"></div><div class="dog">🐶</div><small>A LITTLE DAYBOOK FOR EVERY MESSAGE</small></div><div class="panel"><label>A PRIVATE LITTLE ARCHIVE</label><h1 id="lockTitle">Keep the days<br><em>that he appeared.</em></h1><p id="lockIntro">把每一次收到訊息的日子，好好收藏起來。這裡只屬於你。</p><form id="unlockForm"><label for="password">YOUR PASSWORD</label><input id="password" type="password" minlength="8" placeholder="至少 8 個字元" required><div id="confirmWrap" hidden><label for="confirmPassword">CONFIRM PASSWORD</label><input id="confirmPassword" type="password" minlength="8" placeholder="再次輸入密碼"></div><button id="unlockBtn2">開啟我的 ikeDay ↗</button></form><small class="security">✳ 紀錄在你的瀏覽器內加密保存。密碼不會上傳，也不會寫進 GitHub 程式碼。</small><p id="lockError" class="error"></p></div></section><section id="app" hidden><div class="hero"><div><label>THE DAYS WE GOT A MESSAGE</label><h1>Every day, <em>a little memory.</em></h1><p>從 2026.05.08 Weverse DM 開通日開始，記下每一個有訊息的日子。</p></div><div class="stamp">JAKE<b>♡</b><small>2026 — ∞</small></div></div><div class="stats"><article><small>RECORDED DAYS</small><b id="statDays">0</b><span>有紀錄的日子</span></article><article><small>ENTRIES</small><b id="statMessages">0</b><span>訊息／更新筆數</span></article><article><small>FIRST DAY</small><b id="statFirst">—</b><span>第一筆紀錄</span></article><article><small>LAST DAY</small><b id="statLast">—</b><span>最近一次紀錄</span></article></div><div class="columns"><section class="card"><div class="cardhead"><div><label>YOUR CALENDAR</label><h2>訊息日曆</h2></div><div class="month"><button id="prevMonth">‹</button><b id="monthLabel"></b><button id="nextMonth">›</button></div></div><div class="weekdays"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div><div id="calendar" class="calendar"></div><div class="legend">● 有紀錄　○ 尚未紀錄 <small>點選日期即可新增或查看</small></div><div class="launch"><b>2026.05.08</b><span>ENHYPEN Weverse DM 正式開通日 · 官方公告</span><a target="_blank" rel="noopener" href="https://weverse.io/enhypen/notice/35462">查看公告 ↗</a></div></section><aside><section class="card" id="detail"><label>DAY DETAILS</label><div class="empty"><b>✉</b><h3>選擇一個日期</h3><p>點選日曆，記下今天收到的訊息。</p></div></section><section class="card recent"><div class="cardhead"><div><label>RECENT MEMORIES</label><h2>最近紀錄</h2></div></div><div id="recentList" class="empty">還沒有紀錄，從第一天開始吧。</div></section></aside></div><div class="tools"><div><b>YOUR ARCHIVE, YOURS ONLY.</b><small>本機加密 · AES-GCM · PBKDF2</small></div><div><button id="exportBtn">匯出加密備份 ↗</button><label class="import">匯入備份<input id="importFile" type="file" accept="application/json"></label></div></div><footer>ikeDay · a private daybook for little moments · not affiliated with BELIFT LAB or Weverse</footer></section></main><div id="toast"></div><script src="./app.js"></script></body></html>
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f8f3ed">
+  <title>ikeDay 🦮🐾</title>
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="ikeDay home"><img src="./icon.svg" alt=""><span>ikeDay<small>JAKE'S LITTLE DAY TRACKER</small></span></a>
+    <div class="paw-note">🦮 <span>🐾</span></div>
+  </header>
+
+  <main>
+    <section id="lockScreen" class="lock-screen">
+      <div class="lock-art"><div class="art-circle"></div><div class="dog-emoji">🦮</div><div class="paw-emoji">🐾</div></div>
+      <div class="lock-copy">
+        <p class="eyebrow">A LITTLE TRACKER FOR JAKE'S DAYS</p>
+        <h1>Did he come<br><em>today?</em></h1>
+        <p class="intro">把有收到訊息的日子標記起來。簡單記錄，不放其他內容。</p>
+        <form id="unlockForm">
+          <label for="password">PASSWORD</label>
+          <input id="password" type="password" autocomplete="current-password" placeholder="輸入密碼" required>
+          <button type="submit">開啟日曆 <span>↗</span></button>
+        </form>
+        <p id="lockError" class="error" role="alert"></p>
+        <p class="privacy-note">🔒 紀錄會在這台裝置的瀏覽器內加密保存。</p>
+      </div>
+    </section>
+
+    <section id="tracker" hidden>
+      <div class="intro-row">
+        <div><p class="eyebrow">JAKE'S WEVERSE DM DAYS</p><h1>Little days, <em>big paws.</em></h1><p class="sub">從 2026.05.08 開始，標記今天有沒有來 🐾</p></div>
+        <div class="mascot">🦮<span>🐾</span></div>
+      </div>
+
+      <section class="calendar-card">
+        <div class="calendar-head">
+          <div><p class="eyebrow">YOUR CALENDAR</p><h2 id="monthLabel"></h2></div>
+          <div class="month-nav"><button id="prevMonth" aria-label="上個月">‹</button><button id="nextMonth" aria-label="下個月">›</button></div>
+        </div>
+        <div class="weekdays"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
+        <div id="calendar" class="calendar"></div>
+        <div class="legend"><span><i class="yes-dot"></i> 有來</span><span><i class="no-dot"></i> 沒來</span><span class="legend-hint">點日期進行標記</span></div>
+      </section>
+
+      <section id="markPanel" class="mark-panel" hidden>
+        <div class="selected-date"><p class="eyebrow">SELECTED DAY</p><h2 id="selectedDate"></h2></div>
+        <div class="mark-actions">
+          <button id="markYes" class="mark-button yes">🦮 有來</button>
+          <button id="markNo" class="mark-button no">🐾 沒來</button>
+          <button id="clearMark" class="clear-button">清除標記</button>
+        </div>
+      </section>
+
+      <section class="backup-card">
+        <div><p class="eyebrow">YOUR DATA</p><h2>備份與還原</h2><p>JSON 會以密碼加密，匯入時使用相同密碼。</p></div>
+        <div class="backup-actions"><button id="exportBtn">↓ 匯出 JSON</button><label class="import-button">↑ 匯入 JSON<input id="importFile" type="file" accept=".json,application/json"></label></div>
+      </section>
+      <footer>ikeDay · made of little paws 🐾</footer>
+      <button id="lockBtn" class="lock-button">鎖定日曆</button>
+    </section>
+  </main>
+  <div id="toast" role="status"></div>
+  <script src="./app.js"></script>
+</body>
+</html>
