@@ -1,43 +1,22 @@
-# AFTERIMAGE — Jake's Phone
+# 今天也要開店！GOOD DAY 便利商店日記
 
-A mobile-first psychological horror game presented as a simulated iPhone. The phone interface is the game: unlock it, explore the installed apps, inspect evidence, and message the characters.
+一款輕鬆可愛的七日便利商店經營遊戲。玩家每天接待五位客人，處理訂單、補貨、整理店面、做促銷，並在隨機事件中做選擇。
 
-## Play
+## 遊戲玩法
+- 每天接待 5 位不同個性的客人，依照購物清單結帳。
+- 商品有庫存限制；缺貨時可以補貨，或向客人道歉。
+- 使用補貨、整理店面、今日促銷等店長行動管理資源。
+- 每天會遇到隨機事件，例如下雨、試吃品、店貓和提早到貨。
+- 經營 7 天，累積人氣與營收，挑戰「街坊最愛店長」目標。
 
+## 進度保存
+遊戲使用瀏覽器 localStorage 自動保存進度。同一瀏覽器可以接續遊玩；清除網站資料會一併清除存檔。
+
+## 技術
+- HTML、CSS、原生 JavaScript
+- 不需要伺服器、API 金鑰或外部服務
+- 響應式版面，支援手機與桌面瀏覽器
+
+## 遊玩
 https://cus23.github.io/game/jake-horror/
 
-## Unlock
-
-- Tap either lock-screen notification or swipe upward.
-- Enter **1115**.
-- The game opens to the iPhone-style home screen.
-
-## Explore the phone
-
-- **訊息** — switch between Jake and Mina, send your own text, and receive context-aware scripted replies.
-- **電話** — inspect recent calls and play Jake's voicemail.
-- **照片** — inspect images and their suspicious metadata.
-- **備忘錄** — uncover a note you do not remember writing.
-- **Safari** — search fictional web results for clues.
-- **尋找** — inspect the location-sharing map and device details.
-- **檔案** — review the current objective, collected evidence, and ending.
-- **語音備忘錄** — play a suspicious recording and read its transcript.
-- **相機** — take a photo, switch cameras, or record a short simulated clip.
-- **設定** — save or reset the game.
-
-## Story and saves
-
-The story advances through actions inside the phone. Clues, chat history, choices, trust/fear values, and the current chapter are saved automatically in the browser's localStorage. Returning to the page on the same browser resumes from the saved game. The Settings app also has a manual save and reset option.
-
-The chat is an offline, rule-based simulation with free-text input and contextual scripted responses. It does not call an external AI service or require an API key. Responses are authored game dialogue, not a live AI model.
-
-## Project structure
-
-- index.html — lock screen, home screen, and app containers.
-- styles.css — full-screen iPhone UI and app styling.
-- game.js — story progression, app interactions, simulated chat, calls, evidence, endings, and local saves.
-- manifest.json / icon.svg — web-app metadata and icon.
-
-No build step, package installation, server-side database, or paid service is required. GitHub Pages hosts the static game.
-
-This is a fictional fan-made work. Characters and events are fictional and are not affiliated with or endorsed by any real person.
