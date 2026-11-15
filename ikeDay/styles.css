@@ -5,3 +5,9 @@
 
 .year-card{background:#fffdfa;border:1px solid #eee5df;border-radius:16px;padding:22px 26px;margin:0 0 15px;box-shadow:0 5px 22px #59483c06}.year-head{display:flex;align-items:center;justify-content:space-between}.year-head h2{font-size:19px;margin:0 0 5px}.year-head p:not(.eyebrow){font-size:10px;color:#a09690;margin:0}.year-total{width:70px;height:70px;border-radius:50%;background:#f8e8e3;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#a8756e;flex-shrink:0}.year-total strong{font:24px Georgia}.year-total span{font-size:9px}.year-chart{width:100%;overflow:hidden;margin-top:13px}.year-chart svg{display:block;width:100%;height:auto;overflow:visible}
 @media(max-width:700px){.year-card{padding:18px 13px}.year-head h2{font-size:17px}.year-total{width:61px;height:61px}.year-chart{margin-top:10px}}
+
+.day.yes{background:transparent;border-color:transparent}
+.day.yes .num{width:31px;height:31px;border:1.7px solid #d99b94;border-radius:50%;display:grid;place-items:center;color:#a8756e;background:#fdf5f2}
+.day.yes .mark{font-size:13px}
+.paw-note{font-family:'DM Sans','Noto Sans TC',sans-serif;font-size:19px;letter-spacing:0;color:#8f7772;white-space:nowrap}
+@media(max-width:700px){.day.yes .num{width:29px;height:29px}}
