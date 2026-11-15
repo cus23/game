@@ -4,14 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#f8f3ed">
-  <title>제이크's WEVERSE DM Diary</title>
-  <link rel="icon" href="./icon.svg" type="image/svg+xml"><link rel="shortcut icon" href="./icon.svg" type="image/svg+xml">
+  <title>ikeDay</title>
+  <link rel="icon" href="./icon.svg" type="image/svg+xml"><link rel="shortcut icon" href="./icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png"><link rel="manifest" href="./site.webmanifest">
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
   <header class="topbar">
     <a class="brand" href="./" aria-label="ikeDay home"><img src="./icon.svg" alt=""><span>제이크's WEVERSE DM Diary</span></a>
-    <div class="paw-note" aria-label="cute face">૮ •𖥦• აᐝ</div>
+    <div class="paw-note" aria-label="dog and paw">🦮🐾</div>
   </header>
 
   <main>
@@ -20,7 +20,7 @@
       <div class="lock-copy">
         <p class="eyebrow">A LITTLE TRACKER FOR JAKE'S DAYS</p>
         <h1>Did he come<br><em>today?</em></h1>
-        <p class="intro">把有收到訊息的日子標記起來。簡單記錄，不放其他內容。</p>
+        
         <form id="unlockForm">
           <label for="password">PASSWORD</label>
           <input id="password" type="password" autocomplete="current-password" placeholder="輸入密碼" required>
@@ -34,7 +34,7 @@
     <section id="tracker" hidden>
       <div class="intro-row">
         <div><h1>Little days, <em>big paws.</em></h1><p class="sub">2026.05.08 부터 💭</p></div>
-        <div class="mascot" aria-label="cute face">૮ •𖥦• აᐝ</div>
+        
       </div>
 
       <section class="calendar-card">
@@ -44,7 +44,7 @@
         </div>
         <div class="weekdays"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>
         <div id="calendar" class="calendar"></div>
-        <div class="legend"><span><i class="yes-dot"></i> 🐾 有來</span><span class="legend-hint">空白代表沒有標記</span></div>
+        <div class="legend"><span><i class="yes-dot"></i> 🐾 有來</span></div>
       </section>
 
       <section id="markPanel" class="mark-panel" hidden>
@@ -56,14 +56,14 @@
       </section>
 
       <section class="year-card">
-        <div class="year-head"><div><p class="eyebrow">JAKE DAYS IN 2026</p><h2>一年來了幾次？</h2><p>每個月收到訊息的天數 🐾</p></div><div class="year-total"><strong id="yearTotal">0</strong><span>天有來</span></div></div>
+        <div class="year-head"><div><h2>一年來了幾次？</h2><p>每個月收到訊息的天數 🐾</p></div><div class="year-total"><strong id="yearTotal">0</strong><span>天有來</span></div></div>
         <div id="yearChart" class="year-chart" role="img" aria-label="2026 每月有收到訊息的天數長條圖"></div>
       </section>
       <section class="backup-card">
         <div><p class="eyebrow">YOUR DATA</p><h2>備份與還原</h2><p>JSON 會以密碼加密，匯入時使用相同密碼。</p></div>
         <div class="backup-actions"><button id="exportBtn">↓ 匯出 JSON</button><label class="import-button">↑ 匯入 JSON<input id="importFile" type="file" accept=".json,application/json"></label></div>
       </section>
-      <footer>ikeDay · made of little paws 🐾</footer>
+      
       <button id="lockBtn" class="lock-button">鎖定日曆</button>
     </section>
   </main>
