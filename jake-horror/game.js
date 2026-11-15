@@ -95,6 +95,5 @@ function clean(){if(S.energy<1){say("體力不夠了，先休息一下吧。");r
 function promo(){if(S.cash<80){say("現金不足，無法宣傳。");return;}S.cash-=80;S.promo=true;S.fame+=3;say("促銷海報貼好了！下一位客人的消費會增加。");render();save();}
 function start(){load();$("hero").classList.add("hidden");$("game").classList.remove("hidden");render();if(S.turn>=5){endDay();}else makeCustomer();save();}
 $("startBtn").addEventListener("click",start);$("serveBtn").addEventListener("click",serve);$("skipBtn").addEventListener("click",skip);$("restockBtn").addEventListener("click",restock);$("cleanBtn").addEventListener("click",clean);$("promoBtn").addEventListener("click",promo);$("nextDayBtn").addEventListener("click",nextDay);$("soundBtn").addEventListener("click",()=>{muted=!muted;$("soundBtn").textContent=muted?"♫̸":"♫";});
-const hero=document.querySelector(".hero");hero.id="hero";
-if(localStorage.getItem(KEY)){const saved=JSON.parse(localStorage.getItem(KEY));if(saved&&saved.day){$("saveHint").textContent="偵測到上次的進度，開始後會接續遊戲。";}}
+try{const saved=JSON.parse(localStorage.getItem(KEY)||"null");if(saved&&saved.day){$("saveHint").textContent="偵測到上次的進度，開始後會接續遊戲。";}}catch(e){}
 })();
