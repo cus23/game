@@ -22,3 +22,19 @@
 .day.yes .mark{font-size:13px}
 .calendar-card{touch-action:pan-y}
 @media(max-width:700px){.day.yes::before{width:42px;height:42px}.paw-note{font-size:19px}}
+
+
+/* ikeDay wordmark and minimal lock screen */
+.brand{font-family:'DM Sans',sans-serif;font-size:21px;font-weight:700;letter-spacing:-1.1px}
+.brand img{width:34px;height:34px}
+.lock-screen{min-height:calc(100vh - 145px);display:flex;align-items:center;justify-content:center}
+.lock-copy{width:min(100%,340px);max-width:340px}
+.lock-copy .lock-brand{font-family:'DM Sans',sans-serif;font-size:64px;font-weight:700;letter-spacing:-4px;line-height:1;margin:0 0 38px;text-align:center;color:#51464a}
+.lock-copy form label{font-family:'Noto Sans TC',sans-serif;font-size:11px;letter-spacing:.04em}
+.paw-note{font-size:22px;letter-spacing:0}
+@media(max-width:700px){
+  .brand{font-size:19px}
+  .brand img{width:31px;height:31px}
+  .lock-screen{min-height:calc(100vh - 125px);padding:0 8px}
+  .lock-copy .lock-brand{font-size:58px;margin-bottom:34px}
+}
