@@ -1,21 +1,119 @@
-const $=id=>document.getElementById(id),STORE='ikeDay_v1',START='2026-05-08',te=new TextEncoder(),td=new TextDecoder();let key=null,records={},view=new Date(2026,10,1),selected=null;
-const b64=b=>btoa(String.fromCharCode(...new Uint8Array(b))),unb64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
-async function derive(p,s){let m=await crypto.subtle.importKey('raw',te.encode(p),'PBKDF2',false,['deriveKey']);return crypto.subtle.deriveKey({name:'PBKDF2',salt:s,iterations:310000,hash:'SHA-256'},m,{name:'AES-GCM',length:256},false,['encrypt','decrypt'])}
-async function seal(){let iv=crypto.getRandomValues(new Uint8Array(12)),cipher=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,te.encode(JSON.stringify({records})));return {version:1,algorithm:'AES-GCM',kdf:'PBKDF2-SHA256',iterations:310000,salt:localStorage.getItem(STORE+'_salt'),iv:b64(iv),ciphertext:b64(cipher),updatedAt:new Date().toISOString()}}
-async function save(){let v=await seal();localStorage.setItem(STORE,JSON.stringify(v));toast('已加密儲存');render()}
-function toast(s){let t=$('toast');t.textContent=s;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000)}
-function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function setup(){let exists=!!localStorage.getItem(STORE);$('lockTitle').innerHTML=exists?'Welcome back.<br><em>Your days are safe.</em>':'Keep the days<br><em>that he appeared.</em>';$('lockIntro').textContent=exists?'輸入密碼，解鎖你的 ikeDay 私人日記。':'設定一組只有你知道的密碼，建立加密日記。';$('confirmWrap').hidden=exists;$('unlockBtn2').textContent=exists?'解鎖我的 ikeDay ↗':'建立私人日記 ↗'}
-$('unlockForm').onsubmit=async e=>{e.preventDefault();$('lockError').textContent='';let p=$('password').value;try{if(!localStorage.getItem(STORE)){if(p.length<8)throw Error('密碼至少需要 8 個字元。');if(p!==$('confirmPassword').value)throw Error('兩次輸入的密碼不一致。');let salt=crypto.getRandomValues(new Uint8Array(16));localStorage.setItem(STORE+'_salt',b64(salt));key=await derive(p,salt);records={};await save()}else{let v=JSON.parse(localStorage.getItem(STORE));key=await derive(p,unb64(v.salt));let plain=await crypto.subtle.decrypt({name:'AES-GCM',iv:unb64(v.iv)},key,unb64(v.ciphertext));records=JSON.parse(td.decode(plain)).records||{}}$('password').value='';$('confirmPassword').value='';$('lockScreen').hidden=true;$('app').hidden=false;$('lockBtn').hidden=false;$('lockState').textContent='● UNLOCKED';render()}catch(err){key=null;$('lockError').textContent=err.message==='The operation failed for an operation-specific reason.'?'密碼錯誤或資料無法解密。':err.message}}
-function lock(){key=null;records={};selected=null;$('app').hidden=true;$('lockScreen').hidden=false;$('lockBtn').hidden=true;$('lockState').textContent='● LOCKED';$('password').value='';$('confirmPassword').value='';setup()}$('lockBtn').onclick=lock;
-function datefmt(s){return s.replaceAll('-','.')}
-function renderCalendar(){let y=view.getFullYear(),m=view.getMonth(),first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate(),today=new Date().toLocaleDateString('en-CA');$('monthLabel').textContent=y+'.'+String(m+1).padStart(2,'0');let box=$('calendar');box.innerHTML='';for(let i=0;i<first;i++)box.append(document.createElement('div'));for(let d=1;d<=days;d++){let s=y+'-'+String(m+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'),b=document.createElement('button');b.className='day'+(records[s]?' has':'')+(selected===s?' selected':'')+(today===s?' today':'')+(s===START?' milestone':'');b.innerHTML='<span class="num">'+d+'</span><i></i>';b.disabled=s<START||s>today;b.onclick=()=>{selected=s;renderCalendar();renderDetail()};box.append(b)}}
-function renderDetail(){let box=$('detail');if(!selected){box.innerHTML='<label>DAY DETAILS</label><div class="empty"><b>✉</b><h3>選擇一個日期</h3><p>點選日曆，記下今天收到的訊息。</p></div>';return}let r=records[selected]||{};box.innerHTML='<label>DAY DETAILS</label><div class="detail-date">'+datefmt(selected)+'</div><h2 class="detail-title">這一天的記錄</h2><div class="field"><label>紀錄標題</label><input id="rTitle" maxlength="60" placeholder="例如：早安訊息、晚安、照片更新" value="'+esc(r.title)+'"></div><div class="field"><label>內容／備註（私人）</label><textarea id="rNote" maxlength="3000" placeholder="記下訊息內容、當天心情或想保存的細節…">'+esc(r.note)+'</textarea></div><div class="field"><label>訊息類型</label><select id="rType"><option value="text">文字訊息</option><option value="photo">照片／影片</option><option value="voice">語音訊息</option><option value="live">其他更新</option></select></div><div class="field"><label>公開來源（選填）</label><input id="rSource" type="url" placeholder="X 貼文或其他來源網址" value="'+esc(r.source)+'"></div><label class="check"><input id="rConfirmed" type="checkbox" '+(r.confirmed===false?'':'checked')+'> 已確認當天有收到 Jake 的訊息</label><div class="actions"><button class="save" id="saveRecord">儲存這一天</button>'+(records[selected]?'<button class="del" id="deleteRecord">刪除</button>':'')+'</div>';$('rType').value=r.type||'text';$('saveRecord').onclick=async()=>{records[selected]={title:$('rTitle').value.trim(),note:$('rNote').value.trim(),type:$('rType').value,source:$('rSource').value.trim(),confirmed:$('rConfirmed').checked};await save();renderDetail()};if($('deleteRecord'))$('deleteRecord').onclick=async()=>{if(confirm('確定刪除這一天的紀錄？')){delete records[selected];await save();renderDetail()}}}
-function renderStats(){let ds=Object.keys(records).filter(d=>records[d].confirmed!==false).sort();$('statDays').textContent=ds.length;$('statMessages').textContent=Object.keys(records).length;$('statFirst').textContent=ds.length?ds[0].slice(5).replace('-','.'): '—';$('statLast').textContent=ds.length?ds.at(-1).slice(5).replace('-','.'): '—'}
-function renderRecent(){let ds=Object.keys(records).sort().reverse().slice(0,5);$('recentList').innerHTML=ds.length?ds.map(d=>'<div class="recent-item" data-date="'+d+'"><div class="recent-date">'+d.slice(8)+'</div><div class="recent-copy"><b>'+esc(records[d].title||'當天訊息紀錄')+'</b><small>'+datefmt(d)+'</small></div></div>').join(''):'<div class="empty">還沒有紀錄，從第一天開始吧。</div>';document.querySelectorAll('.recent-item').forEach(x=>x.onclick=()=>{let d=x.dataset.date;view=new Date(+d.slice(0,4),+d.slice(5,7)-1,1);selected=d;render()})}
-function render(){renderCalendar();renderDetail();renderStats();renderRecent()}
-$('prevMonth').onclick=()=>{view.setMonth(view.getMonth()-1);renderCalendar()};$('nextMonth').onclick=()=>{let n=new Date(view.getFullYear(),view.getMonth()+1,1);if(n<=new Date(new Date().getFullYear(),new Date().getMonth(),1)){view=n;renderCalendar()}};
-$('exportBtn').onclick=()=>{let a=document.createElement('a'),u=URL.createObjectURL(new Blob([localStorage.getItem(STORE)],{type:'application/json'}));a.href=u;a.download='ikeDay-encrypted-backup.json';a.click();URL.revokeObjectURL(u)};
-$('importFile').onchange=async e=>{let file=e.target.files[0];if(!file)return;try{let v=JSON.parse(await file.text());if(v.version!==1||v.algorithm!=='AES-GCM'||!v.salt||!v.iv||!v.ciphertext)throw Error();if(confirm('匯入會取代目前這個瀏覽器的 ikeDay 日記，確定繼續？')){localStorage.setItem(STORE,JSON.stringify(v));localStorage.setItem(STORE+'_salt',v.salt);lock();toast('加密備份已匯入，請輸入備份密碼解鎖')}}catch(err){toast('備份檔格式不正確')}e.target.value=''};
-$('importFile').onchange=async e=>{let f=e.target.files[0];if(!f)return;try{let v=JSON.parse(await f.text());if(v.algorithm!=='AES-GCM'||!v.salt||!v.ciphertext)throw Error();if(confirm('匯入會取代目前這個瀏覽器的日記，確定？')){localStorage.setItem(STORE,JSON.stringify(v));localStorage.setItem(STORE+'_salt',v.salt);lock();toast('已匯入，請用備份密碼解鎖')}}catch{toast('備份檔格式不正確')}e.target.value=''};
-if(!crypto?.subtle){$('unlockBtn2').disabled=true;$('lockIntro').textContent='此瀏覽器不支援安全加密，請使用最新版 Safari 或 Chrome。'}setup();
+const $=id=>document.getElementById(id);
+const STORE='ikeDay_attendance_v2';
+const START='2026-05-08';
+const te=new TextEncoder(),td=new TextDecoder();
+const PASSWORD_CHECK='15WclAORKD85Z3ymfYxpJbqbJ1obv4WDSf1OP9hzzQk=';
+let records={},key=null,view=new Date(),selected=null,salt=null;
+
+function b64(bytes){return btoa(String.fromCharCode(...new Uint8Array(bytes)))}
+function unb64(value){return Uint8Array.from(atob(value),c=>c.charCodeAt(0))}
+async function passwordIsValid(password){
+  const material=await crypto.subtle.importKey('raw',te.encode(password),'PBKDF2',false,['deriveBits']);
+  const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt:te.encode('ikeDay-attendance-lock-v2'),iterations:310000,hash:'SHA-256'},material,256);
+  return b64(bits)===PASSWORD_CHECK;
+}
+async function deriveEncryptionKey(password,rawSalt){
+  const material=await crypto.subtle.importKey('raw',te.encode(password),'PBKDF2',false,['deriveKey']);
+  return crypto.subtle.deriveKey({name:'PBKDF2',salt:rawSalt,iterations:310000,hash:'SHA-256'},material,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+}
+async function encryptRecords(data,rawSalt,passwordKey){
+  const iv=crypto.getRandomValues(new Uint8Array(12));
+  const ciphertext=await crypto.subtle.encrypt({name:'AES-GCM',iv},passwordKey,te.encode(JSON.stringify(data)));
+  return {version:2,algorithm:'AES-GCM',kdf:'PBKDF2-SHA-256',iterations:310000,salt:b64(rawSalt),iv:b64(iv),ciphertext:b64(ciphertext)};
+}
+async function decryptBackup(backup,password){
+  if(backup.version!==2||backup.algorithm!=='AES-GCM'||!backup.salt||!backup.iv||!backup.ciphertext)throw Error('JSON 備份格式不正確。');
+  const rawSalt=unb64(backup.salt);
+  const derived=await deriveEncryptionKey(password,rawSalt);
+  const plain=await crypto.subtle.decrypt({name:'AES-GCM',iv:unb64(backup.iv)},derived,unb64(backup.ciphertext));
+  const data=JSON.parse(td.decode(plain));
+  if(!data||typeof data!=='object'||!data.records||typeof data.records!=='object')throw Error('備份內容格式不正確。');
+  for(const [date,status] of Object.entries(data.records)){
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!['yes','no'].includes(status))throw Error('備份內含無效日期或標記。');
+  }
+  return {data,rawSalt,derived};
+}
+async function persist(){
+  const backup=await encryptRecords({records},salt,key);
+  localStorage.setItem(STORE,JSON.stringify(backup));
+}
+function toast(message){const el=$('toast');el.textContent=message;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1900)}
+function localDate(date){return [date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-')}
+function today(){return localDate(new Date())}
+function showTracker(){ $('lockScreen').hidden=true;$('tracker').hidden=false;render() }
+function lock(){key=null;salt=null;records={};selected=null;$('tracker').hidden=true;$('lockScreen').hidden=false;$('password').value='';$('lockError').textContent=''}
+$('unlockForm').addEventListener('submit',async event=>{
+  event.preventDefault();$('lockError').textContent='';
+  const password=$('password').value;
+  try{
+    if(!await passwordIsValid(password))throw Error('密碼不正確。');
+    const saved=localStorage.getItem(STORE);
+    if(saved){
+      const opened=await decryptBackup(JSON.parse(saved),password);
+      records=opened.data.records;salt=opened.rawSalt;key=opened.derived;
+    }else{
+      records={};salt=crypto.getRandomValues(new Uint8Array(16));key=await deriveEncryptionKey(password,salt);await persist();
+    }
+    $('password').value='';showTracker();
+  }catch(error){key=null;$('lockError').textContent=error.message==='The operation failed for an operation-specific reason.'?'無法解密資料，請確認備份與密碼。':error.message}
+});
+$('lockBtn').addEventListener('click',lock);
+function render(){
+  renderCalendar();
+  $('markPanel').hidden=!selected;
+  if(selected){$('selectedDate').textContent=selected.replaceAll('-','.');}
+}
+function renderCalendar(){
+  const year=view.getFullYear(),month=view.getMonth(),first=new Date(year,month,1).getDay(),count=new Date(year,month+1,0).getDate();
+  $('monthLabel').textContent=year+'.'+String(month+1).padStart(2,'0');
+  const grid=$('calendar');grid.innerHTML='';
+  for(let i=0;i<first;i++)grid.append(document.createElement('div'));
+  for(let day=1;day<=count;day++){
+    const date=year+'-'+String(month+1).padStart(2,'0')+'-'+String(day).padStart(2,'0');
+    const status=records[date];
+    const button=document.createElement('button');
+    button.type='button';button.className='day'+(status?' '+status:'')+(selected===date?' selected':'')+(date===today()?' today':'');
+    button.disabled=date<START||date>today();
+    button.setAttribute('aria-label',date+(status==='yes'?' 有來':status==='no'?' 沒來':' 未標記'));
+    button.innerHTML='<span class="num">'+day+'</span><span class="mark">'+(status==='yes'?'🐕':status==='no'?'🐾':'')+'</span>';
+    button.addEventListener('click',()=>{selected=date;render()});
+    grid.append(button);
+  }
+  $('prevMonth').disabled=year===2026&&month===4;
+  $('nextMonth').disabled=year===new Date().getFullYear()&&month===new Date().getMonth();
+}
+async function setStatus(status){
+  if(!selected)return;
+  records[selected]=status;
+  try{await persist();render();toast(status==='yes'?'已標記：有來 🦮':'已標記：沒來 🐾')}
+  catch{toast('儲存失敗，請再試一次')}
+}
+$('markYes').addEventListener('click',()=>setStatus('yes'));
+$('markNo').addEventListener('click',()=>setStatus('no'));
+$('clearMark').addEventListener('click',async()=>{
+  if(!selected||!records[selected])return;
+  delete records[selected];
+  try{await persist();render();toast('已清除標記')}catch{toast('儲存失敗')}
+});
+$('prevMonth').addEventListener('click',()=>{view=new Date(view.getFullYear(),view.getMonth()-1,1);renderCalendar()});
+$('nextMonth').addEventListener('click',()=>{const next=new Date(view.getFullYear(),view.getMonth()+1,1);if(next<=new Date(new Date().getFullYear(),new Date().getMonth(),1)){view=next;renderCalendar()}});
+$('exportBtn').addEventListener('click',()=>{
+  const data=localStorage.getItem(STORE);if(!data){toast('目前沒有可匯出的資料');return}
+  const url=URL.createObjectURL(new Blob([JSON.stringify(JSON.parse(data),null,2)],{type:'application/json'}));
+  const link=document.createElement('a');link.href=url;link.download='ikeDay-backup.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('已匯出加密 JSON');
+});
+$('importFile').addEventListener('change',async event=>{
+  const file=event.target.files[0];if(!file)return;
+  try{
+    const backup=JSON.parse(await file.text());
+    const opened=await decryptBackup(backup,'2002ike');
+    if(!confirm('匯入會取代目前這個瀏覽器的標記紀錄，確定繼續？'))return;
+    records=opened.data.records;salt=opened.rawSalt;key=opened.derived;
+    await persist();render();toast('JSON 備份已匯入');
+  }catch(error){toast(error.message==='The operation failed for an operation-specific reason.'?'備份無法解密，請確認檔案。':error.message)}
+  finally{event.target.value=''}
+});
+if(!window.crypto?.subtle){
+  $('unlockForm').querySelector('button').disabled=true;
+  $('lockError').textContent='此瀏覽器不支援加密功能，請使用最新版 Safari 或 Chrome。';
+}
