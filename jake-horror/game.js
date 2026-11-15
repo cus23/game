@@ -1,51 +1,100 @@
 (()=>{
 "use strict";
 const $=id=>document.getElementById(id);
-const state={questions:0,clues:[],scareOne:false,scareTwo:false,ended:false,correct:0};
-const clueData={
- cctv:{tag:"EVIDENCE 01",title:"監視器截圖",body:"畫面時間：03:17:08。\n電梯門上的樓層顯示器是「13」。但畫面右下角的監視器時間戳記，顯示這段影片其實來自地下室的攝影機。\n\n更奇怪的是：電梯鏡面裡有一個人，站在管理員身後。管理員本人卻沒有回頭。",hint:"注意鏡面中的人影，以及這段影片真正的拍攝位置。"},
- elevator:{tag:"EVIDENCE 02",title:"電梯維修紀錄",body:"建物電梯控制系統的維修紀錄：\n\n00:41 — 取消 13 樓按鍵。\n01:06 — 13 樓樓層訊號再次出現。\n02:58 — 電梯在 12 樓與 B1 之間往返 6 次。\n03:17 — 電梯門感應器顯示「內側有人持續按住開門鍵」。\n\n備註：本棟建築並沒有登記 13 樓。",hint:"電梯的樓層顯示可能不是故障，而是有人刻意讓它停在某個位置。"},
- blueprint:{tag:"EVIDENCE 03",title:"建築平面圖",body:"你找到一張二十年前的施工圖。\n\n正式樓層從 12 樓直接跳到 14 樓。圖面上，12 樓天花板與屋頂設備層之間，留有一個未標示的夾層。\n\n夾層入口被畫在電梯井旁邊，旁邊有一行手寫字：\n「維修人員不得在 03:17 後進入。」",hint:"十三樓不是一般住戶使用的樓層。它被藏在兩個正式樓層之間。"},
- audio:{tag:"EVIDENCE 04",title:"最後一段錄音",body:"錄音長度：00:19。\n\n（電梯抵達提示音。）\n管理員：「我到十二樓了。」\n（敲門聲，三下。）\n未知聲音：「你怎麼還在外面？」\n管理員：「我沒有出去。」\n（長時間沉默。）\n未知聲音：「那剛才替你開門的是誰？」\n\n錄音結束前，還有一個很輕的聲音：四下敲門。",hint:"留意管理員說的「我沒有出去」，以及最後多出來的第四下敲門。"},
- report:{tag:"EVIDENCE 05",title:"管理員值班表",body:"管理員：林先生。\n值班時間：22:00–06:00。\n\n備註欄有三次相同的手寫紀錄：\n「03:17，巡樓時請勿搭乘電梯。」\n\n最底下還有一行被塗黑的字，透光後勉強辨識出：\n「如果在十三樓看見自己，不要回答他。」",hint:"管理員以前就知道這個時間會發生什麼事。"}
-};
-const answers=[
-{keys:["13樓","十三樓","第十三層","夾層","樓層"],yes:"是。它確實存在，只是不在正式建築登記裡。",no:"不是這個方向。",important:true},
-{keys:["鏡子","倒影","反射","鏡面"],yes:"是。鏡面裡的影像和現實並不一致。",no:"不是。鏡面是重要線索。",important:true},
-{keys:["管理員","林先生","自己","複製","另一個人","替身"],yes:"是。管理員遇到的不是普通訪客。",no:"不能這樣說。你需要分清楚畫面裡的兩個人。",important:true},
-{keys:["電梯","按鈕","維修","故障"],yes:"是。電梯是通往那個夾層的唯一入口。",no:"不是單純的機械故障。",important:true},
-{keys:["03:17","時間","凌晨","敲門","四下","三下"],yes:"是。這個時間和敲門次數都有意義。",no:"不完全正確。再注意錄音裡的順序。",important:true},
-{keys:["死","鬼","幽靈","超自然"],yes:"你可以這樣理解，但還沒有解釋清楚它如何出現。",no:"目前沒有足夠證據排除這個可能。",important:false},
-{keys:["門","開門","出去","進去","裡面","外面"],yes:"是。真正危險的不是門外，而是有人已經在裡面。",no:"不是單純的門鎖問題。",important:true}
+const KEY="goodDayShopSaveV1";
+const products=[
+ {id:"tea",name:"奶茶",emoji:"🧋",price:45,stock:6,kind:"drink"},
+ {id:"coffee",name:"咖啡",emoji:"☕",price:55,stock:5,kind:"drink"},
+ {id:"water",name:"礦泉水",emoji:"💧",price:20,stock:8,kind:"drink"},
+ {id:"bread",name:"菠蘿麵包",emoji:"🍞",price:35,stock:5,kind:"snack"},
+ {id:"chips",name:"洋芋片",emoji:"🥔",price:40,stock:5,kind:"snack"},
+ {id:"pudding",name:"布丁",emoji:"🍮",price:38,stock:4,kind:"snack"}
 ];
-function logLine(q,a){const row=document.createElement("div");row.className="log-entry";const s=document.createElement("span");s.className="speaker";s.textContent="YOU";const t=document.createElement("span");t.className="answer";t.textContent=q;row.append(s,t);$("log").append(row);const r=document.createElement("div");r.className="log-entry";const rs=document.createElement("span");rs.className="speaker";rs.textContent="SOUP";const rt=document.createElement("span");rt.className="answer";const b=document.createElement("b");b.textContent=a;rt.append(b);r.append(rs,rt);$("log").append(r);$("log").scrollTop=$("log").scrollHeight;}
-function answerQuestion(q){
- const s=q.toLowerCase();
- if(/答案|真相|完整故事|解答/.test(s))return "現在還不是時候。先把線索拼起來。";
- for(const item of answers){if(item.keys.some(k=>s.includes(k))){if(item.important)state.correct++;return item.yes;}}
- if(/為什麼|原因|發生|誰|什麼/.test(s))return "這個問題很重要，但你需要更具體一點。請拆開來問。";
- return "這件事目前無法判斷。試著問人物、時間、空間，或聲音是否有關。";
+const customers=[
+ {name:"趕上課的學生",emoji:"🧑🏻‍🎓",line:"老闆！我快遲到了，拜託快一點！",items:["tea","bread"],tip:8},
+ {name:"剛下班的上班族",emoji:"👩🏻‍💻",line:"今天真的累翻了，想買點療癒的。",items:["coffee","pudding"],tip:12},
+ {name:"健身房常客",emoji:"🏃🏻",line:"今天也要健康飲食！嗯……水跟麵包好了。",items:["water","bread"],tip:5},
+ {name:"神祕阿姨",emoji:"👵🏻",line:"年輕人，幫我拿一下那個甜甜的。",items:["pudding","tea"],tip:10},
+ {name:"放學的小朋友",emoji:"🧒🏻",line:"我有零用錢！可以買洋芋片嗎？",items:["chips","water"],tip:4},
+ {name:"選擇困難的客人",emoji:"🤔",line:"我本來只想買一樣……但都好想吃。",items:["chips","pudding","coffee"],tip:14},
+ {name:"附近的店長",emoji:"🧑🏻‍🍳",line:"來看看你今天生意如何。",items:["coffee","bread"],tip:18},
+ {name:"旅行中的旅客",emoji:"🧳",line:"請問這附近有什麼好吃的？",items:["tea","chips"],tip:7},
+ {name:"帶狗散步的人",emoji:"🐶",line:"牠一直盯著你的布丁看，哈哈。",items:["water","pudding"],tip:6}
+];
+let S={day:1,cash:1200,fame:10,energy:5,stock:{tea:6,coffee:5,water:8,bread:5,chips:5,pudding:4},turn:0,served:0,revenue:0,customers:[],rating:"—",promo:false,clean:false,diary:[],totalRevenue:0};
+let current=null,muted=false,eventUsed=false;
+const fmt=n=>"$"+Math.round(n).toLocaleString("en-US");
+const product=id=>products.find(p=>p.id===id);
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));$("saveHint").textContent="進度已自動儲存。";}catch(e){}}
+function load(){try{const v=JSON.parse(localStorage.getItem(KEY));if(v&&v.day>=1&&v.day<=7)S={...S,...v};}catch(e){}}
+function say(msg){$("feedback").textContent=msg;S.diary.unshift(msg);S.diary=S.diary.slice(0,5);$("diary").textContent=S.diary.join("　／　");}
+function render(){
+ $("dayLabel").textContent="第 "+S.day+" / 7 天";$("cash").textContent=fmt(S.cash);$("fame").textContent="★ "+S.fame;$("energy").textContent="♥ "+S.energy;$("rating").textContent=S.rating;$("turnLabel").textContent="第 "+Math.min(S.turn+1,5)+" 位客人";
+ $("drinkShelf").innerHTML=["tea","coffee","water"].map(id=>'<span title="'+product(id).name+'">'+product(id).emoji.repeat(Math.min(3,Math.ceil(S.stock[id]/3)))+'</span>').join("");
+ $("snackShelf").innerHTML=["bread","chips","pudding"].map(id=>'<span title="'+product(id).name+'">'+product(id).emoji.repeat(Math.min(3,Math.ceil(S.stock[id]/3)))+'</span>').join("");
+ $("inventory").innerHTML=products.map(p=>'<span>'+p.emoji+" "+p.name+" × "+S.stock[p.id]+'</span>').join("");
+ $("fameGoal").textContent=Math.min(S.fame,50)+" / 50";$("cashGoal").textContent=Math.min(S.totalRevenue,5000)+" / 5000";$("fameProgress").style.width=Math.min(100,S.fame/50*100)+"%";$("cashProgress").style.width=Math.min(100,S.totalRevenue/5000*100)+"%";
 }
-function submitQuestion(e){e.preventDefault();if(state.ended)return;const input=$("question");const q=input.value.trim();if(!q)return;state.questions++;const a=answerQuestion(q);logLine(q,a);input.value="";$("questionCount").textContent=state.questions+" 次提問";
- if(state.questions>=3&&!state.scareOne){state.scareOne=true;setTimeout(()=>jumpscare("small"),450);}
- if(state.questions>=7&&!state.scareTwo){state.scareTwo=true;setTimeout(()=>jumpscare("large"),650);}
+function makeCustomer(){
+ const c=customers[Math.floor(Math.random()*customers.length)];
+ current={...c,items:[...c.items]};$("customerEmoji").textContent=c.emoji;$("customerName").textContent=c.name;$("customerLine").textContent=c.line;
+ $("orderList").innerHTML=c.items.map(id=>'<div class="order-item"><span>'+product(id).emoji+" "+product(id).name+'</span><b>'+fmt(product(id).price)+'</b></div>').join("");
+ $("orderTotal").textContent=fmt(c.items.reduce((n,id)=>n+product(id).price,0));
+ $("turnLabel").textContent="第 "+(S.turn+1)+" 位客人";$("serveBtn").disabled=false;$("skipBtn").disabled=false;$("feedback").textContent="客人正在等你結帳！";
 }
-function openClue(id){const d=clueData[id];if(!d)return;if(!state.clues.includes(id)){state.clues.push(id);const btn=document.querySelector('[data-clue="'+id+'"]');btn.classList.add("found");btn.querySelector("small").textContent="已取得";$("clueCount").textContent=state.clues.length+" / 5 已發現";if(state.clues.length===3&&!state.scareOne){state.scareOne=true;setTimeout(()=>jumpscare("small"),400);}if(state.clues.length===5&&!state.scareTwo){state.scareTwo=true;setTimeout(()=>jumpscare("large"),500);}}
- $("modalTag").textContent=d.tag;$("modalTitle").textContent=d.title;$("modalBody").textContent=d.body;$("modalHint").textContent="調查提示："+d.hint;$("clueModal").classList.remove("hidden");
+function available(){return current.items.every(id=>S.stock[id]>0);}
+function serve(){
+ if(!current||S.turn>=5)return;
+ if(!available()){say("有商品缺貨了！你可以補貨，或向客人道歉。");return;}
+ const base=current.items.reduce((n,id)=>n+product(id).price,0);
+ const bonus=S.promo?Math.round(base*.08):0;const tip=current.tip+(S.clean?5:0);
+ S.cash+=base+bonus+tip;S.revenue+=base+bonus+tip;S.totalRevenue+=base+bonus+tip;S.fame+=S.clean?3:2;S.energy=Math.max(0,S.energy-1);
+ current.items.forEach(id=>S.stock[id]--);S.served++;S.turn++;
+ say(current.name+"買得很開心！收入 "+fmt(base+bonus+tip)+"（含小費）。");
+ S.promo=false;S.clean=false;render();save();afterCustomer();
 }
-function closeClue(){$("clueModal").classList.add("hidden");}
-let audioCtx=null;
-function soundScare(){try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;audioCtx=audioCtx||new C();if(audioCtx.state==="suspended")audioCtx.resume();const now=audioCtx.currentTime;const osc=audioCtx.createOscillator();const gain=audioCtx.createGain();osc.type="sawtooth";osc.frequency.setValueAtTime(95,now);osc.frequency.exponentialRampToValueAtTime(32,now+.55);gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(.35,now+.025);gain.gain.exponentialRampToValueAtTime(.0001,now+.75);osc.connect(gain);gain.connect(audioCtx.destination);osc.start(now);osc.stop(now+.8);}catch(e){}}
-function vibrate(pattern){if(navigator.vibrate){try{navigator.vibrate(pattern);}catch(e){}}}
-function jumpscare(level){if(state.ended)return;const el=$("jumpscare");el.classList.remove("hidden");el.classList.add("active");el.setAttribute("aria-hidden","false");soundScare();vibrate(level==="large"?[180,60,240,60,400]:[100,50,160]);document.body.classList.add("shake");setTimeout(()=>{el.classList.remove("active");el.classList.add("hidden");el.setAttribute("aria-hidden","true");document.body.classList.remove("shake");},level==="large"?1900:1250);}
-function submitTheory(){const t=$("theory").value.trim();if(t.length<12){$("theory").focus();$("theory").placeholder="請再多寫一點，你還需要解釋發生了什麼。";return;}state.ended=true;const score=state.clues.length*2+Math.min(state.correct,5)+Math.min(state.questions,5);let code,title,body;
- if(state.clues.length===5&&/鏡|倒影|複製|另一個|自己|夾層|十三樓/.test(t)){code="ENDING 01 · 完整真相";title="你沒有回頭。";body="十三樓是藏在十二樓與屋頂之間的維修夾層。電梯鏡面會在 03:17 映出一個「多出來的人」。它會模仿乘客，並在乘客回答敲門聲後取代他。管理員在鏡中看見了自己，卻沒有回答。真正讓他消失的，是他身後那個已經走出鏡面的自己。你拼出了真相。但提交推理後，螢幕反光裡，你的嘴巴比你早一步笑了。";}
- else if(score>=8){code="ENDING 02 · 未完成的紀錄";title="你知道得太多了。";body="你找到十三樓的入口，也知道管理員不是第一個失蹤的人。但你沒有弄清楚鏡面裡的東西如何離開。凌晨 03:17，電梯抵達。這次，樓層顯示器亮起了「你的名字」。";}
- else{code="ENDING 03 · 第四下";title="門外有人。";body="你提交了推理，卻忽略了最重要的聲音。錄音最後有四下敲門，而管理員值班表提醒：不要回答。你聽見房門外傳來敲門聲。三下。停頓。第四下。接著，門內也響起相同的聲音。";}
- $("endingCode").textContent=code;$("endingTitle").textContent=title;$("endingText").textContent=body;$("ending").classList.remove("hidden");soundScare();vibrate([100,70,180]);
+function skip(){if(!current||S.turn>=5)return;S.fame=Math.max(0,S.fame-1);S.turn++;say("你向客人道歉，人氣 -1。");render();save();afterCustomer();}
+function afterCustomer(){
+ if(S.turn>=5){setTimeout(endDay,500);return;}
+ if(!eventUsed&&S.turn===2){eventUsed=true;setTimeout(randomEvent,350);return;}
+ setTimeout(makeCustomer,350);
 }
-function start(){if(audioCtx&&audioCtx.state==="suspended")audioCtx.resume();$("intro").classList.add("hidden");$("story").classList.remove("hidden");$("question").focus();}
-function restart(){location.reload();}
-function tick(){const d=new Date();$("clock").textContent="03:"+String(d.getMinutes()).padStart(2,"0")+":"+String(d.getSeconds()).padStart(2,"0");}
-$("startBtn").addEventListener("click",start);$("questionForm").addEventListener("submit",submitQuestion);$("closeClue").addEventListener("click",closeClue);$("clueModal").addEventListener("click",e=>{if(e.target===$("clueModal"))closeClue();});document.querySelectorAll("[data-clue]").forEach(b=>b.addEventListener("click",()=>openClue(b.dataset.clue)));$("submitTheory").addEventListener("click",submitTheory);$("restart").addEventListener("click",restart);document.addEventListener("keydown",e=>{if(e.key==="Escape")closeClue();});tick();setInterval(tick,1000);
+function randomEvent(){
+ const events=[
+ {emoji:"🌧️",title:"突然下起大雨！",text:"外面開始下大雨，路過的客人都跑進店裡躲雨。你要怎麼做？",choices:[["提供免費紙巾（人氣 +5）",()=>{S.fame+=5;say("客人覺得你很貼心！人氣 +5。");}],["趁機做雨天促銷（收入 +$100）",()=>{S.cash+=100;S.revenue+=100;S.totalRevenue+=100;say("雨天促銷成功！收入 +$100。");}]]},
+ {emoji:"🎁",title:"廠商送來試吃品！",text:"廠商送來一批新品布丁，想請你幫忙試賣。",choices:[["收下！布丁庫存 +3",()=>{S.stock.pudding+=3;say("新品試賣開始！布丁 +3。");}],["婉拒，保持原本商品",()=>say("你決定先專心經營現有商品。")]]},
+ {emoji:"🐈",title:"店門口有隻貓！",text:"一隻橘貓坐在門口，客人都停下來看牠。",choices:[["給牠一點水（人氣 +4）",()=>{S.fame+=4;say("橘貓成為店裡的吉祥物！人氣 +4。");}],["拍照發社群（人氣 +2、收入 +$40）",()=>{S.fame+=2;S.cash+=40;S.revenue+=40;S.totalRevenue+=40;say("照片意外爆紅！人氣 +2、收入 +$40。");}]]},
+ {emoji:"📦",title:"補貨車提早到了！",text:"供應商說可以免費多送一箱商品，你想選哪一類？",choices:[["飲料箱（每種飲料 +2）",()=>{["tea","coffee","water"].forEach(id=>S.stock[id]+=2);say("飲料補給到貨！");}],["點心箱（每種點心 +2）",()=>{["bread","chips","pudding"].forEach(id=>S.stock[id]+=2);say("點心補給到貨！");}]]}
+ ];
+ const ev=events[Math.floor(Math.random()*events.length)];$("eventEmoji").textContent=ev.emoji;$("eventTitle").textContent=ev.title;$("eventText").textContent=ev.text;$("eventChoices").innerHTML="";
+ ev.choices.forEach(([label,fn])=>{const b=document.createElement("button");b.textContent=label;b.addEventListener("click",()=>{$("eventModal").classList.add("hidden");fn();render();save();makeCustomer();});$("eventChoices").append(b);});
+ $("eventModal").classList.remove("hidden");
+}
+function endDay(){
+ const rating=S.served>=4?"🌟 超棒的一天":S.served>=3?"😊 還不錯":"🥲 再接再厲";
+ S.rating=rating;render();$("resultEmoji").textContent=S.served>=4?"🎉":"🌙";$("resultTitle").textContent=S.day===7?"一週店長挑戰完成！":"今天辛苦了！";
+ $("resultText").textContent="今天你接待了 "+S.served+" 位客人，營收 "+fmt(S.revenue)+"。"+(S.served>=4?"大家都很喜歡你的店！":"明天再想辦法讓更多客人滿意吧。");
+ $("resultStats").innerHTML="<div>今日營收<b>"+fmt(S.revenue)+"</b></div><div>服務客人<b>"+S.served+" / 5</b></div><div>目前人氣<b>"+S.fame+"</b></div><div>剩餘體力<b>"+S.energy+"</b></div>";
+ $("resultModal").classList.remove("hidden");save();
+}
+function nextDay(){
+ $("resultModal").classList.add("hidden");
+ if(S.day>=7){finishWeek();return;}
+ S.day++;S.turn=0;S.served=0;S.revenue=0;S.energy=5;S.rating="—";S.promo=false;S.clean=false;eventUsed=false;
+ Object.keys(S.stock).forEach(k=>S.stock[k]=Math.min(12,S.stock[k]+1));
+ say("新的一天開始！商品自動補進一些庫存。");render();makeCustomer();save();
+}
+function finishWeek(){
+ const won=S.fame>=50&&S.totalRevenue>=5000;
+ $("resultModal").classList.remove("hidden");$("resultEmoji").textContent=won?"🏆":"🎊";$("resultTitle").textContent=won?"街坊最愛店長！":"七天營業結束！";
+ $("resultText").textContent=won?"恭喜你達成雙重目標，GOOD DAY 成為附近最受歡迎的便利商店！":"你完成了七天營業！每間小店都有自己的成長節奏，再挑戰一次吧。";
+ $("resultStats").innerHTML="<div>七天總營收<b>"+fmt(S.totalRevenue)+"</b></div><div>最終人氣<b>"+S.fame+"</b></div>";$("nextDayBtn").textContent="再玩一次 ↻";$("nextDayBtn").onclick=()=>{localStorage.removeItem(KEY);location.reload();};
+}
+function restock(){if(S.cash<100){say("現金不足，暫時不能補貨。");return;}S.cash-=100;products.forEach(p=>S.stock[p.id]=Math.min(15,S.stock[p.id]+2));say("補貨完成！每種商品庫存 +2。");render();save();}
+function clean(){if(S.energy<1){say("體力不夠了，先休息一下吧。");return;}S.energy--;S.clean=true;S.fame+=2;say("店面整理乾淨了！下一位客人會感受到你的用心。");render();save();}
+function promo(){if(S.cash<80){say("現金不足，無法宣傳。");return;}S.cash-=80;S.promo=true;S.fame+=3;say("促銷海報貼好了！下一位客人的消費會增加。");render();save();}
+function start(){load();$("hero").classList.add("hidden");$("game").classList.remove("hidden");render();if(S.turn>=5){endDay();}else makeCustomer();save();}
+$("startBtn").addEventListener("click",start);$("serveBtn").addEventListener("click",serve);$("skipBtn").addEventListener("click",skip);$("restockBtn").addEventListener("click",restock);$("cleanBtn").addEventListener("click",clean);$("promoBtn").addEventListener("click",promo);$("nextDayBtn").addEventListener("click",nextDay);$("soundBtn").addEventListener("click",()=>{muted=!muted;$("soundBtn").textContent=muted?"♫̸":"♫";});
+const hero=document.querySelector(".hero");hero.id="hero";
+if(localStorage.getItem(KEY)){const saved=JSON.parse(localStorage.getItem(KEY));if(saved&&saved.day){$("saveHint").textContent="偵測到上次的進度，開始後會接續遊戲。";}}
 })();
