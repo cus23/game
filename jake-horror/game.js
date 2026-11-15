@@ -1,99 +1,59 @@
 (()=>{
 "use strict";
-const $=id=>document.getElementById(id);
-const KEY="goodDayShopSaveV1";
+const $=id=>document.getElementById(id), money=n=>"$"+Math.round(n).toLocaleString("en-US"), KEY="goodDayPOS_v2";
 const products=[
- {id:"tea",name:"奶茶",emoji:"🧋",price:45,stock:6,kind:"drink"},
- {id:"coffee",name:"咖啡",emoji:"☕",price:55,stock:5,kind:"drink"},
- {id:"water",name:"礦泉水",emoji:"💧",price:20,stock:8,kind:"drink"},
- {id:"bread",name:"菠蘿麵包",emoji:"🍞",price:35,stock:5,kind:"snack"},
- {id:"chips",name:"洋芋片",emoji:"🥔",price:40,stock:5,kind:"snack"},
- {id:"pudding",name:"布丁",emoji:"🍮",price:38,stock:4,kind:"snack"}
+{id:"tea",name:"經典珍珠奶茶",emoji:"🧋",price:65,cost:31,stock:12,code:"471000100001",cat:"drink"},
+{id:"coffee",name:"大杯美式咖啡",emoji:"☕",price:55,cost:22,stock:14,code:"471000100002",cat:"drink"},
+{id:"water",name:"天然礦泉水",emoji:"💧",price:25,cost:9,stock:18,code:"471000100003",cat:"drink"},
+{id:"cola",name:"可樂 600ml",emoji:"🥤",price:35,cost:17,stock:10,code:"471000100004",cat:"drink"},
+{id:"milk",name:"鮮乳 936ml",emoji:"🥛",price:92,cost:63,stock:7,code:"471000100005",cat:"drink"},
+{id:"juice",name:"柳橙汁",emoji:"🧃",price:45,cost:23,stock:8,code:"471000100006",cat:"drink"},
+{id:"bread",name:"菠蘿麵包",emoji:"🍞",price:38,cost:20,stock:11,code:"471000200001",cat:"food"},
+{id:"sandwich",name:"火腿蛋三明治",emoji:"🥪",price:59,cost:34,stock:8,code:"471000200002",cat:"food"},
+{id:"chips",name:"海苔洋芋片",emoji:"🥔",price:42,cost:21,stock:9,code:"471000200003",cat:"food"},
+{id:"pudding",name:"焦糖布丁",emoji:"🍮",price:39,cost:18,stock:6,code:"471000200004",cat:"food"},
+{id:"tissue",name:"袖珍面紙",emoji:"🧻",price:15,cost:6,stock:20,code:"471000300001",cat:"daily"},
+{id:"mask",name:"醫用口罩 5 入",emoji:"😷",price:49,cost:24,stock:13,code:"471000300002",cat:"daily"}
 ];
-const customers=[
- {name:"趕上課的學生",emoji:"🧑🏻‍🎓",line:"老闆！我快遲到了，拜託快一點！",items:["tea","bread"],tip:8},
- {name:"剛下班的上班族",emoji:"👩🏻‍💻",line:"今天真的累翻了，想買點療癒的。",items:["coffee","pudding"],tip:12},
- {name:"健身房常客",emoji:"🏃🏻",line:"今天也要健康飲食！嗯……水跟麵包好了。",items:["water","bread"],tip:5},
- {name:"神祕阿姨",emoji:"👵🏻",line:"年輕人，幫我拿一下那個甜甜的。",items:["pudding","tea"],tip:10},
- {name:"放學的小朋友",emoji:"🧒🏻",line:"我有零用錢！可以買洋芋片嗎？",items:["chips","water"],tip:4},
- {name:"選擇困難的客人",emoji:"🤔",line:"我本來只想買一樣……但都好想吃。",items:["chips","pudding","coffee"],tip:14},
- {name:"附近的店長",emoji:"🧑🏻‍🍳",line:"來看看你今天生意如何。",items:["coffee","bread"],tip:18},
- {name:"旅行中的旅客",emoji:"🧳",line:"請問這附近有什麼好吃的？",items:["tea","chips"],tip:7},
- {name:"帶狗散步的人",emoji:"🐶",line:"牠一直盯著你的布丁看，哈哈。",items:["water","pudding"],tip:6}
+const people=[
+{name:"早班通勤族",emoji:"🧑🏻‍💼",note:"「一杯咖啡，謝謝。」",items:["coffee","bread"]},
+{name:"趕上課的學生",emoji:"🧑🏻‍🎓",note:"「我快遲到了，麻煩快一點！」",items:["tea","sandwich"]},
+{name:"附近的阿姨",emoji:"👩🏻",note:"「今天布丁有特價嗎？」",items:["milk","pudding"]},
+{name:"午休上班族",emoji:"👨🏻‍💻",note:"「幫我微波一下，謝謝。」",items:["sandwich","water","tissue"]},
+{name:"放學的小朋友",emoji:"🧒🏻",note:"「我想用零用錢買點心！」",items:["chips","juice"]},
+{name:"散步的爺爺",emoji:"👴🏻",note:"「天氣熱，買瓶水好了。」",items:["water","mask"]},
+{name:"健身房常客",emoji:"🏃🏻",note:"「今天來點清爽的。」",items:["water","milk"]},
+{name:"選擇困難的客人",emoji:"🤔",note:"「這個看起來也不錯……」",items:["cola","chips","pudding"]}
 ];
-let S={day:1,cash:1200,fame:10,energy:5,stock:{tea:6,coffee:5,water:8,bread:5,chips:5,pudding:4},turn:0,served:0,revenue:0,customers:[],rating:"—",promo:false,clean:false,diary:[],totalRevenue:0};
-let current=null,muted=false,eventUsed=false;
-const fmt=n=>"$"+Math.round(n).toLocaleString("en-US");
-const product=id=>products.find(p=>p.id===id);
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S));$("saveHint").textContent="進度已自動儲存。";}catch(e){}}
-function load(){try{const v=JSON.parse(localStorage.getItem(KEY));if(v&&v.day>=1&&v.day<=7)S={...S,...v};}catch(e){}}
-function say(msg){$("feedback").textContent=msg;S.diary.unshift(msg);S.diary=S.diary.slice(0,5);$("diary").textContent=S.diary.join("　／　");}
-function render(){
- $("dayLabel").textContent="第 "+S.day+" / 7 天";$("cash").textContent=fmt(S.cash);$("fame").textContent="★ "+S.fame;$("energy").textContent="♥ "+S.energy;$("rating").textContent=S.rating;$("turnLabel").textContent="第 "+Math.min(S.turn+1,5)+" 位客人";
- $("drinkShelf").innerHTML=["tea","coffee","water"].map(id=>'<span title="'+product(id).name+'">'+product(id).emoji.repeat(Math.min(3,Math.ceil(S.stock[id]/3)))+'</span>').join("");
- $("snackShelf").innerHTML=["bread","chips","pudding"].map(id=>'<span title="'+product(id).name+'">'+product(id).emoji.repeat(Math.min(3,Math.ceil(S.stock[id]/3)))+'</span>').join("");
- $("inventory").innerHTML=products.map(p=>'<span>'+p.emoji+" "+p.name+" × "+S.stock[p.id]+'</span>').join("");
- $("fameGoal").textContent=Math.min(S.fame,50)+" / 50";$("cashGoal").textContent=Math.min(S.totalRevenue,5000)+" / 5000";$("fameProgress").style.width=Math.min(100,S.fame/50*100)+"%";$("cashProgress").style.width=Math.min(100,S.totalRevenue/5000*100)+"%";
-}
-function makeCustomer(){
- const c=customers[Math.floor(Math.random()*customers.length)];
- current={...c,items:[...c.items]};$("customerEmoji").textContent=c.emoji;$("customerName").textContent=c.name;$("customerLine").textContent=c.line;
- $("orderList").innerHTML=c.items.map(id=>'<div class="order-item"><span>'+product(id).emoji+" "+product(id).name+'</span><b>'+fmt(product(id).price)+'</b></div>').join("");
- $("orderTotal").textContent=fmt(c.items.reduce((n,id)=>n+product(id).price,0));
- $("turnLabel").textContent="第 "+(S.turn+1)+" 位客人";$("serveBtn").disabled=false;$("skipBtn").disabled=false;$("feedback").textContent="客人正在等你結帳！";
-}
-function available(){return current.items.every(id=>S.stock[id]>0);}
-function serve(){
- if(!current||S.turn>=5)return;
- if(!available()){say("有商品缺貨了！你可以補貨，或向客人道歉。");return;}
- const base=current.items.reduce((n,id)=>n+product(id).price,0);
- const bonus=S.promo?Math.round(base*.08):0;const tip=current.tip+(S.clean?5:0);
- S.cash+=base+bonus+tip;S.revenue+=base+bonus+tip;S.totalRevenue+=base+bonus+tip;S.fame+=S.clean?3:2;S.energy=Math.max(0,S.energy-1);
- current.items.forEach(id=>S.stock[id]--);S.served++;S.turn++;
- say(current.name+"買得很開心！收入 "+fmt(base+bonus+tip)+"（含小費）。");
- S.promo=false;S.clean=false;render();save();afterCustomer();
-}
-function skip(){if(!current||S.turn>=5)return;S.fame=Math.max(0,S.fame-1);S.turn++;say("你向客人道歉，人氣 -1。");render();save();afterCustomer();}
-function afterCustomer(){
- if(S.turn>=5){setTimeout(endDay,500);return;}
- if(!eventUsed&&S.turn===2){eventUsed=true;setTimeout(randomEvent,350);return;}
- setTimeout(makeCustomer,350);
-}
-function randomEvent(){
- const events=[
- {emoji:"🌧️",title:"突然下起大雨！",text:"外面開始下大雨，路過的客人都跑進店裡躲雨。你要怎麼做？",choices:[["提供免費紙巾（人氣 +5）",()=>{S.fame+=5;say("客人覺得你很貼心！人氣 +5。");}],["趁機做雨天促銷（收入 +$100）",()=>{S.cash+=100;S.revenue+=100;S.totalRevenue+=100;say("雨天促銷成功！收入 +$100。");}]]},
- {emoji:"🎁",title:"廠商送來試吃品！",text:"廠商送來一批新品布丁，想請你幫忙試賣。",choices:[["收下！布丁庫存 +3",()=>{S.stock.pudding+=3;say("新品試賣開始！布丁 +3。");}],["婉拒，保持原本商品",()=>say("你決定先專心經營現有商品。")]]},
- {emoji:"🐈",title:"店門口有隻貓！",text:"一隻橘貓坐在門口，客人都停下來看牠。",choices:[["給牠一點水（人氣 +4）",()=>{S.fame+=4;say("橘貓成為店裡的吉祥物！人氣 +4。");}],["拍照發社群（人氣 +2、收入 +$40）",()=>{S.fame+=2;S.cash+=40;S.revenue+=40;S.totalRevenue+=40;say("照片意外爆紅！人氣 +2、收入 +$40。");}]]},
- {emoji:"📦",title:"補貨車提早到了！",text:"供應商說可以免費多送一箱商品，你想選哪一類？",choices:[["飲料箱（每種飲料 +2）",()=>{["tea","coffee","water"].forEach(id=>S.stock[id]+=2);say("飲料補給到貨！");}],["點心箱（每種點心 +2）",()=>{["bread","chips","pudding"].forEach(id=>S.stock[id]+=2);say("點心補給到貨！");}]]}
- ];
- const ev=events[Math.floor(Math.random()*events.length)];$("eventEmoji").textContent=ev.emoji;$("eventTitle").textContent=ev.title;$("eventText").textContent=ev.text;$("eventChoices").innerHTML="";
- ev.choices.forEach(([label,fn])=>{const b=document.createElement("button");b.textContent=label;b.addEventListener("click",()=>{$("eventModal").classList.add("hidden");fn();render();save();makeCustomer();});$("eventChoices").append(b);});
- $("eventModal").classList.remove("hidden");
-}
-function endDay(){
- const rating=S.served>=4?"🌟 超棒的一天":S.served>=3?"😊 還不錯":"🥲 再接再厲";
- S.rating=rating;render();$("resultEmoji").textContent=S.served>=4?"🎉":"🌙";$("resultTitle").textContent=S.day===7?"一週店長挑戰完成！":"今天辛苦了！";
- $("resultText").textContent="今天你接待了 "+S.served+" 位客人，營收 "+fmt(S.revenue)+"。"+(S.served>=4?"大家都很喜歡你的店！":"明天再想辦法讓更多客人滿意吧。");
- $("resultStats").innerHTML="<div>今日營收<b>"+fmt(S.revenue)+"</b></div><div>服務客人<b>"+S.served+" / 5</b></div><div>目前人氣<b>"+S.fame+"</b></div><div>剩餘體力<b>"+S.energy+"</b></div>";
- $("resultModal").classList.remove("hidden");save();
-}
-function nextDay(){
- $("resultModal").classList.add("hidden");
- if(S.day>=7){finishWeek();return;}
- S.day++;S.turn=0;S.served=0;S.revenue=0;S.energy=5;S.rating="—";S.promo=false;S.clean=false;eventUsed=false;
- Object.keys(S.stock).forEach(k=>S.stock[k]=Math.min(12,S.stock[k]+1));
- say("新的一天開始！商品自動補進一些庫存。");render();makeCustomer();save();
-}
-function finishWeek(){
- const won=S.fame>=50&&S.totalRevenue>=5000;
- $("resultModal").classList.remove("hidden");$("resultEmoji").textContent=won?"🏆":"🎊";$("resultTitle").textContent=won?"街坊最愛店長！":"七天營業結束！";
- $("resultText").textContent=won?"恭喜你達成雙重目標，GOOD DAY 成為附近最受歡迎的便利商店！":"你完成了七天營業！每間小店都有自己的成長節奏，再挑戰一次吧。";
- $("resultStats").innerHTML="<div>七天總營收<b>"+fmt(S.totalRevenue)+"</b></div><div>最終人氣<b>"+S.fame+"</b></div>";$("nextDayBtn").textContent="再玩一次 ↻";$("nextDayBtn").onclick=()=>{localStorage.removeItem(KEY);location.reload();};
-}
-function restock(){if(S.cash<100){say("現金不足，暫時不能補貨。");return;}S.cash-=100;products.forEach(p=>S.stock[p.id]=Math.min(15,S.stock[p.id]+2));say("補貨完成！每種商品庫存 +2。");render();save();}
-function clean(){if(S.energy<1){say("體力不夠了，先休息一下吧。");return;}S.energy--;S.clean=true;S.fame+=2;say("店面整理乾淨了！下一位客人會感受到你的用心。");render();save();}
-function promo(){if(S.cash<80){say("現金不足，無法宣傳。");return;}S.cash-=80;S.promo=true;S.fame+=3;say("促銷海報貼好了！下一位客人的消費會增加。");render();save();}
-function start(){load();$("hero").classList.add("hidden");$("game").classList.remove("hidden");render();if(S.turn>=5){endDay();}else makeCustomer();save();}
-$("startBtn").addEventListener("click",start);$("serveBtn").addEventListener("click",serve);$("skipBtn").addEventListener("click",skip);$("restockBtn").addEventListener("click",restock);$("cleanBtn").addEventListener("click",clean);$("promoBtn").addEventListener("click",promo);$("nextDayBtn").addEventListener("click",nextDay);$("soundBtn").addEventListener("click",()=>{muted=!muted;$("soundBtn").textContent=muted?"♫̸":"♫";});
-try{const saved=JSON.parse(localStorage.getItem(KEY)||"null");if(saved&&saved.day){$("saveHint").textContent="偵測到上次的進度，開始後會接續遊戲。";}}catch(e){}
+let S={day:1,cash:12000,totalSales:0,transactions:[],todaySales:0,todayTx:0,fame:10,stock:{},queue:[],customerIndex:0,deliveries:[],discount:false};
+products.forEach(p=>S.stock[p.id]=p.stock);
+let cart={},category="all",payMethod="cash",payDue=0,restockQty=5,muted=false,toastTimer;
+const p=id=>products.find(x=>x.id===id);
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));$("saveState").textContent="資料已同步";}catch(e){$("saveState").textContent="無法儲存";}}
+function load(){try{const v=JSON.parse(localStorage.getItem(KEY)||"null");if(v&&v.day){S={...S,...v};products.forEach(x=>{if(S.stock[x.id]===undefined)S.stock[x.id]=x.stock;});}}catch(e){}}
+function toast(msg){$("toast").textContent=msg;$("toast").classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>$("toast").classList.remove("show"),2100);}
+function makePerson(){const x=people[Math.floor(Math.random()*people.length)];return {...x,no:S.customerIndex+1};}
+function ensureQueue(){while(S.queue.length<3)S.queue.push(makePerson());}
+function current(){return S.queue[0];}
+function showPage(name){document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id==="page-"+name));document.querySelectorAll(".nav").forEach(x=>x.classList.toggle("active",x.dataset.page===name));renderPage(name);}
+function renderHeader(){$("headerCash").textContent=money(S.cash);$("clock").textContent="DAY "+String(S.day).padStart(2,"0")+" · "+(S.todayTx<4?"08:00":"12:30");$("dateText").textContent="WEEK "+String(S.day).padStart(2,"0")+" · STORE OPEN";$("dayText").textContent="營業日 "+String(S.day).padStart(2,"0")+" · 早班";$("txCount").textContent=S.todayTx;$("todaySales").textContent=money(S.todaySales);$("queueCount").textContent=S.queue.length;}
+function renderProducts(){const q=($("productSearch")?.value||"").trim().toLowerCase();const f=$("productFilter")?.value||"all";$("productTable").innerHTML=products.filter(x=>(f==="all"||x.cat===f)&&(!q||x.name.toLowerCase().includes(q)||x.code.includes(q))).map(x=>'<tr><td><div class="table-product"><i>'+x.emoji+'</i><b>'+x.name+'</b></div></td><td>'+x.code+'</td><td>'+({drink:"飲料",food:"熟食點心",daily:"生活用品"}[x.cat])+'</td><td>'+money(x.price)+'</td><td>'+S.stock[x.id]+' 件</td><td><span class="stock-badge '+(S.stock[x.id]<4?"low":"")+'">'+(S.stock[x.id]<4?"需要補貨":"庫存正常")+'</span></td></tr>').join("");$("productCount").textContent="共 "+products.length+" 項商品";}
+function renderProductGrid(){const q=$("scanInput").value.trim().toLowerCase();$("productGrid").innerHTML=products.filter(x=>(category==="all"||x.cat===category)&&(!q||x.name.toLowerCase().includes(q)||x.code.includes(q))).map(x=>'<button class="product-card" data-add="'+x.id+'" '+(S.stock[x.id]<=0?"disabled":"")+'><div class="product-emoji">'+x.emoji+'</div><b>'+x.name+'</b><small>條碼 '+x.code.slice(-6)+' · 庫存 '+S.stock[x.id]+'</small><div class="product-price"><strong>'+money(x.price)+'</strong><em>＋ 加入</em></div></button>').join("")||'<div class="muted">找不到符合的商品。</div>';document.querySelectorAll("[data-add]").forEach(b=>b.addEventListener("click",()=>add(b.dataset.add)));}
+function add(id){if(S.stock[id]<=0){toast("此商品目前缺貨，請先進貨。");return;}cart[id]=(cart[id]||0)+1;renderCart();toast("已加入："+p(id).name);}
+function total(){return Object.entries(cart).reduce((s,[id,n])=>s+p(id).price*n,0);}
+function renderCart(){const count=Object.values(cart).reduce((a,b)=>a+b,0),sub=total(),disc=S.discount?Math.round(sub*.05):0;$("cartCount").textContent=count;$("cartItems").innerHTML=count?Object.entries(cart).map(([id,n])=>'<div class="cart-row"><div class="cart-product"><i>'+p(id).emoji+'</i><b>'+p(id).name+'</b></div><div class="qty-step"><button data-minus="'+id+'">−</button><span>'+n+'</span><button data-plus="'+id+'">＋</button></div><strong>'+money(p(id).price*n)+'</strong><button class="remove-item" data-remove="'+id+'">×</button></div>').join(""):'<div class="empty-cart"><span>🛒</span><b>購物車目前是空的</b><small>請從左側選擇商品</small></div>';$("subtotal").textContent=money(sub);$("discount").textContent=disc?"−"+money(disc):money(0);$("grandTotal").textContent=money(sub-disc);$("checkoutBtn").disabled=!count;document.querySelectorAll("[data-minus]").forEach(b=>b.onclick=()=>{const id=b.dataset.minus;cart[id]--;if(cart[id]<=0)delete cart[id];renderCart();});document.querySelectorAll("[data-plus]").forEach(b=>b.onclick=()=>{const id=b.dataset.plus;if(cart[id]>=S.stock[id]){toast("超過目前庫存數量。");return;}cart[id]++;renderCart();});document.querySelectorAll("[data-remove]").forEach(b=>b.onclick=()=>{delete cart[b.dataset.remove];renderCart();});}
+function renderCustomer(){$("customerAvatar").textContent=current().emoji;$("customerName").textContent=current().name;$("customerNote").textContent=current().note;$("customerNo").textContent="NO. "+String(current().no).padStart(3,"0");$("queueList").innerHTML=S.queue.map((x,i)=>'<div class="queue-person"><span>'+x.emoji+'</span><div><b>'+(i===0?"目前顧客 · ":"候位 · ")+x.name+'</b><small>'+(i===0?"正在收銀台前":"等待結帳")+'</small></div></div>').join("");}
+function renderPos(){renderHeader();renderProductGrid();renderCustomer();renderCart();}
+function renderStock(){let totalUnits=0,low=0;products.forEach(x=>{totalUnits+=S.stock[x.id];if(S.stock[x.id]<4)low++;});$("stockTotal").textContent=totalUnits;$("lowStock").textContent=low;$("stockCost").textContent=money(S.deliveries.filter(x=>x.day===S.day).reduce((a,x)=>a+x.cost,0));$("stockRows").innerHTML=products.map(x=>'<div class="stock-row"><i>'+x.emoji+'</i><div><b>'+x.name+'</b><small>'+x.code+'</small></div><div class="stock-bar"><i class="'+(S.stock[x.id]<4?"low":"")+'" style="width:'+Math.min(100,S.stock[x.id]/20*100)+'%"></i></div><strong>'+S.stock[x.id]+'</strong></div>').join("");$("restockProduct").innerHTML=products.map(x=>'<option value="'+x.id+'">'+x.name+' · '+money(x.cost)+'/件</option>').join("");$("restockQty").textContent=restockQty;updateEstimate();$("deliveryLog").innerHTML=S.deliveries.length?S.deliveries.slice(-8).reverse().map(x=>'<div class="log-item"><span>DAY '+x.day+' · '+p(x.id).name+' × '+x.qty+'</span><b>− '+money(x.cost)+'</b></div>').join(""):'<span class="muted">目前尚無進貨紀錄。</span>';}
+function updateEstimate(){const x=p($("restockProduct").value||products[0].id);$("purchaseCost").textContent=money(x.cost*restockQty);}
+function renderReports(){const avg=S.transactions.length?Math.round(S.totalSales/S.transactions.length):0;$("reportSales").textContent=money(S.totalSales);$("reportTx").textContent=S.transactions.length;$("reportAvg").textContent=money(avg);$("reportFame").textContent=S.fame;$("goalSales").textContent=money(S.totalSales)+" / $8,000";$("goalTx").textContent=S.transactions.length+" / 30";$("goalFame").textContent=S.fame+" / 50";$("goalSalesBar").style.width=Math.min(100,S.totalSales/8000*100)+"%";$("goalTxBar").style.width=Math.min(100,S.transactions.length/30*100)+"%";$("goalFameBar").style.width=Math.min(100,S.fame/50*100)+"%";$("goalMessage").textContent=S.totalSales>=8000&&S.transactions.length>=30&&S.fame>=50?"本週目標全部達成！你是街坊最可靠的店長。":"穩定服務每一位客人，慢慢累積好評吧。";const max=Math.max(1,...S.transactions.reduce((a,t)=>{a[t.day-1]=(a[t.day-1]||0)+t.total;return a;},Array(7).fill(0)));const days=Array(7).fill(0);S.transactions.forEach(t=>days[t.day-1]+=t.total);$("salesChart").innerHTML=days.map((v,i)=>'<div class="chart-col"><b>'+(v?money(v):"—")+'</b><div class="chart-bar" style="height:'+Math.max(3,v/max*125)+'px"></div><small>DAY '+(i+1)+'</small></div>').join("");$("transactionHistory").innerHTML=S.transactions.length?S.transactions.slice(-10).reverse().map(t=>'<div class="history-row"><span>DAY '+t.day+' · '+t.time+'</span><span>交易 '+String(t.no).padStart(3,"0")+' · '+t.items+' 件商品</span><span>'+t.method+'</span><b>'+money(t.total)+'</b></div>').join(""):'<span class="muted">尚無交易紀錄。</span>';}
+function renderPage(name){if(name==="pos")renderPos();if(name==="products")renderProducts();if(name==="stock")renderStock();if(name==="reports")renderReports();}
+function openPayment(){payDue=total()-(S.discount?Math.round(total()*.05):0);payMethod="cash";$("payAmount").textContent=money(payDue);$("cashReceived").value=payDue;$("checkoutModal").classList.remove("hidden");selectMethod("cash");updateChange();}
+function selectMethod(m){payMethod=m;document.querySelectorAll(".method").forEach(x=>x.classList.toggle("active",x.dataset.method===m));$("cashArea").classList.toggle("hidden",m!=="cash");$("cardArea").classList.toggle("hidden",m==="cash");$("confirmPayment").textContent=m==="cash"?"確認收款並列印收據":"模擬付款並列印收據";}
+function updateChange(){const got=Number($("cashReceived").value||0);$("changeAmount").textContent=money(Math.max(0,got-payDue));$("confirmPayment").disabled=payMethod==="cash"&&got<payDue;}
+function confirmPayment(){const got=payMethod==="cash"?Number($("cashReceived").value):payDue;if(payMethod==="cash"&&got<payDue){toast("收款金額不足。");return;}const sub=total(),disc=S.discount?Math.round(sub*.05):0,paid=sub-disc,change=payMethod==="cash"?got-paid:0;const items=Object.entries(cart).map(([id,n])=>({id,n}));items.forEach(x=>S.stock[x.id]-=x.n);S.cash+=paid;S.totalSales+=paid;S.todaySales+=paid;S.todayTx++;S.fame+=1;const tx={no:S.transactions.length+1,day:S.day,time:"08:"+String((S.todayTx*7)%60).padStart(2,"0"),items:items.reduce((a,x)=>a+x.n,0),total:paid,method:{cash:"現金",card:"信用卡",easy:"電子支付"}[payMethod]};S.transactions.push(tx);$("printedReceipt").innerHTML='<div class="print-row"><span>交易編號</span><b>#'+String(tx.no).padStart(5,"0")+'</b></div><div class="print-row"><span>日期 / 班別</span><span>DAY '+S.day+' / MORNING</span></div>'+items.map(x=>'<div class="print-row"><span>'+p(x.id).name+' × '+x.n+'</span><b>'+money(p(x.id).price*x.n)+'</b></div>').join("")+'<div class="receipt-dash">--------------------------------</div><div class="print-row"><span>商品小計</span><b>'+money(sub)+'</b></div><div class="print-row"><span>會員折扣</span><b>− '+money(disc)+'</b></div><div class="print-total"><span>實收</span><b>'+money(paid)+'</b></div><div class="print-row"><span>付款方式</span><b>'+tx.method+'</b></div>'+(payMethod==="cash"?'<div class="print-row"><span>顧客付款</span><b>'+money(got)+'</b></div><div class="print-row"><span>找零</span><b>'+money(change)+'</b></div>':'');$("checkoutModal").classList.add("hidden");$("receiptModal").classList.remove("hidden");save();}
+function finishReceipt(){$("receiptModal").classList.add("hidden");cart={};S.discount=false;S.queue.shift();S.customerIndex++;ensureQueue();renderPos();save();toast("交易完成，下一位顧客請上前。");}
+function placeOrder(){const id=$("restockProduct").value,x=p(id),cost=x.cost*restockQty;if(S.cash<cost){toast("現金不足，無法建立進貨單。");return;}S.cash-=cost;S.stock[id]+=restockQty;S.deliveries.push({day:S.day,id,qty:restockQty,cost});save();renderHeader();renderStock();toast("進貨完成："+x.name+" × "+restockQty);}
+function init(){load();if(!S.queue.length)S.queue=[makePerson(),makePerson(),makePerson()];ensureQueue();renderPos();document.querySelectorAll(".nav").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));document.querySelectorAll(".category").forEach(b=>b.addEventListener("click",()=>{category=b.dataset.category;document.querySelectorAll(".category").forEach(x=>x.classList.toggle("active",x===b));renderProductGrid();}));$("scanBtn").onclick=()=>{const q=$("scanInput").value.trim().toLowerCase();const x=products.find(x=>x.code===q||x.name.toLowerCase().includes(q));if(x){add(x.id);$("scanInput").value="";renderProductGrid();}else toast("查無商品條碼或名稱。");};$("scanInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("scanBtn").click();});$("scanInput").addEventListener("input",renderProductGrid);$("clearCart").onclick=()=>{cart={};renderCart();};$("memberBtn").onclick=()=>{S.discount=!S.discount;$("memberBtn").textContent=S.discount?"✓ 已套用 95 折":"＋ 登記會員";renderCart();toast(S.discount?"會員折扣已套用。":"已取消會員折扣。");};$("checkoutBtn").onclick=openPayment;$("closePayment").onclick=()=>$("checkoutModal").classList.add("hidden");document.querySelectorAll(".method").forEach(b=>b.onclick=()=>selectMethod(b.dataset.method));$("cashReceived").oninput=updateChange;document.querySelectorAll("[data-cash]").forEach(b=>b.onclick=()=>{$("cashReceived").value=b.dataset.cash==="exact"?payDue:payDue+Number(b.dataset.cash);updateChange();});$("confirmPayment").onclick=confirmPayment;$("finishReceipt").onclick=finishReceipt;$("productSearch").oninput=renderProducts;$("productFilter").onchange=renderProducts;$("productRefresh").onclick=()=>{renderProducts();toast("商品庫存資料已更新。");};$("qtyMinus").onclick=()=>{restockQty=Math.max(1,restockQty-1);renderStock();};$("qtyPlus").onclick=()=>{restockQty=Math.min(50,restockQty+1);renderStock();};$("restockProduct").onchange=updateEstimate;$("placeOrder").onclick=placeOrder;$("soundBtn").onclick=()=>{muted=!muted;$("soundBtn").textContent=muted?"♫̸":"♫";toast(muted?"已關閉音效":"音效設定已開啟（目前為靜音模式）");};save();}
+init();
 })();
