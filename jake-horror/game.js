@@ -1,441 +1,51 @@
-(() => {
+(()=>{
 "use strict";
-const $ = id => document.getElementById(id);
-const SAVE_KEY = "afterimage_jake_phone_v1";
-const PASSCODE = "1115";
-const nowTime = () => new Date().toLocaleTimeString("zh-TW",{hour:"2-digit",minute:"2-digit",hour12:false});
-const defaults = {
-  unlocked:false,stage:0,trust:50,fear:12,clues:[],flags:{},visited:[],activeApp:"",selectedContact:"jake",
-  logs:{
-    jake:[{from:"them",text:"到家了嗎？",time:"23:48"},{from:"them",text:"我剛剛好像看到你。",time:"23:49"}],
-    mina:[{from:"them",text:"欸你到家了沒？今天雨超大。",time:"23:35"}]
-  },
-  calls:[{name:"Jake",time:"23:51",type:"未接來電"},{name:"未知號碼",time:"23:42",type:"已取消"}],
-  notes:[],ending:"",lastReply:""
+const $=id=>document.getElementById(id);
+const state={questions:0,clues:[],scareOne:false,scareTwo:false,ended:false,correct:0};
+const clueData={
+ cctv:{tag:"EVIDENCE 01",title:"監視器截圖",body:"畫面時間：03:17:08。\n電梯門上的樓層顯示器是「13」。但畫面右下角的監視器時間戳記，顯示這段影片其實來自地下室的攝影機。\n\n更奇怪的是：電梯鏡面裡有一個人，站在管理員身後。管理員本人卻沒有回頭。",hint:"注意鏡面中的人影，以及這段影片真正的拍攝位置。"},
+ elevator:{tag:"EVIDENCE 02",title:"電梯維修紀錄",body:"建物電梯控制系統的維修紀錄：\n\n00:41 — 取消 13 樓按鍵。\n01:06 — 13 樓樓層訊號再次出現。\n02:58 — 電梯在 12 樓與 B1 之間往返 6 次。\n03:17 — 電梯門感應器顯示「內側有人持續按住開門鍵」。\n\n備註：本棟建築並沒有登記 13 樓。",hint:"電梯的樓層顯示可能不是故障，而是有人刻意讓它停在某個位置。"},
+ blueprint:{tag:"EVIDENCE 03",title:"建築平面圖",body:"你找到一張二十年前的施工圖。\n\n正式樓層從 12 樓直接跳到 14 樓。圖面上，12 樓天花板與屋頂設備層之間，留有一個未標示的夾層。\n\n夾層入口被畫在電梯井旁邊，旁邊有一行手寫字：\n「維修人員不得在 03:17 後進入。」",hint:"十三樓不是一般住戶使用的樓層。它被藏在兩個正式樓層之間。"},
+ audio:{tag:"EVIDENCE 04",title:"最後一段錄音",body:"錄音長度：00:19。\n\n（電梯抵達提示音。）\n管理員：「我到十二樓了。」\n（敲門聲，三下。）\n未知聲音：「你怎麼還在外面？」\n管理員：「我沒有出去。」\n（長時間沉默。）\n未知聲音：「那剛才替你開門的是誰？」\n\n錄音結束前，還有一個很輕的聲音：四下敲門。",hint:"留意管理員說的「我沒有出去」，以及最後多出來的第四下敲門。"},
+ report:{tag:"EVIDENCE 05",title:"管理員值班表",body:"管理員：林先生。\n值班時間：22:00–06:00。\n\n備註欄有三次相同的手寫紀錄：\n「03:17，巡樓時請勿搭乘電梯。」\n\n最底下還有一行被塗黑的字，透光後勉強辨識出：\n「如果在十三樓看見自己，不要回答他。」",hint:"管理員以前就知道這個時間會發生什麼事。"}
 };
-let state = structuredClone(defaults);
-let passcode = "";
-let touchStartY = null;
-let callTicker = null;
-let toastTimer = null;
-
-const objectives = [
-  "先回覆 Jake。你們剛剛才聊過，他應該只是確認你有沒有到家。",
-  "打開「照片」，看看他傳來的那張照片。注意拍攝時間。",
-  "查看「備忘錄」。你不記得自己寫過那段文字。",
-  "打開 Safari，搜尋照片裡的地址與裝置資訊。",
-  "查看「尋找」。位置共享的地圖似乎不太對。",
-  "打開「電話」，聽聽那通未接來電留下了什麼。",
-  "打開「相機」，確認門外到底有沒有人。",
-  "回到訊息。這次，決定你要怎麼處理 Jake。",
-  "故事已結束。你可以回看線索，或重新開始另一條路線。"
+const answers=[
+{keys:["13樓","十三樓","第十三層","夾層","樓層"],yes:"是。它確實存在，只是不在正式建築登記裡。",no:"不是這個方向。",important:true},
+{keys:["鏡子","倒影","反射","鏡面"],yes:"是。鏡面裡的影像和現實並不一致。",no:"不是。鏡面是重要線索。",important:true},
+{keys:["管理員","林先生","自己","複製","另一個人","替身"],yes:"是。管理員遇到的不是普通訪客。",no:"不能這樣說。你需要分清楚畫面裡的兩個人。",important:true},
+{keys:["電梯","按鈕","維修","故障"],yes:"是。電梯是通往那個夾層的唯一入口。",no:"不是單純的機械故障。",important:true},
+{keys:["03:17","時間","凌晨","敲門","四下","三下"],yes:"是。這個時間和敲門次數都有意義。",no:"不完全正確。再注意錄音裡的順序。",important:true},
+{keys:["死","鬼","幽靈","超自然"],yes:"你可以這樣理解，但還沒有解釋清楚它如何出現。",no:"目前沒有足夠證據排除這個可能。",important:false},
+{keys:["門","開門","出去","進去","裡面","外面"],yes:"是。真正危險的不是門外，而是有人已經在裡面。",no:"不是單純的門鎖問題。",important:true}
 ];
-const clueData = {
-  photo:{title:"照片資訊：23:41",desc:"檔案名稱：IMG_2048.HEIC\n拍攝時間：今天 23:41\n位置：你家樓下，距離住址 18 公尺\n裝置：iPhone 18 Pro\n\n奇怪的是，這張照片不是 Jake 傳給你的原始照片。它存在你的相簿裡，拍攝者欄位卻是空白。",icon:"⌖"},
-  note:{title:"未建立的備忘錄",desc:"標題：不要開門\n建立時間：今天 23:44\n\n如果他說他在樓下，不要相信。\n如果他說他沒有進來，也不要相信。\n\n最後一行被刪掉了。你看不見內容，但刪除時間是 23:47。",icon:"≡"},
-  web:{title:"搜尋結果：社區監視器",desc:"論壇貼文：有人在凌晨反覆出現在同一棟公寓的電梯鏡面裡。\n\n管理員回覆：監視器畫面中，電梯內只有住戶一人。鏡面反射卻多出另一個人。\n\n貼文附圖已失效。最後更新時間：今天 23:46。",icon:"⌕"},
-  location:{title:"位置共享異常",desc:"Jake 的位置顯示在你家樓下。\n\n但點開詳細資訊後，裝置名稱變成：\n「你的 iPhone」\n\n位置更新：現在。\n距離：0 公尺。",icon:"◎"},
-  voicemail:{title:"語音信箱 · 00:03",desc:"（背景有電梯抵達的提示音。）\n\nJake：「你是不是把門鎖換了？」\n\n（停頓 4 秒。）\n\nJake：「沒關係，我有備份鑰匙。」\n\n（很輕的敲門聲。三下。）",icon:"◖"},
-  camera:{title:"前鏡頭截圖",desc:"你按下快門時，畫面裡只有你自己。\n\n但照片存進相簿後，背景多出一隻手。\n\n那隻手搭在你的肩膀上。\n\n你沒有感覺到有人碰你。",icon:"▣"},
-  mirror:{title:"電梯鏡面異常",desc:"照片裡的你站在電梯左側。鏡面裡卻多了一個人，站在你原本的位置。\n\n影像時間：23:44。\n相片建立時間：23:44。\n\n你記得那時候，電梯裡只有你一個人。",icon:"🪞"},
-  voice:{title:"語音備忘錄 · 未命名",desc:"錄音長度：00:17。\n\n00:02　電梯抵達提示音。\n00:05　你的聲音：「我到家了。」\n00:09　另一個聲音：「我知道。」\n00:14　門鎖轉動聲。\n\n錄音建立於今天 23:39。那時你還在路上。",icon:"◖"},
-  door:{title:"門外的影子",desc:"門縫下方有一道影子。它沒有移動。\n\n你打開相機閃光燈後，影子消失了。\n\n但門外的感應燈沒有亮。",icon:"▰"}
-
-};
-const stageClues = {1:"photo",2:"note",3:"web",4:"location",5:"voicemail",6:"camera"};
-function clone(x){return JSON.parse(JSON.stringify(x))}
-function loadSave(){
-  try{
-    const raw=localStorage.getItem(SAVE_KEY);
-    if(!raw)return;
-    const saved=JSON.parse(raw);
-    state={...clone(defaults),...saved,flags:{...defaults.flags,...saved.flags},logs:{jake:[],mina:[],...saved.logs}};
-    if(!Array.isArray(state.clues))state.clues=[];
-    if(!Array.isArray(state.visited))state.visited=[];
-    if(state.unlocked){$("lockScreen").classList.add("dismissed");$("homeScreen").classList.remove("hidden")}
-  }catch(e){state=clone(defaults)}
+function logLine(q,a){const row=document.createElement("div");row.className="log-entry";const s=document.createElement("span");s.className="speaker";s.textContent="YOU";const t=document.createElement("span");t.className="answer";t.textContent=q;row.append(s,t);$("log").append(row);const r=document.createElement("div");r.className="log-entry";const rs=document.createElement("span");rs.className="speaker";rs.textContent="SOUP";const rt=document.createElement("span");rt.className="answer";const b=document.createElement("b");b.textContent=a;rt.append(b);r.append(rs,rt);$("log").append(r);$("log").scrollTop=$("log").scrollHeight;}
+function answerQuestion(q){
+ const s=q.toLowerCase();
+ if(/答案|真相|完整故事|解答/.test(s))return "現在還不是時候。先把線索拼起來。";
+ for(const item of answers){if(item.keys.some(k=>s.includes(k))){if(item.important)state.correct++;return item.yes;}}
+ if(/為什麼|原因|發生|誰|什麼/.test(s))return "這個問題很重要，但你需要更具體一點。請拆開來問。";
+ return "這件事目前無法判斷。試著問人物、時間、空間，或聲音是否有關。";
 }
-function save(){
-  try{localStorage.setItem(SAVE_KEY,JSON.stringify(state));}catch(e){toast("無法儲存，請檢查瀏覽器儲存空間")}
+function submitQuestion(e){e.preventDefault();if(state.ended)return;const input=$("question");const q=input.value.trim();if(!q)return;state.questions++;const a=answerQuestion(q);logLine(q,a);input.value="";$("questionCount").textContent=state.questions+" 次提問";
+ if(state.questions>=3&&!state.scareOne){state.scareOne=true;setTimeout(()=>jumpscare("small"),450);}
+ if(state.questions>=7&&!state.scareTwo){state.scareTwo=true;setTimeout(()=>jumpscare("large"),650);}
 }
-function toast(message){
-  const el=$("toast");el.textContent=message;el.classList.add("visible");
-  clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove("visible"),1900);
+function openClue(id){const d=clueData[id];if(!d)return;if(!state.clues.includes(id)){state.clues.push(id);const btn=document.querySelector('[data-clue="'+id+'"]');btn.classList.add("found");btn.querySelector("small").textContent="已取得";$("clueCount").textContent=state.clues.length+" / 5 已發現";if(state.clues.length===3&&!state.scareOne){state.scareOne=true;setTimeout(()=>jumpscare("small"),400);}if(state.clues.length===5&&!state.scareTwo){state.scareTwo=true;setTimeout(()=>jumpscare("large"),500);}}
+ $("modalTag").textContent=d.tag;$("modalTitle").textContent=d.title;$("modalBody").textContent=d.body;$("modalHint").textContent="調查提示："+d.hint;$("clueModal").classList.remove("hidden");
 }
-function updateClock(){
-  const d=new Date(),t=nowTime();
-  $("statusTime").textContent=t;$("lockClock").textContent=t;
-  $("lockDate").textContent=d.toLocaleDateString("zh-TW",{month:"long",day:"numeric",weekday:"long"});
+function closeClue(){$("clueModal").classList.add("hidden");}
+let audioCtx=null;
+function soundScare(){try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;audioCtx=audioCtx||new C();if(audioCtx.state==="suspended")audioCtx.resume();const now=audioCtx.currentTime;const osc=audioCtx.createOscillator();const gain=audioCtx.createGain();osc.type="sawtooth";osc.frequency.setValueAtTime(95,now);osc.frequency.exponentialRampToValueAtTime(32,now+.55);gain.gain.setValueAtTime(.0001,now);gain.gain.exponentialRampToValueAtTime(.35,now+.025);gain.gain.exponentialRampToValueAtTime(.0001,now+.75);osc.connect(gain);gain.connect(audioCtx.destination);osc.start(now);osc.stop(now+.8);}catch(e){}}
+function vibrate(pattern){if(navigator.vibrate){try{navigator.vibrate(pattern);}catch(e){}}}
+function jumpscare(level){if(state.ended)return;const el=$("jumpscare");el.classList.remove("hidden");el.classList.add("active");el.setAttribute("aria-hidden","false");soundScare();vibrate(level==="large"?[180,60,240,60,400]:[100,50,160]);document.body.classList.add("shake");setTimeout(()=>{el.classList.remove("active");el.classList.add("hidden");el.setAttribute("aria-hidden","true");document.body.classList.remove("shake");},level==="large"?1900:1250);}
+function submitTheory(){const t=$("theory").value.trim();if(t.length<12){$("theory").focus();$("theory").placeholder="請再多寫一點，你還需要解釋發生了什麼。";return;}state.ended=true;const score=state.clues.length*2+Math.min(state.correct,5)+Math.min(state.questions,5);let code,title,body;
+ if(state.clues.length===5&&/鏡|倒影|複製|另一個|自己|夾層|十三樓/.test(t)){code="ENDING 01 · 完整真相";title="你沒有回頭。";body="十三樓是藏在十二樓與屋頂之間的維修夾層。電梯鏡面會在 03:17 映出一個「多出來的人」。它會模仿乘客，並在乘客回答敲門聲後取代他。管理員在鏡中看見了自己，卻沒有回答。真正讓他消失的，是他身後那個已經走出鏡面的自己。你拼出了真相。但提交推理後，螢幕反光裡，你的嘴巴比你早一步笑了。";}
+ else if(score>=8){code="ENDING 02 · 未完成的紀錄";title="你知道得太多了。";body="你找到十三樓的入口，也知道管理員不是第一個失蹤的人。但你沒有弄清楚鏡面裡的東西如何離開。凌晨 03:17，電梯抵達。這次，樓層顯示器亮起了「你的名字」。";}
+ else{code="ENDING 03 · 第四下";title="門外有人。";body="你提交了推理，卻忽略了最重要的聲音。錄音最後有四下敲門，而管理員值班表提醒：不要回答。你聽見房門外傳來敲門聲。三下。停頓。第四下。接著，門內也響起相同的聲音。";}
+ $("endingCode").textContent=code;$("endingTitle").textContent=title;$("endingText").textContent=body;$("ending").classList.remove("hidden");soundScare();vibrate([100,70,180]);
 }
-function showPasscode(){
-  if(state.unlocked)return;
-  passcode="";updateDots();$("passcodeError").textContent="";
-  $("passcodeScreen").classList.add("visible");$("passcodeScreen").setAttribute("aria-hidden","false");
-  if(navigator.vibrate)navigator.vibrate(18);
-}
-function hidePasscode(){
-  $("passcodeScreen").classList.remove("visible");$("passcodeScreen").setAttribute("aria-hidden","true");
-  passcode="";updateDots();
-}
-function updateDots(){document.querySelectorAll("#passcodeDots i").forEach((el,i)=>el.classList.toggle("filled",i<passcode.length))}
-function digit(d){
-  if(passcode.length>=4)return;
-  passcode+=d;updateDots();
-  if(passcode.length!==4)return;
-  if(passcode===PASSCODE){
-    $("passcodeError").textContent="";if(navigator.vibrate)navigator.vibrate([30,30,70]);
-    setTimeout(()=>{state.unlocked=true;hidePasscode();$("lockScreen").classList.add("dismissed");$("homeScreen").classList.remove("hidden");save();toast("已解鎖")},170);
-  }else{
-    $("passcodeError").textContent="密碼錯誤，請重試";
-    if(navigator.vibrate)navigator.vibrate([80,40,80]);
-    setTimeout(()=>{passcode="";updateDots()},650);
-  }
-}
-function goHome(){
-  $("appScreen").classList.add("hidden");$("incomingCall").classList.add("hidden");$("callScreen").classList.add("hidden");
-  $("homeScreen").classList.remove("hidden");state.activeApp="";save();
-}
-function openApp(app){
-  if(!state.unlocked)return;
-  state.activeApp=app;
-  if(!state.visited.includes(app))state.visited.push(app);
-  $("homeScreen").classList.add("hidden");$("appScreen").classList.remove("hidden");
-  renderApp();save();
-}
-function addClue(id){
-  if(state.clues.includes(id))return;
-  state.clues.push(id);state.trust=Math.max(0,state.trust-1);state.fear=Math.min(100,state.fear+7);
-  toast("已新增線索："+clueData[id].title);save();updateBadges();
-}
-function advanceStage(n){
-  if(n<=state.stage)return;
-  state.stage=n;save();updateBadges();
-  const messages={
-    1:"你回覆之後，Jake 傳來一張照片。照片好像也出現在你的相簿裡。",
-    2:"你找到一份奇怪的備忘錄。建立時間就在剛才。",
-    3:"搜尋結果裡，有人描述過非常相似的事。",
-    4:"位置共享開始更新。地圖上的位置，正在往你這裡移動。",
-    5:"電話裡有一通未接來電。語音信箱有新訊息。",
-    6:"走廊的感應燈亮了。你應該先確認門外的情況。",
-    7:"Jake 又傳訊息了。這次他不再假裝只是擔心你。"
-  };
-  if(messages[n])addSystemMessage(messages[n]);
-  toast("新進度已解鎖");
-}
-function updateBadges(){
-  $("messageBadge").textContent=state.stage>=7?"1":"2";
-  $("phoneBadge").textContent=state.stage>=5?"2":"1";
-  $("homeObjective").textContent=objectives[state.stage]||objectives[8];
-}
-function renderApp(){
-  const titleMap={messages:"訊息",phone:"電話",photos:"照片",notes:"備忘錄",safari:"Safari",findmy:"尋找",files:"檔案",settings:"設定",camera:"相機",voice:"語音備忘錄"};
-  $("appTitle").textContent=titleMap[state.activeApp]||"";
-  $("backLabel").textContent=state.activeApp==="messages"&&state.selectedContact?"訊息":"主畫面";
-  $("appAction").textContent="";
-  const content=$("appContent");content.innerHTML="";
-  $("appScreen").className="app-screen "+(state.activeApp==="messages"?"messages-screen":"");
-  const renderers={messages:renderMessages,phone:renderPhone,photos:renderPhotos,notes:renderNotes,safari:renderSafari,findmy:renderFindMy,files:renderFiles,settings:renderSettings,camera:renderCamera,voice:renderVoice};
-  (renderers[state.activeApp]||renderFiles)(content);
-}
-function el(tag,cls,text){
-  const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;
-}
-function button(label,cls,fn){
-  const b=el("button",cls,label);b.addEventListener("click",fn);return b;
-}
-function addSystemMessage(text){
-  state.logs.jake.push({from:"system",text,time:nowTime()});save();
-}
-function renderMessages(root){
-  if(!state.selectedContact){
-    root.append(el("h2","","訊息"));
-    root.append(el("p","intro","最近的對話"));
-    const list=el("div","app-list");
-    const j=button("","list-row",()=>{state.selectedContact="jake";renderApp()});
-    j.append(el("div","contact-avatar","J"));const jm=el("div","list-main");jm.append(el("strong","","Jake"),el("small","",lastMessage("jake")));j.append(jm,el("span","chevron","›"));
-    const m=button("","list-row",()=>{state.selectedContact="mina";renderApp()});
-    m.append(el("div","contact-avatar friend","M"));const mm=el("div","list-main");mm.append(el("strong","","Mina"),el("small","",lastMessage("mina")));m.append(mm,el("span","chevron","›"));
-    list.append(j,m);root.append(list);return;
-  }
-  const contact=state.selectedContact;
-  const head=el("div","chat-contact-head");
-  head.append(button("‹","app-back",()=>{state.selectedContact="";renderApp()}));
-  head.append(el("div","contact-avatar "+(contact==="mina"?"friend":""),contact==="mina"?"M":"J"));
-  const title=el("div");title.append(el("div","contact-title",contact==="mina"?"Mina":"Jake"),el("div","contact-sub",contact==="mina"?"iMessage":"端對端加密"));
-  head.append(title,el("span","contact-actions","⌕"));root.append(head);
-  const conversation=el("div","conversation");conversation.id="conversation";
-  conversation.append(el("div","chat-date","今天　"+(contact==="mina"?"23:35":"23:48")));
-  (state.logs[contact]||[]).forEach(msg=>conversation.append(makeBubble(msg)));
-  root.append(conversation);
-  const quick=el("div","quick-replies");
-  const options=contact==="mina"?["你現在方便講電話嗎？","我覺得有人在我家附近。"]:state.stage>=7?["你到底是誰？","我知道你在說謊。","不要再靠近我。"]:["你怎麼知道我在哪？","我到家了。","你現在在哪裡？"];
-  options.forEach(t=>quick.append(button(t,"",()=>{sendMessage(t)})));
-  root.append(quick);
-  const row=el("div","chat-input-row"),input=el("textarea");input.id="chatInput";input.rows=1;input.placeholder="iMessage";
-  const send=button("↑","chat-send",()=>sendMessage(input.value));
-  input.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage(input.value)}});
-  row.append(input,send);root.append(row);
-  conversation.scrollTop=conversation.scrollHeight;
-}
-function lastMessage(contact){const a=state.logs[contact]||[];return a.length?a[a.length-1].text:"沒有訊息"}
-function makeBubble(msg){
-  const b=el("div","chat-bubble "+(msg.from==="me"?"me":msg.from==="system"?"system":"them"),msg.text);
-  b.append(el("span","bubble-time",msg.time||""));return b;
-}
-function sendMessage(raw){
-  const text=String(raw||"").trim();if(!text)return;
-  const contact=state.selectedContact||"jake";
-  state.logs[contact].push({from:"me",text,time:nowTime()});
-  if(contact==="jake"){
-    if(state.stage===0)advanceStage(1);
-    if(state.stage>=7){finalChoice(text);return}
-  }
-  save();renderApp();
-  const conversation=$("conversation");
-  const typing=conversation?el("div","typing",contact==="mina"?"Mina 正在輸入⋯":"Jake 正在輸入⋯"):null;
-  if(typing){conversation.append(typing);conversation.scrollTop=conversation.scrollHeight}
-  setTimeout(()=>{
-    if(typing)typing.remove();
-    const reply=contact==="mina"?minaReply(text):jakeReply(text);
-    state.logs[contact].push({from:"them",text:reply,time:nowTime()});
-    save();if(state.activeApp==="messages"&&state.selectedContact===contact)renderApp();
-    if(contact==="jake"&&state.stage===1&&!state.flags.photoHintSent&&state.logs.jake.filter(x=>x.from==="me").length>=2){
-      state.flags.photoHintSent=true;
-      state.logs.jake.push({from:"them",text:"我剛剛傳了一張照片給你。你看一下，是不是你家樓下？",time:nowTime()});advanceStage(1);save();if(state.activeApp==="messages")renderApp();
-    }
-    if(contact==="mina"&&/電話|打給|call/.test(text))incomingCall("Mina 正在撥打給你");
-  },650);
-}
-function jakeReply(text){
-  const t=text.toLowerCase();
-  if(state.stage>=7)return "我沒有要嚇你。我只是想確定，這次你會不會相信我。";
-  if(/誰|哪裡|位置|在哪|看到|跟蹤|監視/.test(t))return "你真的想知道嗎？有些事情，知道了反而比較難睡。";
-  if(/不要|別|害怕|怕|恐怖/.test(t))return "那就不要看窗外。把門鎖好，聽我的。";
-  if(/照片|相簿|拍/.test(t))return "照片裡的人不是我。至少，不是你認識的那個我。";
-  if(/到家|回家|到了/.test(t))return "很好。那你現在應該是在房間裡，對吧？";
-  if(/想你|喜歡|愛/.test(t))return "我也想你。比你以為的還要久。";
-  const replies=["嗯，我在聽。你可以慢慢說。","你剛剛是不是把窗簾拉上了？","我沒有生氣。我只是有點失望。","你手機的亮度好像調低了。看不清楚嗎？","你不用一直確認我在不在。我一直都在。"];
-  return replies[(state.logs.jake.filter(x=>x.from==="me").length-1)%replies.length];
-}
-function minaReply(text){
-  if(/有人|樓下|門外|照片|跟蹤|害怕/.test(text))return "等一下。你先不要開門。我現在打給你。你有沒有把門鎖好？";
-  if(/電話|打給|call/.test(text))return "好，我打給你。不要掛掉，先待在有鎖的房間。";
-  return "你先把事情從頭跟我說一次。我覺得這件事不太對。";
-}
-function finalChoice(text){
-  const t=text.toLowerCase();
-  if(/封鎖|離開|不要|報警|警察|朋友|求救/.test(t)){
-    state.trust=20;state.fear=85;state.ending=/報警|警察|朋友|求救/.test(t)?"truth":"escape";
-  }else if(/相信|見面|開門|想你|愛/.test(t)){
-    state.trust=85;state.fear=92;state.ending="stay";
-  }else{
-    state.trust=45;state.fear=72;state.ending="unknown";
-  }
-  state.logs.jake.push({from:"them",text:state.ending==="escape"?"……你終於做了一件對的事。":"你還是沒有回答我。沒關係，我們很快就會見面。",time:nowTime()});
-  state.stage=8;save();renderApp();setTimeout(()=>{state.selectedContact="";openApp("files");renderApp()},450);
-}
-function renderPhone(root){
-  root.append(el("h2","","最近通話"),el("p","intro","所有通話都會保留在這部手機裡。"));
-  const list=el("div","app-list");
-  state.calls.forEach((c,i)=>{
-    const row=button("","list-row",()=>{if(i===0||c.name==="Jake")showVoicemail()});
-    row.append(el("div","call-log-avatar",c.name==="Jake"?"J":"?"));
-    const main=el("div","list-main");main.append(el("strong","",c.name),el("small","",c.type+" · "+c.time));row.append(main,el("span","chevron","ⓘ"));list.append(row);
-  });
-  root.append(list);
-  root.append(el("div","section-label","語音信箱"));
-  root.append(button("▶　Jake　・　00:03　・　今天 00:03","list-row",showVoicemail));
-  if(state.stage>=5)root.append(button("播放語音信箱","primary-app-button",showVoicemail));
-}
-function showVoicemail(){
-  const root=$("appContent");root.innerHTML="";
-  root.append(el("h2","","語音信箱"),el("p","intro","Jake　・　今天 00:03"));
-  const card=el("div","progress-card");card.append(el("h3","","未知的背景聲"),el("p","","（背景有電梯抵達的提示音。）\n\nJake：「你是不是把門鎖換了？」\n\n（停頓 4 秒。）\n\nJake：「沒關係，我有備份鑰匙。」\n\n（很輕的敲門聲。三下。）"));root.append(card);
-  root.append(button("收進線索","primary-app-button",()=>{addClue("voicemail");advanceStage(6);renderApp()}));
-  root.append(button("返回通話紀錄","secondary-app-button",renderApp));
-}
-function renderPhotos(root){
-  root.append(el("h2","","照片"),el("p","intro","最近項目　・　4 張照片"));
-  const grid=el("div","evidence-grid");
-  const cards=[["🌧","雨夜的街口","今天 23:41","photo"],["🚪","公寓走廊","今天 23:43","door"],["🪞","電梯鏡面","今天 23:44","mirror"],["🌑","未知影像","今天 23:47","shadow"]];
-  cards.forEach((c,i)=>{
-    const b=button("","evidence-card",()=>showPhoto(c[3]));
-    b.append(el("span","evidence-art",c[0]),el("strong","",c[1]),el("small","",c[2]));grid.append(b);
-  });root.append(grid);
-}
-function showPhoto(id){
-  const root=$("appContent");root.innerHTML="";
-  const card=el("div","evidence-detail");
-  const visual=el("div","evidence-visual",id==="door"?"🚪":id==="mirror"?"🪞":id==="shadow"?"◌":"🌧");
-  if(id==="mirror"||id==="shadow")visual.style.background="radial-gradient(ellipse at 55% 38%,#9c7c8a,#20212c 45%,#090b12)";
-  card.append(visual);
-  const title=id==="photo"?"IMG_2048.HEIC":id==="door"?"公寓走廊":id==="mirror"?"電梯鏡面":"未知影像";
-  const desc=id==="photo"?clueData.photo.desc:id==="door"?"照片裡的門牌號碼是你的房號。拍攝角度來自走廊盡頭。你住在這層樓的最裡面。":id==="mirror"?"鏡子裡多了一個人影。你放大照片後，發現那個人站在拍攝者身後。照片資訊顯示：拍攝裝置是你的 iPhone。":"這張照片沒有拍攝時間。檔案大小 0 KB，卻能正常預覽。";
-  card.append(el("h3","",title),el("p","",desc));
-  if(id==="photo")card.append(button("查看照片資訊","evidence-action",()=>{addClue("photo");advanceStage(2);showClueDetail("photo")}));
-  else card.append(button("保存這張照片","evidence-action",()=>{addClue(clueData[id]?id:"photo");advanceStage(2);toast("已保存到案件紀錄")}));
-  root.append(button("‹　返回照片","secondary-app-button",renderApp),card);
-}
-function showClueDetail(id){
-  const root=$("appContent");root.innerHTML="";
-  root.append(button("‹　返回照片","secondary-app-button",renderApp));
-  const card=el("div","evidence-detail");card.append(el("div","evidence-visual",clueData[id].icon),el("h3","",clueData[id].title),el("p","",clueData[id].desc));root.append(card);
-}
-function renderNotes(root){
-  root.append(el("h2","","備忘錄"),el("p","intro","iCloud 已同步　・　最近編輯"));
-  const a=el("div","app-note");a.append(el("h3","","今天要記得的事"),el("p","","1. 明天交報告\n2. 買牛奶\n3. 回覆 Mina\n\n（這些都是你寫的。至少看起來是。）"),el("div","note-meta","今天 18:22　・　我的 iPhone"));root.append(a);
-  const b=button("","app-note",()=>showNote());b.style.width="100%";b.style.textAlign="left";b.append(el("h3","","不要開門"),el("p","","如果他說他在樓下，不要相信。\n如果他說他沒有進來，也不要相信。\n\n⋯⋯"),el("div","note-meta","今天 23:44　・　未知裝置"));root.append(b);
-}
-function showNote(){
-  const root=$("appContent");root.innerHTML="";
-  const card=el("div","app-note");card.append(el("h3","","不要開門"),el("p","",clueData.note.desc),el("div","note-meta","最後編輯：現在　・　同步中…"));root.append(card);
-  root.append(button("檢查編輯紀錄","primary-app-button",()=>{addClue("note");advanceStage(3);toast("建立者：你自己？")}));
-  root.append(button("還原已刪除的最後一行","secondary-app-button",()=>{state.flags.noteRestored=true;addClue("note");toast("還原內容：我沒有帶鑰匙。")}));
-  root.append(button("返回備忘錄","secondary-app-button",renderApp));
-}
-function renderSafari(root){
-  root.append(el("h2","","Safari"),el("div","browser-bar","◉　私人瀏覽模式"));
-  const search=el("input","browser-search");search.id="webSearch";search.value="IMG_2048 拍攝位置 異常";search.placeholder="搜尋或輸入網站名稱";root.append(search);
-  root.append(button("搜尋","primary-app-button",()=>runSearch(search.value)));
-  const results=el("div");results.id="webResults";
-  [["社區監視器：凌晨的訪客","local-forum.example","有人在電梯鏡面中看見不存在的人。"],["如何查看 iPhone 照片的 EXIF 資訊","support.example","照片可能保留拍攝裝置、時間與定位資訊。"],["附近裝置偵測到未知 AirTag","security.example","一個未知配件持續跟隨你移動。"]].forEach(r=>{const c=el("div","browser-result");c.append(el("small","",r[1]),el("h3","",r[0]),el("p","",r[2]));results.append(c)});
-  root.append(results);
-}
-function runSearch(query){
-  const results=$("webResults");if(!results)return;
-  results.innerHTML="";
-  const q=String(query||"").toLowerCase();
-  const heading=/airtag|追蹤|裝置/.test(q)?"附近裝置偵測到未知配件":/地址|位置|公寓|監視/.test(q)?"你不是第一個遇到這種事的人":"搜尋結果：有人也看過同一個影子";
-  const c=el("div","browser-result");
-  c.append(el("small","","搜尋結果　・　23:46"),el("h3","",heading),el("p","",clueData.web.desc));
-  results.append(c);
-  results.append(button("開啟討論串並保存","primary-app-button",()=>{
-    addClue("web");advanceStage(4);toast("搜尋紀錄已保存");
-  }));
-}
-function renderFindMy(root){
-  root.append(el("h2","","尋找"),el("p","intro","你的位置　・　現在"));
-  const map=el("div","map-panel");
-  map.append(el("div","map-roads"),el("span","map-pin","●"));root.append(map);
-  root.append(el("p","map-caption","Jake　・　位置共享中\n最後更新：現在　　距離：18 公尺"));
-  root.append(button("更新位置","primary-app-button",()=>{
-    map.querySelector(".map-pin").style.left="50%";
-    map.querySelector(".map-pin").style.top="58%";
-    root.querySelector(".map-caption").textContent="Jake　・　位置共享中\n最後更新：現在　　距離：0 公尺";
-    addClue("location");advanceStage(5);
-  }));
-  root.append(button("播放聲音","secondary-app-button",()=>{
-    state.flags.soundPlayed=true;toast("聲音似乎是從你家裡傳出來的。");
-    state.fear=Math.min(100,state.fear+9);save();
-  }));
-  root.append(button("停止分享我的位置","secondary-app-button",()=>toast("無法停止共享：此裝置目前不在你的帳號中")));
-}
-function renderFiles(root){
-  root.append(el("h2","","案件紀錄"),el("p","intro","AFTERIMAGE　・　私人調查檔案"));
-  const card=el("div","progress-card");card.append(el("h3","","目前目標"),el("p","",""+(objectives[state.stage]||objectives[8])));root.append(card);
-  root.append(el("div","section-label","已收集線索　"+state.clues.length+" / 9"));
-  state.clues.forEach(id=>{const d=clueData[id],row=el("div","clue-row");row.append(el("span","clue-dot",d.icon));const text=el("div");text.append(el("strong","",d.title),el("p","",d.desc.slice(0,72)+"…"));row.append(text);root.append(row)});
-  if(!state.clues.length)root.append(el("p","intro","目前沒有線索。請從手機裡的 App 開始調查。"));
-  if(state.stage===8)renderEnding(root);
-  root.append(button("回到主畫面","secondary-app-button",goHome));
-}
-function renderEnding(root){
-  const title=state.ending==="truth"?"ENDING 01 · 真相曝光":state.ending==="escape"?"ENDING 02 · 斷線":state.ending==="stay"?"ENDING 03 · 門的另一邊":"ENDING 04 · 未知來電";
-  const body=state.ending==="truth"?"你把所有截圖傳給 Mina，並聯絡管理員與警方。凌晨 02:13，監視器畫面終於恢復。走廊裡沒有人。只有你家的門，一直從內側緩慢地開著。":state.ending==="escape"?"你拔掉網路、封鎖 Jake，和 Mina 保持通話直到天亮。隔天你搬離那間公寓。三週後，你收到一張沒有寄件人的照片。照片裡，是你新家的窗戶。":state.ending==="stay"?"你打開了門。走廊空無一人。手機卻響起視訊來電。畫面裡的 Jake 坐在你房間的床沿，對你笑了一下。你身後傳來他的聲音：「怎麼不接？」":"你沒有回答。螢幕暗下去，反射出你身後站著一個人。你轉身時，手機收到最後一則訊息：不要回頭。";
-  const c=el("div","progress-card");c.append(el("h3","",title),el("p","",body));root.append(c);
-  root.append(button("重新開始新存檔","primary-app-button",resetGame));
-}
-function renderVoice(root){
-  root.append(el("h2","","語音備忘錄"),el("p","intro","所有錄音　・　最近項目"));
-  const card=el("div","progress-card");
-  card.append(el("h3","","未命名錄音"),el("p","","今天 23:39　・　00:17\n\n你不記得自己錄過這段音訊。"));
-  root.append(card);
-  root.append(button("▶　播放錄音","primary-app-button",()=>{
-    const p=el("div","progress-card");
-    p.append(el("h3","","錄音轉文字"),el("p","",clueData.voice.desc));
-    root.append(p);addClue("voice");toast("錄音已加入案件紀錄");
-  }));
-  root.append(button("返回主畫面","secondary-app-button",goHome));
-}
-function renderSettings(root){
-  root.append(el("h2","","設定"),el("p","intro","AFTERIMAGE　・　iPhone"));
-  const list=el("div","app-list");
-  [["飛航模式","關閉"],["通知","已開啟"],["聲音與觸覺回饋","開啟"],["iCloud 備份","同步中…"],["關於本裝置","iPhone 18 Pro"]].forEach(x=>{const row=el("div","list-row");const m=el("div","list-main");m.append(el("strong","",x[0]),el("small","",x[1]));row.append(m,el("span","chevron","›"));list.append(row)});
-  root.append(list);
-  root.append(el("div","section-label","遊戲資料"));
-  root.append(button("儲存目前進度","primary-app-button",()=>{save();toast("已儲存目前進度")}));
-  root.append(button("重新開始遊戲（清除存檔）","secondary-app-button",resetGame));
-  root.append(el("p","intro","遊戲進度只儲存在目前瀏覽器。清除網站資料或更換裝置可能會失去存檔。"));
-}
-function renderCamera(root){
-  root.append(el("h2","","相機"),el("p","intro","後置相機　・　照片模式"));
-  const preview=el("div","evidence-visual");
-  preview.style.height="min(55vh,420px)";preview.style.borderRadius="18px";
-  preview.style.background="radial-gradient(ellipse at 53% 48%,#34343d,#090b11 65%)";
-  preview.style.position="relative";
-  const cross=el("span","","＋");
-  cross.style.cssText="position:absolute;inset:0;display:grid;place-items:center;color:#ffffff50;font-size:30px;font-weight:200";
-  preview.append(cross);root.append(preview);
-  root.append(button("拍攝照片","primary-app-button",()=>{
-    preview.style.background="radial-gradient(ellipse at 54% 45%,#806b79,#1b1b26 45%,#08090d)";
-    preview.textContent="";const ghost=el("span","","✋");
-    ghost.style.cssText="font-size:65px;opacity:.75;transform:rotate(-18deg)";
-    preview.append(ghost);addClue("camera");advanceStage(7);toast("照片已儲存到相簿");
-  }));
-  root.append(button("切換前鏡頭","secondary-app-button",()=>{
-    preview.style.background="radial-gradient(ellipse at 50% 40%,#9b7883,#25212c 50%,#090b12)";
-    preview.textContent="";const face=el("span","","◉");
-    face.style.cssText="font-size:68px;opacity:.6";preview.append(face);
-    state.flags.frontCamera=true;state.fear=Math.min(100,state.fear+8);save();
-    toast("前鏡頭：偵測到另一張臉");
-  }));
-  root.append(button("錄影 10 秒","secondary-app-button",()=>{
-    preview.textContent="REC　00:10";preview.style.color="#ff4d60";
-    addClue("door");advanceStage(7);toast("影片已儲存");
-  }));
-  root.append(button("返回主畫面","secondary-app-button",goHome));
-}
-function incomingCall(name){
-  $("callerName").textContent=name||"Jake";$("callerSub").textContent="iPhone 行動電話";
-  $("incomingCall").classList.remove("hidden");if(navigator.vibrate)navigator.vibrate([180,80,180,80,280]);
-}
-function declineCall(){
-  $("incomingCall").classList.add("hidden");state.calls.unshift({name:$("callerName").textContent,time:nowTime(),type:"未接來電"});save();toast("已拒絕來電");
-}
-function answerCall(){
-  $("incomingCall").classList.add("hidden");$("callScreen").classList.remove("hidden");
-  $("callTranscript").textContent="已接通。\n\nJake：「你終於接了。」\n\n（遠處傳來門鎖轉動的聲音。）\n\nJake：「等一下。你家裡是不是還有別人？」";
-  let seconds=0;clearInterval(callTicker);callTicker=setInterval(()=>{seconds++;$("callTimer").textContent="00:"+String(seconds).padStart(2,"0")},1000);
-}
-function endCall(){
-  clearInterval(callTicker);$("callScreen").classList.add("hidden");
-  state.calls.unshift({name:"Jake",time:nowTime(),type:"已接聽 · 00:18"});save();toast("通話已結束");
-}
-function resetGame(){
-  if(!confirm("確定清除目前存檔並重新開始？"))return;
-  localStorage.removeItem(SAVE_KEY);state=clone(defaults);state.selectedContact="";passcode="";
-  $("appScreen").classList.add("hidden");$("homeScreen").classList.add("hidden");$("lockScreen").classList.remove("dismissed");$("passcodeScreen").classList.remove("visible");$("incomingCall").classList.add("hidden");$("callScreen").classList.add("hidden");
-  toast("已建立新存檔");
-}
-function bind(){
-  document.querySelectorAll("[data-open-passcode]").forEach(b=>b.addEventListener("click",showPasscode));
-  $("cancelPasscode").addEventListener("click",hidePasscode);
-  $("keypad").addEventListener("click",e=>{const b=e.target.closest("[data-digit]");if(b)digit(b.dataset.digit)});
-  $("deleteDigit").addEventListener("click",()=>{passcode=passcode.slice(0,-1);updateDots()});
-  $("lockScreen").addEventListener("touchstart",e=>{if(e.touches.length===1)touchStartY=e.touches[0].clientY},{passive:true});
-  $("lockScreen").addEventListener("touchend",e=>{if(touchStartY!==null&&touchStartY-e.changedTouches[0].clientY>28)showPasscode();touchStartY=null},{passive:true});
-  $("lockScreen").addEventListener("touchcancel",()=>touchStartY=null,{passive:true});
-  document.querySelectorAll("[data-app]").forEach(b=>b.addEventListener("click",()=>{state.selectedContact="";openApp(b.dataset.app)}));
-  $("appHome").addEventListener("click",goHome);
-  $("appBack").addEventListener("click",()=>{if(state.activeApp==="messages"&&state.selectedContact){state.selectedContact="";renderApp()}else goHome()});
-  $("answerCall").addEventListener("click",answerCall);$("declineCall").addEventListener("click",declineCall);$("endCall").addEventListener("click",endCall);
-  $("lockFlash").addEventListener("click",()=>toast("手電筒無法開啟：電量不足"));
-  $("lockCamera").addEventListener("click",()=>{showPasscode()});
-  let startY=null;
-  $("homeScreen").addEventListener("touchstart",e=>{startY=e.touches[0].clientY},{passive:true});
-  $("homeScreen").addEventListener("touchend",e=>{if(startY!==null&&startY-e.changedTouches[0].clientY>90)toast("沒有新的通知");startY=null},{passive:true});
-}
-loadSave();bind();updateClock();setInterval(updateClock,15000);updateBadges();
-document.addEventListener("visibilitychange",()=>{if(document.hidden)save()});
-window.addEventListener("pagehide",save);
+function start(){if(audioCtx&&audioCtx.state==="suspended")audioCtx.resume();$("intro").classList.add("hidden");$("story").classList.remove("hidden");$("question").focus();}
+function restart(){location.reload();}
+function tick(){const d=new Date();$("clock").textContent="03:"+String(d.getMinutes()).padStart(2,"0")+":"+String(d.getSeconds()).padStart(2,"0");}
+$("startBtn").addEventListener("click",start);$("questionForm").addEventListener("submit",submitQuestion);$("closeClue").addEventListener("click",closeClue);$("clueModal").addEventListener("click",e=>{if(e.target===$("clueModal"))closeClue();});document.querySelectorAll("[data-clue]").forEach(b=>b.addEventListener("click",()=>openClue(b.dataset.clue)));$("submitTheory").addEventListener("click",submitTheory);$("restart").addEventListener("click",restart);document.addEventListener("keydown",e=>{if(e.key==="Escape")closeClue();});tick();setInterval(tick,1000);
 })();
