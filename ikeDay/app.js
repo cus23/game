@@ -3,8 +3,8 @@ const STORE='ikeDay_attendance_v2';
 const START='2026-05-08';
 const te=new TextEncoder(),td=new TextDecoder();
 const PASSWORD_CHECK='15WclAORKD85Z3ymfYxpJbqbJ1obv4WDSf1OP9hzzQk=';
-const SEED_DATA={"salt":"nLqy2rUtg/0x0szn3bXceg==","iv":"IKuoDhhSANLMRBXD","ciphertext":"kkmKTdIaSwYIJ3Q4LhDDTRQnphyQp8utQXtFS0ohAEbyASEP3fvRSwEGADXTvxYhI233FzHZkl3m4Ha7xqJfIGtd6otOnH7b/vzIX+AQh8lggiImcoophmrYHpfk8AT5+yq8fTyDT06KdxZyHULhHHyZ3yGDsY3ggZkUb6h7A2ucTgjw+zS5k9S+wli82iLgz1r2VosdOD83KhyOklyL+bTntUTjJSWU1wRWCgs7rfCl8UarU+VPJ1YoyJsYgqsbrusIRcSeEC7sxgIzJtIEgoGv/27BNqLYXaohsyl+c2EAJlldvGlJ2f2/u6UOIFBzk1DP7vu4LqvfNWoh/4OMqcK2lQt/f//NWaYju/PPUanVVaQRq9v0LE1St18P5eUoOIEbZiVcs4sjCeOZBAFIoFGctSIJ2Jz+iStyBXXxBn7k7eRjIWjt+6pIdaLGo+MlLRDMfQWbVw/C4gayDG3XIASLeAZlKCszfqqYpKwrRgPmh78PshUeC3sl7txGkAJqomQ59PogVCfeIC6XQEWTRY2N58MdN0lGJ3P2OmLSIqY8H/ul9Ss2TvjDJC2aSP0LRJBhX0wJ77yXA+vsL3Jn3izlX7ep9ec75Aq/YuGoC4ulRRGbdSIXCJcaudn1LAxeJGmtC7Eo2vxMUUdvzc/fivGIwP9Jn3CfWBRz88LJbrvgtehjfRoW6pOjs50XEkMJhrQ2NeL+qqDZheaFtxh8aZFltnWzjkQIXw9FZa9pBpUIFOUM2W3iigzIMU97wXyjpkKM5s0NoeC02nGOJy2MSNRwKB2UOR3cKcO361Nb4N+KZQlSng+tZPMSnNeXTtJOqNdzffYzuCrwCOJiqmpzPWfHYqde0ew0+uUKJXHLLsy05vf+8l6xS/zcI9zc0PjRvF5VinWsqaJUUj1LJY7P6xfqWl3rTZgJnc/7KM/wR4Ou1f+zWz9DKKPk7fDzKpauyDbY4/PktR/pzgo6f4bND2jA+3s4bo8lTFSReq+I2c3uCsQ4j3JHuYSK416k296/KLewTeumIF6OcJ8UlLl+DlwwUNXGXeogjLW+fzKbXG6lxpbkLpfr3bOvFmttbBYbH1imZMxdMx25wja8daC1t4xGiKa7Re398jAxrdYKlxDwWP1LN4ZNCFEFxjkPYCdyf/Rw0LbSHLmlIIxjicXGsIJ1UpUEocGVJXlRm5kwTytim2mRSmfQQ3UuJSi8Y4cr8AalTPFTC7DXEsH6"};
-let records={},key=null,view=new Date(),selected=null,salt=null,sessionPassword='',seedApplied=false;
+const SEED_DATA={"salt":"nLqy2rUtg/0x0szn3bXceg==","iv":"myw9Tl9gcYKTpLXG","ciphertext":"D0fZW6WMDFkJe872Ey/ioK8xCWiW8a1oz2ZKXKkac7fZrft95aQeNoqwXkDVwbRnTBBu9hhmYcoZPsrV45Uoj9+VEx0C25HM+hWlVFuuMMl2R9aGATmAo04jzHmd3/ROiSuw63VFStYPb05qtMTW0DVktvQKU9DMF9o4BCz1hBQHF0kX9/XCgv8BiuaJp12MPHU1kqpt1heGcWTg449b8yhMpyRfaqFTn6/pPyOkBjEzHtZwXl70Juta/Auclenw9FFhwJa14NwsovsEAxPJvc0PrLalC5Q0tUUv7cTqycJAZD9gm6mWDpx6OEBUmuW0FaIQgkbIqQtNeWW75BOEJG4Oi5Hq9I5RO8KeUd/rUnAhy2TUz/UsU+2wC1fl+gaIu96P/ZQoSOOg0vfVbU7Z8h8Ydz5EeKw4yvGMXV8JPpdaVsOvl7c/YAFh/zzWxmK6SxRF/Oie2eyUzO6aSwLn/2YrQbBdGy6G+vt7jTKNXAb80oybvFfDhgAhj+qWAGqUnVW/0OKbRHOQ7Bpa7/65w5FhUVMsvKXPzhLKczC5h32L/YciV+kzGf1dyLlpP80RvZGCWFJMnSjoFlByZvRzuDqfQ7meST+TcUQ/PZoWzzxVf2znZjjLETMer7BDQAf2R/r225vv6GtmIvEOINtW20VFJ0mDKqw1zWFOOVoV1AkTmIWHNZODu2grvhRt1PCu/3hB52KheTJRFqIw4xSY1cmgY1c7meDdcCI6lkbD2MCAhsx9j6vEaMZt5VnArwsWfF3+6CEqMrJUYG+zNHlpHC0rjI1M02ot8FMNqNH5o5vzLo2MhRI5x+2jleUFgxR0TFyZ7jEeT+hqRYgc4J5JZplIcaOiQTSXgFiF6Afmv4/Yy6tgL2J1qtLZzKQBswst0tHv37ytIwSFOya+QJNF1u2ZzFG45RiEuXFZQJzJjt58mWjIUv3tKN4ybrjpD0jl18YNNRtfvhtm/tRwwEbulSOTcQMGp6vYJcoy5K2Dt9FKdgbs5z5j/qbYZLAU8h3jtqLrinnFD6gwTyBYHDq5jUkLiSyfN1f5Eju+oJ/c91QMJXDj/Ngmd8vEvsEvQ3kGiCRAY4MasKItYGU0BPjU5aDd/SL2Ke2RmPAS3x6zJCv+EBS01wL5r59qOchQqBwPIu38RUxv0To1z8bxR27drmihrAP04uMO+f2QkakG1X3ocoA0jkXAG8KRrLFAZzBvfXWWzE5p6yLaEE8HY9haNBwA17jeosor//evY9zjc4Y4oVlBNGLLO3iV0hUoLqF70HkIDnKaYhYpPowkHXjAmA=="}
+let records={},key=null,view=new Date(),selected=null,salt=null,sessionPassword='',seedVersion=0;
 
 function b64(bytes){return btoa(String.fromCharCode(...new Uint8Array(bytes)))}
 function unb64(value){return Uint8Array.from(atob(value),c=>c.charCodeAt(0))}
@@ -37,17 +37,17 @@ async function decryptBackup(backup,password){
 async function applySeedIfNeeded(){
   let changed=false;
   for(const [date,status] of Object.entries(records)){if(status!=='yes'){delete records[date];changed=true}}
-  if(!seedApplied){
+  if(seedVersion<2){
     const seedKey=await deriveEncryptionKey(sessionPassword,unb64(SEED_DATA.salt));
     const plain=await crypto.subtle.decrypt({name:'AES-GCM',iv:unb64(SEED_DATA.iv)},seedKey,unb64(SEED_DATA.ciphertext));
     const seed=JSON.parse(td.decode(plain));
     for(const date of seed.dates){if(records[date]!=='yes'){records[date]='yes';changed=true}}
-    seedApplied=true;changed=true;
+    seedVersion=2;changed=true;
   }
   if(changed)await persist();
 }
 async function persist(){
-  const backup=await encryptRecords({records,seedApplied},salt,key);
+  const backup=await encryptRecords({records,seedVersion},salt,key);
   localStorage.setItem(STORE,JSON.stringify(backup));
 }
 function toast(message){const el=$('toast');el.textContent=message;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1900)}
@@ -63,7 +63,7 @@ $('unlockForm').addEventListener('submit',async event=>{
     const saved=localStorage.getItem(STORE);
     if(saved){
       const opened=await decryptBackup(JSON.parse(saved),password);
-      records=opened.data.records;salt=opened.rawSalt;key=opened.derived;seedApplied=!!opened.data.seedApplied;
+      records=opened.data.records;salt=opened.rawSalt;key=opened.derived;seedVersion=Number(opened.data.seedVersion)||(opened.data.seedApplied?1:0);
     }else{
       records={};salt=crypto.getRandomValues(new Uint8Array(16));key=await deriveEncryptionKey(password,salt);seedApplied=false;
     }
