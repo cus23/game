@@ -3,24 +3,7 @@ const STORE='ikeDay_attendance_v2';
 const START='2026-05-08';
 const te=new TextEncoder(),td=new TextDecoder();
 const PASSWORD_CHECK='15WclAORKD85Z3ymfYxpJbqbJ1obv4WDSf1OP9hzzQk=';
-const SEED_DATA={"salt":"nLqy2rUtg/0x0szn3bXceg==","iv":"myw9Tl9gcYKTpLXG","ciphertext":"D0fZW6WMDFkJe872Ey/ioK8xCWiW8a1oz2ZKXKkac7fZrft95aQeNoqwXkDVwbRnTBBu9hhmYcoZPsrV45Uoj9+VEx0C25HM+hWlVFuuMMl2R9aGATmAo04jzHmd3/ROiSuw63VFStYPb05qtMTW0DVktvQKU9DMF9o4BCz1hBQHF0kX9/XCgv8BiuaJp12MPHU1kqpt1heGcWTg449b8yhMpyRfaqFTn6/pPyOkBjEzHtZwXl70Juta/Auclenw9FFhwJa14NwsovsEAxPJvc0PrLalC5Q0tUUv7cTqycJAZD9gm6mWDpx6OEBUmuW0FaIQgkbIqQtNeWW75BOEJG4Oi5Hq9I5RO8KeUd/rUnAhy2TUz/UsU+2wC1fl+gaIu96P/ZQoSOOg0vfVbU7Z8h8Ydz5EeKw4yvGMXV8JPpdaVsOvl7c/YAFh/zzWxmK6SxRF/Oie2eyUzO6aSwLn/2YrQbBdGy6G+vt7jTKNXAb80oybvFfDhgAhj+qWAGqUnVW/0OKbRHOQ7Bpa7/65w5FhUVMsvKXPzhLKczC5h32L/YciV+kzGf1dyLlpP80RvZGCWFJMnSjoFlByZvRzuDqfQ7meST+TcUQ/PZoWzzxVf2znZjjLETMer7BDQAf2R/r225vv6GtmIvEOINtW20VFJ0mDKqw1zWFOOVoV1AkTmIWHNZODu2grvhRt1PCu/3hB52KheTJRFqIw4xSY1cmgY1c7meDdcCI6lkbD2MCAhsx9j6vEaMZt5VnArwsWfF3+6CEqMrJUYG+zNHlpHC0rjI1M02ot8FMNqNH5o5vzLo2MhRI5x+2jleUFgxR0TFyZ7jEeT+hqRYgc4J5JZplIcaOiQTSXgFiF6Afmv4/Yy6tgL2J1qtLZzKQBswst0tHv37ytIwSFOya+QJNF1u2ZzFG45RiEuXFZQJzJjt58mWjIUv3tKN4ybrjpD0jl18YNNRtfvhtm/tRwwEbulSOTcQMGp6vYJcoy5K2Dt9FKdgbs5z5j/qbYZLAU8h3jtqLrinnFD6gwTyBYHDq5jUkLiSyfN1f5Eju+oJ/c91QMJXDj/Ngmd8vEvsEvQ3kGiCRAY4MasKItYGU0BPjU5aDd/SL2Ke2RmPAS3x6zJCv+EBS01wL5r59qOchQqBwPIu38RUxv0To1z8bxR27drmihrAP04uMO+f2QkakG1X3ocoA0jkXAG8KRrLFAZzBvfXWWzE5p6yLaEE8HY9haNBwA17jeosor//evY9zjc4Y4oVlBNGLLO3iV0hUoLqF70HkIDnKaYhYpPowkHXjAmA=="}
-let records={},key=null,view=new Date(),selected=null,salt=null,sessionPassword='',seedVersion=0;
-
-function b64(bytes){return btoa(String.fromCharCode(...new Uint8Array(bytes)))}
-function unb64(value){return Uint8Array.from(atob(value),c=>c.charCodeAt(0))}
-async function passwordIsValid(password){
-  const material=await crypto.subtle.importKey('raw',te.encode(password),'PBKDF2',false,['deriveBits']);
-  const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt:te.encode('ikeDay-attendance-lock-v2'),iterations:310000,hash:'SHA-256'},material,256);
-  return b64(bits)===PASSWORD_CHECK;
-}
-async function deriveEncryptionKey(password,rawSalt){
-  const material=await crypto.subtle.importKey('raw',te.encode(password),'PBKDF2',false,['deriveKey']);
-  return crypto.subtle.deriveKey({name:'PBKDF2',salt:rawSalt,iterations:310000,hash:'SHA-256'},material,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
-}
-async function encryptRecords(data,rawSalt,passwordKey){
-  const iv=crypto.getRandomValues(new Uint8Array(12));
-  const ciphertext=await crypto.subtle.encrypt({name:'AES-GCM',iv},passwordKey,te.encode(JSON.stringify(data)));
-  return {version:2,algorithm:'AES-GCM',kdf:'PBKDF2-SHA-256',iterations:310000,salt:b64(rawSalt),iv:b64(iv),ciphertext:b64(ciphertext)};
+const SEED_DATA={"salt":"nLqy2rUtg/0x0szn3bXceg==","iv":"uwNJ1nGIfzHqHCyj","ciphertext":"HzCYncEb0R00XJRfTUjKtPzXnkqvrph+DPz1DuLbvMB8S4x9odJSufGFb4dDsw5Z1DGmkUaD+gkGaFpPcz61nINxMtQOWlSgHCiGUuNsq8QaqWYZQ6Q+NciyorqIMN2XtkninnPw3EtaVzWUvp7mtY8tO4VGcep3NHVhxhQqTRepUy7iD3VCR2wY9OwD+GV6cd4Fi0lqCZG7+kgHcFqr/oIHy+WPXm62zn86nO6V5ydxjVjpkKr/gO5hFaoBF5krNyzTurqv/x9u1onvcF6NyUtJN/v8RQ7ie+/2fzSAJ4XVWM86jJhji93vraCHIl90TBbsBDRW2k+4zXTYMMzuqv8Q2w8f5ZAYmUWuk/IBdUVSdiKU3aoNOp+YLgW0fd1n3FPYoUIvOzCKBh3ry4PWaeFKT7pAjimJ4AgKuPdOrrnbTehvuNCS6tc0iN4u0o68812Yj1SUWFAHqwY+IAtCXs9VA13PtSWyiY5Gkym24JvwStha9vqSKEe+HI19vcAb7uOw2TVHITeLoL63XLprvr45qNobMG30cV4dDm8LU9Ja3XzNayyzBaJb6KiQzKX3nxYN9S9Sh8qlCwQGE8w44PPwips1EZ5zZTZwCzlyHjk+Wm898kjQ5awqymzRgVRPAeyg7Vjw4GVI937zMl4Lp1zIU2e1p0E4YdvfseQiG+Q2hSFrpI79q31y8rASTpUN9km9RnWC/EPUeHmKVSHMsf3BmW0N0rHqnRzZhG6K1FOIs5qpXWW9XLQhrhWhnjqTa8S28AoxoQJEtee3MiOryG0eNINEJQVu/QzXqxvGu3++/6m0UzqOMTZMnXGjzyRcGz2A33t+hV1rFp6YhYiDiV2UnH/Z0u+NrXXFXTHeZKGo9UOM5RRozPdNoaBxMqpSyH+tEr1rWwyod+Z49741HcvXiY9fUBdoUiT7GNK88LSyT/cuwORffuXYl2RpxxG0OmVvs671RmXA4UUleAQGDwAKRSIlkbKf9oyVCH4zJcuQKu9UKFUzoFcFW0TVUbx4BtRrynz+FpK1BBxxvV8sGf53YPA7RK04NlWEm0IgYyTZ0t+r/3csOGky8mwNrXv9Rn0o3uEvBl3/A607QMCSTUtLl9KPA/r30tpNSAgUpwaGJf/N9tKo2wkarKGVVAlw28H8hHcRzNYrOFRoDp2Pe/BF6A62UJb/aYRvMVzYH32OUSirwoeO4mCrBdzQvFhNQCfSYI0/WkbBia8TgguUj8rqmrWov3hmuAFiaQgsgK9GpBTmw98+vVMW+I6+LKDjthC7e3vDHKFornFscomScg=="};
 }
 async function decryptBackup(backup,password){
   if(backup.version!==2||backup.algorithm!=='AES-GCM'||!backup.salt||!backup.iv||!backup.ciphertext)throw Error('JSON 備份格式不正確。');
