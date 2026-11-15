@@ -3,7 +3,7 @@ const STORE='ikeDay_attendance_v2';
 const START='2026-05-08';
 const te=new TextEncoder(),td=new TextDecoder();
 const PASSWORD_CHECK='15WclAORKD85Z3ymfYxpJbqbJ1obv4WDSf1OP9hzzQk=';
-let records={},key=null,view=new Date(),selected=null,salt=null;
+let records={},key=null,view=new Date(),selected=null,salt=null,sessionPassword='';
 
 function b64(bytes){return btoa(String.fromCharCode(...new Uint8Array(bytes)))}
 function unb64(value){return Uint8Array.from(atob(value),c=>c.charCodeAt(0))}
@@ -41,7 +41,7 @@ function toast(message){const el=$('toast');el.textContent=message;el.classList.
 function localDate(date){return [date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-')}
 function today(){return localDate(new Date())}
 function showTracker(){ $('lockScreen').hidden=true;$('tracker').hidden=false;render() }
-function lock(){key=null;salt=null;records={};selected=null;$('tracker').hidden=true;$('lockScreen').hidden=false;$('password').value='';$('lockError').textContent=''}
+function lock(){key=null;salt=null;records={};selected=null;sessionPassword='';$('tracker').hidden=true;$('lockScreen').hidden=false;$('password').value='';$('lockError').textContent=''}
 $('unlockForm').addEventListener('submit',async event=>{
   event.preventDefault();$('lockError').textContent='';
   const password=$('password').value;
@@ -54,7 +54,7 @@ $('unlockForm').addEventListener('submit',async event=>{
     }else{
       records={};salt=crypto.getRandomValues(new Uint8Array(16));key=await deriveEncryptionKey(password,salt);await persist();
     }
-    $('password').value='';showTracker();
+    sessionPassword=password;$('password').value='';showTracker();
   }catch(error){key=null;$('lockError').textContent=error.message==='The operation failed for an operation-specific reason.'?'無法解密資料，請確認備份與密碼。':error.message}
 });
 $('lockBtn').addEventListener('click',lock);
@@ -106,7 +106,7 @@ $('importFile').addEventListener('change',async event=>{
   const file=event.target.files[0];if(!file)return;
   try{
     const backup=JSON.parse(await file.text());
-    const opened=await decryptBackup(backup,'2002ike');
+    const opened=await decryptBackup(backup,sessionPassword);
     if(!confirm('匯入會取代目前這個瀏覽器的標記紀錄，確定繼續？'))return;
     records=opened.data.records;salt=opened.rawSalt;key=opened.derived;
     await persist();render();toast('JSON 備份已匯入');
