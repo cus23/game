@@ -2,234 +2,101 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#090b12">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="./manifest.json">
-<link rel="icon" href="./icon.svg">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#08090c">
+<title>第 13 次敲門 — 一場海龜湯</title>
 <link rel="stylesheet" href="./styles.css">
-<title>AFTERIMAGE — Jake's Phone</title>
 </head>
 <body>
-<main id="phone" class="phone">
-<div class="wallpaper">
-</div>
-<header class="status-bar">
-<span id="statusTime">23:48</span>
-<span class="status-right">
-<span>●●●</span>
-<span>⌁</span>
-<span class="battery">
-<i>
-</i>
-</span>
-</span>
+<div class="grain" aria-hidden="true"></div>
+<header class="topbar">
+  <a class="brand" href="./">NIGHTFALL <span>／ 檔案 013</span></a>
+  <div class="top-meta"><span class="live-dot"></span> CASE OPEN <span id="clock">03:17:00</span></div>
 </header>
-<div class="dynamic-island">
-<span class="island-camera">
-</span>
-</div>
-<section id="lockScreen" class="lock-screen">
-<div class="lock-date" id="lockDate">11月15日 星期日</div>
-<div class="lock-clock" id="lockClock">23:48</div>
-<div class="lock-weather">台北　・　陰雨　18°</div>
-<div class="lock-widget">
-<span>星期日</span>
-<strong>沒有安排的夜晚</strong>
-<small>你確定嗎？</small>
-</div>
-<div class="lock-notifications" id="lockNotifications">
-<button class="lock-notification" data-open-passcode>
-<span class="notification-app">
-<i>J</i> 訊息 <time>現在</time>
-</span>
-<strong>Jake</strong>
-<span>到家了嗎？我剛剛好像看到你。</span>
-</button>
-<button class="lock-notification" data-open-passcode>
-<span class="notification-app">
-<i class="system-icon">◉</i> 尋找 <time>1 分鐘前</time>
-</span>
-<strong>位置共享通知</strong>
-<span>Jake 已開始與你分享位置。</span>
-</button>
-</div>
-<div class="lock-bottom">
-<button class="lock-shortcut" id="lockFlash">◉</button>
-<button class="lock-shortcut" id="lockCamera">⌁</button>
-</div>
-<button class="swipe-hint" data-open-passcode>向上滑動以解鎖</button>
-<div class="home-indicator">
-</div>
-</section>
-<section id="passcodeScreen" class="passcode-screen" aria-hidden="true">
-<div class="passcode-top">
-<button id="cancelPasscode">取消</button>
-<span>輸入密碼</span>
-<span>
-</span>
-</div>
-<div class="passcode-center">
-<p>輸入密碼以解鎖 iPhone</p>
-<div class="passcode-dots" id="passcodeDots">
-<i>
-</i>
-<i>
-</i>
-<i>
-</i>
-<i>
-</i>
-</div>
-<p class="passcode-error" id="passcodeError">
-</p>
-<div class="keypad" id="keypad">
-<button data-digit="1">1</button>
-<button data-digit="2">2<small>ABC</small>
-</button>
-<button data-digit="3">3<small>DEF</small>
-</button>
-<button data-digit="4">4<small>GHI</small>
-</button>
-<button data-digit="5">5<small>JKL</small>
-</button>
-<button data-digit="6">6<small>MNO</small>
-</button>
-<button data-digit="7">7<small>PQRS</small>
-</button>
-<button data-digit="8">8<small>TUV</small>
-</button>
-<button data-digit="9">9<small>WXYZ</small>
-</button>
-<span>
-</span>
-<button data-digit="0">0</button>
-<button id="deleteDigit" class="delete-key">⌫</button>
-</div>
-</div>
-<div class="passcode-bottom">緊急服務<div class="home-indicator">
-</div>
-</div>
-</section>
-<section id="homeScreen" class="home-screen hidden">
-<div class="home-widgets">
-<div class="widget weather-widget">
-<span class="widget-label">台北</span>
-<strong>18°</strong>
-<small>陰雨　稍後有雨</small>
-<i>☾</i>
-</div>
-<div class="widget calendar-widget">
-<span class="widget-label">11月15日 星期日</span>
-<strong>沒有行程</strong>
-<small id="homeObjective">今晚很自由。</small>
-</div>
-</div>
-<div class="app-grid">
-<button class="app-icon" data-app="messages">
-<span class="app-art messages-art">●</span>
-<b>訊息</b>
-<i class="app-badge" id="messageBadge">2</i>
-</button>
-<button class="app-icon" data-app="phone">
-<span class="app-art phone-art">⌕</span>
-<b>電話</b>
-<i class="app-badge" id="phoneBadge">1</i>
-</button>
-<button class="app-icon" data-app="photos">
-<span class="app-art photos-art">
-<i>
-</i>
-</span>
-<b>照片</b>
-</button>
-<button class="app-icon" data-app="notes">
-<span class="app-art notes-art">≡</span>
-<b>備忘錄</b>
-</button>
-<button class="app-icon" data-app="safari">
-<span class="app-art safari-art">◉</span>
-<b>Safari</b>
-</button>
-<button class="app-icon" data-app="findmy">
-<span class="app-art find-art">◎</span>
-<b>尋找</b>
-</button>
-<button class="app-icon" data-app="files">
-<span class="app-art files-art">▰</span>
-<b>檔案</b>
-</button>
-<button class="app-icon" data-app="voice">
-<span class="app-art voice-art">◖</span>
-<b>語音備忘錄</b>
-</button>
-<button class="app-icon" data-app="settings">
-<span class="app-art settings-art">⚙</span>
-<b>設定</b>
-</button>
-</div>
-<div class="home-dock">
-<button class="app-icon" data-app="phone">
-<span class="app-art phone-art">⌕</span>
-</button>
-<button class="app-icon" data-app="messages">
-<span class="app-art messages-art">●</span>
-</button>
-<button class="app-icon" data-app="safari">
-<span class="app-art safari-art">◉</span>
-</button>
-<button class="app-icon" data-app="camera">
-<span class="app-art camera-art">▣</span>
-</button>
-</div>
-<div class="home-indicator">
-</div>
-</section>
-<section id="appScreen" class="app-screen hidden">
-<header class="app-topbar">
-<button id="appBack" class="app-back">‹ <span id="backLabel">主畫面</span>
-</button>
-<strong id="appTitle">訊息</strong>
-<button id="appAction" class="app-action">
-</button>
-</header>
-<div id="appContent" class="app-content">
-</div>
-<div class="app-home-area">
-<button class="home-indicator" id="appHome" aria-label="返回主畫面">
-</button>
-</div>
-</section>
-<section id="incomingCall" class="incoming-call hidden">
-<div class="call-topline">來電</div>
-<div class="caller-avatar">J</div>
-<h2 id="callerName">Jake</h2>
-<p id="callerSub">iPhone 行動電話</p>
-<div class="call-buttons">
-<button id="declineCall">
-<i>×</i>
-<span>拒絕</span>
-</button>
-<button id="answerCall">
-<i>⌕</i>
-<span>接聽</span>
-</button>
-</div>
-</section>
-<section id="callScreen" class="call-screen hidden">
-<div class="call-topline">通話中</div>
-<div class="caller-avatar">J</div>
-<h2>Jake</h2>
-<p id="callTimer">00:01</p>
-<div class="call-transcript" id="callTranscript">
-</div>
-<button id="endCall">結束通話</button>
-</section>
-<div id="toast" class="toast">
-</div>
+<main id="game">
+  <section id="intro" class="intro-screen">
+    <div class="eyebrow">INTERACTIVE HORROR · TURTLE SOUP</div>
+    <h1>第 13 次<br><em>敲門</em></h1>
+    <p class="intro-lead">這棟公寓只有十二層。<br>但管理員說，他昨晚在十三樓巡邏。</p>
+    <div class="intro-rule"></div>
+    <p class="intro-small">請在安靜的環境遊玩。建議開啟聲音。<br>遊戲包含突然閃爍、畫面驚嚇與音效。</p>
+    <button id="startBtn" class="primary-btn">開始調查 <span>↗</span></button>
+    <div class="intro-foot">YOU ARE THE INVESTIGATOR. ASK THE RIGHT QUESTIONS.</div>
+  </section>
+
+  <section id="story" class="story-screen hidden">
+    <div class="case-heading">
+      <div><div class="eyebrow">CASE 013 / INCIDENT REPORT</div><h2>凌晨 03:17</h2></div>
+      <div class="case-status">未結案</div>
+    </div>
+    <div class="scene">
+      <div class="scene-noise"></div>
+      <div class="corridor">
+        <div class="ceiling-light"></div>
+        <div class="door"><span>1307</span><i></i></div>
+        <div class="floor-line"></div>
+        <div class="shadow"></div>
+      </div>
+      <div class="scene-caption">監視器畫面 · B 棟 12 樓 · 03:17:08</div>
+    </div>
+    <article class="story-card">
+      <div class="eyebrow">事件描述</div>
+      <p>凌晨三點十七分，管理員接到住戶的電話。</p>
+      <p>「有人一直在敲我的門。可是我住在十二樓，門外的樓層指示燈卻顯示 <strong>13</strong>。」</p>
+      <p>管理員查看監視器，畫面裡的走廊空無一人。奇怪的是，電梯在十二樓停了整整七分鐘，門始終沒有打開。</p>
+      <p>隔天早上，管理員失蹤了。監視器最後一段畫面中，他站在電梯裡，面對著鏡頭，嘴巴一張一合。</p>
+      <p class="quote">畫面沒有聲音，但監視器字幕辨識出一句話：<br><strong>「不要讓它知道你在裡面。」</strong></p>
+    </article>
+    <div class="objective"><span class="objective-mark">!</span><div><b>你的任務</b><small>找出管理員失蹤的原因，以及十三樓究竟是什麼。</small></div></div>
+
+    <section class="investigation">
+      <div class="section-title"><span>01 / 提問紀錄</span><span id="questionCount">0 次提問</span></div>
+      <div id="log" class="log" aria-live="polite">
+        <div class="system-line">調查開始。你可以詢問任何問題。</div>
+      </div>
+      <form id="questionForm" class="question-form">
+        <label for="question">輸入你的問題</label>
+        <div class="input-row"><input id="question" maxlength="180" autocomplete="off" placeholder="例如：十三樓真的存在嗎？" required><button type="submit" aria-label="送出問題">↗</button></div>
+      </form>
+      <div class="answer-legend"><span>是</span><span>不是</span><span>不重要</span><span>無法判斷</span></div>
+    </section>
+
+    <section class="clue-section">
+      <div class="section-title"><span>02 / 現場線索</span><span id="clueCount">0 / 5 已發現</span></div>
+      <div class="clue-grid" id="clues">
+        <button class="clue" data-clue="cctv"><span>01</span><b>監視器截圖</b><small>點擊查看</small></button>
+        <button class="clue" data-clue="elevator"><span>02</span><b>電梯維修紀錄</b><small>點擊查看</small></button>
+        <button class="clue" data-clue="blueprint"><span>03</span><b>建築平面圖</b><small>點擊查看</small></button>
+        <button class="clue" data-clue="audio"><span>04</span><b>最後一段錄音</b><small>點擊查看</small></button>
+        <button class="clue" data-clue="report"><span>05</span><b>管理員值班表</b><small>點擊查看</small></button>
+      </div>
+    </section>
+
+    <section class="theory-section">
+      <div class="section-title"><span>03 / 提交推理</span><span>FINAL THEORY</span></div>
+      <p>你認為管理員遇到了什麼？請寫下你的推理。</p>
+      <textarea id="theory" rows="3" maxlength="500" placeholder="我認為十三樓其實是……"></textarea>
+      <button id="submitTheory" class="primary-btn">提交最終推理 <span>↗</span></button>
+    </section>
+    <footer class="game-footer">NIGHTFALL ARCHIVE · FILE 013 · DO NOT PLAY ALONE</footer>
+  </section>
 </main>
-<script src="./game.js" defer>
-</script>
+
+<div id="clueModal" class="modal hidden" role="dialog" aria-modal="true">
+  <div class="modal-panel"><button id="closeClue" class="close-btn" aria-label="關閉">×</button><div class="eyebrow" id="modalTag">EVIDENCE</div><h3 id="modalTitle"></h3><div id="modalBody" class="modal-body"></div><div id="modalHint" class="modal-hint"></div></div>
+</div>
+
+<div id="jumpscare" class="jumpscare hidden" aria-hidden="true">
+  <div class="scare-flash"></div>
+  <div class="scare-face">
+    <div class="face-shadow"></div><div class="eye eye-left"></div><div class="eye eye-right"></div><div class="mouth"><i></i><i></i><i></i></div>
+  </div>
+  <div class="scare-word">你也在裡面。</div>
+</div>
+
+<div id="ending" class="ending hidden">
+  <div class="eyebrow">CASE 013 / FINAL REPORT</div><div id="endingCode" class="ending-code">ENDING 01</div><h2 id="endingTitle"></h2><p id="endingText"></p><button id="restart" class="primary-btn">重新調查 <span>↻</span></button>
+</div>
+<script src="./game.js" defer></script>
 </body>
 </html>
