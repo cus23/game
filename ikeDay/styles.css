@@ -13,3 +13,12 @@
 @media(max-width:700px){.day.yes .num{width:29px;height:29px}}
 
 @media(max-width:700px){.brand{font-size:14px;gap:7px}.brand img{width:32px;height:32px}.mascot{font-size:27px;white-space:nowrap;padding:0}}
+
+/* 2026.11 visual refinements */
+.paw-note{font-size:22px;letter-spacing:1px}
+.day.yes{position:relative;isolation:isolate;background:transparent;border-color:transparent}
+.day.yes::before{content:"";position:absolute;z-index:-1;width:46px;height:46px;border:1.6px solid #d99b94;border-radius:50%;background:#fdf5f2}
+.day.yes .num{width:auto;height:auto;border:0;border-radius:0;background:transparent;color:#a8756e}
+.day.yes .mark{font-size:13px}
+.calendar-card{touch-action:pan-y}
+@media(max-width:700px){.day.yes::before{width:42px;height:42px}.paw-note{font-size:19px}}
