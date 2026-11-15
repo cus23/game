@@ -54,7 +54,7 @@ function toast(message){const el=$('toast');el.textContent=message;el.classList.
 function localDate(date){return [date.getFullYear(),String(date.getMonth()+1).padStart(2,'0'),String(date.getDate()).padStart(2,'0')].join('-')}
 function today(){return localDate(new Date())}
 function showTracker(){ $('lockScreen').hidden=true;$('tracker').hidden=false;render() }
-function lock(){key=null;salt=null;records={};selected=null;sessionPassword='';seedApplied=false;$('tracker').hidden=true;$('lockScreen').hidden=false;$('password').value='';$('lockError').textContent=''}
+function lock(){key=null;salt=null;records={};selected=null;sessionPassword='';seedVersion=0;$('tracker').hidden=true;$('lockScreen').hidden=false;$('password').value='';$('lockError').textContent=''}
 $('unlockForm').addEventListener('submit',async event=>{
   event.preventDefault();$('lockError').textContent='';
   const password=$('password').value;
@@ -65,7 +65,7 @@ $('unlockForm').addEventListener('submit',async event=>{
       const opened=await decryptBackup(JSON.parse(saved),password);
       records=opened.data.records;salt=opened.rawSalt;key=opened.derived;seedVersion=Number(opened.data.seedVersion)||(opened.data.seedApplied?1:0);
     }else{
-      records={};salt=crypto.getRandomValues(new Uint8Array(16));key=await deriveEncryptionKey(password,salt);seedApplied=false;
+      records={};salt=crypto.getRandomValues(new Uint8Array(16));key=await deriveEncryptionKey(password,salt);seedVersion=0;
     }
     sessionPassword=password;await applySeedIfNeeded();$('password').value='';showTracker();
   }catch(error){key=null;$('lockError').textContent=error.message==='The operation failed for an operation-specific reason.'?'無法解密資料，請確認備份與密碼。':error.message}
@@ -132,7 +132,7 @@ $('importFile').addEventListener('change',async event=>{
     const backup=JSON.parse(await file.text());
     const opened=await decryptBackup(backup,sessionPassword);
     if(!confirm('匯入會取代目前這個瀏覽器的標記紀錄，確定繼續？'))return;
-    records=opened.data.records;salt=opened.rawSalt;key=opened.derived;seedApplied=!!opened.data.seedApplied;
+    records=opened.data.records;salt=opened.rawSalt;key=opened.derived;seedVersion=Number(opened.data.seedVersion)||(opened.data.seedApplied?1:0);
     await applySeedIfNeeded();render();toast('JSON 備份已匯入');
   }catch(error){toast(error.message==='The operation failed for an operation-specific reason.'?'備份無法解密，請確認檔案。':error.message)}
   finally{event.target.value=''}
