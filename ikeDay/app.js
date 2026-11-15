@@ -37,12 +37,12 @@ async function decryptBackup(backup,password){
 async function applySeedIfNeeded(){
   let changed=false;
   for(const [date,status] of Object.entries(records)){if(status!=='yes'){delete records[date];changed=true}}
-  if(seedVersion<2){
+  if(seedVersion<3){
     const seedKey=await deriveEncryptionKey(sessionPassword,unb64(SEED_DATA.salt));
     const plain=await crypto.subtle.decrypt({name:'AES-GCM',iv:unb64(SEED_DATA.iv)},seedKey,unb64(SEED_DATA.ciphertext));
     const seed=JSON.parse(td.decode(plain));
     for(const date of seed.dates){if(records[date]!=='yes'){records[date]='yes';changed=true}}
-    seedVersion=2;changed=true;
+    seedVersion=3;changed=true;
   }
   if(changed)await persist();
 }
@@ -141,3 +141,24 @@ if(!window.crypto?.subtle){
   $('unlockForm').querySelector('button').disabled=true;
   $('lockError').textContent='此瀏覽器不支援加密功能，請使用最新版 Safari 或 Chrome。';
 }
+
+/* Swipe left/right across the calendar to change month on touch devices. */
+(()=>{
+  const panel=$('calendar-card')||document.querySelector('.calendar-card');
+  if(!panel)return;
+  let startX=0,startY=0;
+  panel.addEventListener('touchstart',event=>{
+    if(event.touches.length!==1)return;
+    startX=event.touches[0].clientX;startY=event.touches[0].clientY;
+  },{passive:true});
+  panel.addEventListener('touchend',event=>{
+    if(!startX&&!startY)return;
+    const dx=event.changedTouches[0].clientX-startX;
+    const dy=event.changedTouches[0].clientY-startY;
+    if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.25){
+      if(dx<0&&!$('nextMonth').disabled)$('nextMonth').click();
+      else if(dx>0&&!$('prevMonth').disabled)$('prevMonth').click();
+    }
+    startX=0;startY=0;
+  },{passive:true});
+})();
