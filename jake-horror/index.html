@@ -2,101 +2,61 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#08090c">
-<title>第 13 次敲門 — 一場海龜湯</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f7f2e8">
+<title>今天也要開店！</title>
 <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-<div class="grain" aria-hidden="true"></div>
-<header class="topbar">
-  <a class="brand" href="./">NIGHTFALL <span>／ 檔案 013</span></a>
-  <div class="top-meta"><span class="live-dot"></span> CASE OPEN <span id="clock">03:17:00</span></div>
-</header>
-<main id="game">
-  <section id="intro" class="intro-screen">
-    <div class="eyebrow">INTERACTIVE HORROR · TURTLE SOUP</div>
-    <h1>第 13 次<br><em>敲門</em></h1>
-    <p class="intro-lead">這棟公寓只有十二層。<br>但管理員說，他昨晚在十三樓巡邏。</p>
-    <div class="intro-rule"></div>
-    <p class="intro-small">請在安靜的環境遊玩。建議開啟聲音。<br>遊戲包含突然閃爍、畫面驚嚇與音效。</p>
-    <button id="startBtn" class="primary-btn">開始調查 <span>↗</span></button>
-    <div class="intro-foot">YOU ARE THE INVESTIGATOR. ASK THE RIGHT QUESTIONS.</div>
+<header class="topbar"><a class="logo" href="./">GOOD DAY <span>便利商店日記</span></a><div class="top-actions"><span id="dayLabel">第 1 / 7 天</span><button id="soundBtn" class="icon-btn" aria-label="音效開關">♫</button></div></header>
+<main class="wrap">
+<section class="hero">
+ <div class="hero-copy"><div class="eyebrow">A LITTLE SHOP MANAGEMENT GAME</div><h1>今天也要<br><em>好好開店！</em></h1><p>整理貨架、招呼客人、處理突發事件。<br>努力把這間小店經營成附近最受歡迎的便利商店吧！</p><button id="startBtn" class="main-btn">開始營業 <span>→</span></button><small id="saveHint">你的進度會自動儲存。</small></div>
+ <div class="hero-art" aria-hidden="true"><div class="sun"></div><div class="shop-sign">GOOD<br>DAY!</div><div class="awning"></div><div class="shop-window"><i></i><i></i><i></i></div><div class="shop-door"></div><div class="plant">✿</div></div>
+</section>
+<section id="game" class="hidden">
+ <div class="stats">
+  <div class="stat"><small>今日營收</small><b id="cash">$1,200</b><span>💰</span></div>
+  <div class="stat"><small>人氣</small><b id="fame">★ 10</b><span>✨</span></div>
+  <div class="stat"><small>體力</small><b id="energy">♥ 5</b><span>⚡</span></div>
+  <div class="stat"><small>今日評價</small><b id="rating">—</b><span>📝</span></div>
+ </div>
+ <div class="shop-layout">
+  <section class="panel store-panel">
+   <div class="panel-head"><div><div class="eyebrow">YOUR LITTLE STORE</div><h2>店內狀況</h2></div><span class="open-tag">● 營業中</span></div>
+   <div class="store-scene">
+    <div class="window-view"><span>☀️</span><small>GOOD DAY MART</small></div>
+    <div class="shelf"><div class="shelf-label">飲料區</div><div class="goods" id="drinkShelf"></div></div>
+    <div class="shelf"><div class="shelf-label">點心區</div><div class="goods" id="snackShelf"></div></div>
+    <div class="counter"><span>收銀台</span><b>▰ ▰ ▰</b></div>
+   </div>
+   <div class="inventory" id="inventory"></div>
   </section>
-
-  <section id="story" class="story-screen hidden">
-    <div class="case-heading">
-      <div><div class="eyebrow">CASE 013 / INCIDENT REPORT</div><h2>凌晨 03:17</h2></div>
-      <div class="case-status">未結案</div>
-    </div>
-    <div class="scene">
-      <div class="scene-noise"></div>
-      <div class="corridor">
-        <div class="ceiling-light"></div>
-        <div class="door"><span>1307</span><i></i></div>
-        <div class="floor-line"></div>
-        <div class="shadow"></div>
-      </div>
-      <div class="scene-caption">監視器畫面 · B 棟 12 樓 · 03:17:08</div>
-    </div>
-    <article class="story-card">
-      <div class="eyebrow">事件描述</div>
-      <p>凌晨三點十七分，管理員接到住戶的電話。</p>
-      <p>「有人一直在敲我的門。可是我住在十二樓，門外的樓層指示燈卻顯示 <strong>13</strong>。」</p>
-      <p>管理員查看監視器，畫面裡的走廊空無一人。奇怪的是，電梯在十二樓停了整整七分鐘，門始終沒有打開。</p>
-      <p>隔天早上，管理員失蹤了。監視器最後一段畫面中，他站在電梯裡，面對著鏡頭，嘴巴一張一合。</p>
-      <p class="quote">畫面沒有聲音，但監視器字幕辨識出一句話：<br><strong>「不要讓它知道你在裡面。」</strong></p>
-    </article>
-    <div class="objective"><span class="objective-mark">!</span><div><b>你的任務</b><small>找出管理員失蹤的原因，以及十三樓究竟是什麼。</small></div></div>
-
-    <section class="investigation">
-      <div class="section-title"><span>01 / 提問紀錄</span><span id="questionCount">0 次提問</span></div>
-      <div id="log" class="log" aria-live="polite">
-        <div class="system-line">調查開始。你可以詢問任何問題。</div>
-      </div>
-      <form id="questionForm" class="question-form">
-        <label for="question">輸入你的問題</label>
-        <div class="input-row"><input id="question" maxlength="180" autocomplete="off" placeholder="例如：十三樓真的存在嗎？" required><button type="submit" aria-label="送出問題">↗</button></div>
-      </form>
-      <div class="answer-legend"><span>是</span><span>不是</span><span>不重要</span><span>無法判斷</span></div>
-    </section>
-
-    <section class="clue-section">
-      <div class="section-title"><span>02 / 現場線索</span><span id="clueCount">0 / 5 已發現</span></div>
-      <div class="clue-grid" id="clues">
-        <button class="clue" data-clue="cctv"><span>01</span><b>監視器截圖</b><small>點擊查看</small></button>
-        <button class="clue" data-clue="elevator"><span>02</span><b>電梯維修紀錄</b><small>點擊查看</small></button>
-        <button class="clue" data-clue="blueprint"><span>03</span><b>建築平面圖</b><small>點擊查看</small></button>
-        <button class="clue" data-clue="audio"><span>04</span><b>最後一段錄音</b><small>點擊查看</small></button>
-        <button class="clue" data-clue="report"><span>05</span><b>管理員值班表</b><small>點擊查看</small></button>
-      </div>
-    </section>
-
-    <section class="theory-section">
-      <div class="section-title"><span>03 / 提交推理</span><span>FINAL THEORY</span></div>
-      <p>你認為管理員遇到了什麼？請寫下你的推理。</p>
-      <textarea id="theory" rows="3" maxlength="500" placeholder="我認為十三樓其實是……"></textarea>
-      <button id="submitTheory" class="primary-btn">提交最終推理 <span>↗</span></button>
-    </section>
-    <footer class="game-footer">NIGHTFALL ARCHIVE · FILE 013 · DO NOT PLAY ALONE</footer>
+  <section class="panel customer-panel">
+   <div class="panel-head"><div><div class="eyebrow">CUSTOMER TIME</div><h2>有客人來了！</h2></div><span id="turnLabel" class="turn-tag">第 1 位客人</span></div>
+   <div id="customerCard" class="customer-card">
+    <div id="customerEmoji" class="customer-emoji">🧑🏻‍🎓</div><div><h3 id="customerName">早起的學生</h3><p id="customerLine">老闆！我快遲到了，可以快一點嗎？</p></div>
+   </div>
+   <div class="order-box"><div class="order-title">客人的購物清單</div><div id="orderList" class="order-list"></div><div class="order-total"><span>預計金額</span><b id="orderTotal">$0</b></div></div>
+   <div class="actions"><button id="serveBtn" class="main-btn">結帳送客 ✓</button><button id="skipBtn" class="soft-btn">今天缺貨，抱歉</button></div>
+   <div id="feedback" class="feedback" aria-live="polite">準備好就幫客人結帳吧！</div>
   </section>
-</main>
-
-<div id="clueModal" class="modal hidden" role="dialog" aria-modal="true">
-  <div class="modal-panel"><button id="closeClue" class="close-btn" aria-label="關閉">×</button><div class="eyebrow" id="modalTag">EVIDENCE</div><h3 id="modalTitle"></h3><div id="modalBody" class="modal-body"></div><div id="modalHint" class="modal-hint"></div></div>
-</div>
-
-<div id="jumpscare" class="jumpscare hidden" aria-hidden="true">
-  <div class="scare-flash"></div>
-  <div class="scare-face">
-    <div class="face-shadow"></div><div class="eye eye-left"></div><div class="eye eye-right"></div><div class="mouth"><i></i><i></i><i></i></div>
+ </div>
+ <section class="panel bottom-panel">
+  <div class="panel-head"><div><div class="eyebrow">SHOP MANAGEMENT</div><h2>店長工作台</h2></div><span class="muted">每一天有 5 位客人</span></div>
+  <div class="management-grid">
+   <div class="manage-card"><div class="manage-icon">📦</div><b>補貨</b><p>把熱門商品補滿，避免客人買不到。</p><button id="restockBtn" class="soft-btn">花 $100 補貨</button></div>
+   <div class="manage-card"><div class="manage-icon">🧹</div><b>整理店面</b><p>打掃一下，讓客人心情變好。</p><button id="cleanBtn" class="soft-btn">花 1 點體力整理</button></div>
+   <div class="manage-card"><div class="manage-icon">📣</div><b>今日促銷</b><p>吸引更多客人，但會少賺一點。</p><button id="promoBtn" class="soft-btn">花 $80 做促銷</button></div>
   </div>
-  <div class="scare-word">你也在裡面。</div>
-</div>
-
-<div id="ending" class="ending hidden">
-  <div class="eyebrow">CASE 013 / FINAL REPORT</div><div id="endingCode" class="ending-code">ENDING 01</div><h2 id="endingTitle"></h2><p id="endingText"></p><button id="restart" class="primary-btn">重新調查 <span>↻</span></button>
-</div>
+ </section>
+ <section class="bottom-row">
+  <div class="panel diary-panel"><div class="eyebrow">SHOP DIARY</div><h2>今日小日記</h2><div id="diary" class="diary">新的一天開始了！</div></div>
+  <div class="panel goal-panel"><div class="eyebrow">WEEKLY CHALLENGE</div><h2>本週目標</h2><div class="goal-line"><span>累積人氣 50</span><b id="fameGoal">0 / 50</b></div><div class="progress"><i id="fameProgress"></i></div><div class="goal-line"><span>累積營收 $5,000</span><b id="cashGoal">0 / 5000</b></div><div class="progress"><i id="cashProgress"></i></div></div>
+ </section>
+</section>
+</main>
+<div id="eventModal" class="modal hidden" role="dialog" aria-modal="true"><div class="modal-card"><div id="eventEmoji" class="event-emoji">🎉</div><div class="eyebrow">A LITTLE SURPRISE</div><h2 id="eventTitle">突發事件！</h2><p id="eventText"></p><div id="eventChoices" class="event-choices"></div></div></div>
+<div id="resultModal" class="modal hidden" role="dialog" aria-modal="true"><div class="modal-card result-card"><div class="eyebrow">DAILY REPORT</div><div id="resultEmoji" class="event-emoji">🌟</div><h2 id="resultTitle">今天辛苦了！</h2><p id="resultText"></p><div class="result-stats" id="resultStats"></div><button id="nextDayBtn" class="main-btn">明天繼續營業 →</button></div></div>
 <script src="./game.js" defer></script>
-</body>
-</html>
+</body></html>
