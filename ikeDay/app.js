@@ -27,6 +27,10 @@ async function applySeedIfNeeded(){
     for(const date of seed.dates){if(records[date]!=='yes'){records[date]='yes';changed=true}}
     seedVersion=3;changed=true;
   }
+  if(seedVersion<4){
+    if(records['2026-08-20']!=='yes'){records['2026-08-20']='yes';changed=true}
+    seedVersion=4;changed=true;
+  }
   if(changed)await persist();
 }
 async function persist(){
