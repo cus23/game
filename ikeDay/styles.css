@@ -11,3 +11,5 @@
 .day.yes .mark{font-size:13px}
 .paw-note{font-family:'DM Sans','Noto Sans TC',sans-serif;font-size:19px;letter-spacing:0;color:#8f7772;white-space:nowrap}
 @media(max-width:700px){.day.yes .num{width:29px;height:29px}}
+
+@media(max-width:700px){.brand{font-size:14px;gap:7px}.brand img{width:32px;height:32px}.mascot{font-size:27px;white-space:nowrap;padding:0}}
