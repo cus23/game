@@ -107,7 +107,7 @@ function renderSubscriptionDays(){
   // UTC parsing keeps the weekday stable regardless of the device timezone.
   const weekdayCounts=Array(7).fill(0);
   for(const [date,status] of Object.entries(records)){
-    if(status!=='yes'||!/^\\d{4}-\\d{2}-\\d{2}$/.test(date))continue;
+    if(status!=='yes'||!/^\d{4}-\d{2}-\d{2}$/.test(date))continue;
     const [year,month,day]=date.split('-').map(Number);
     const dateUTC=Date.UTC(year,month-1,day);
     const check=new Date(dateUTC);
@@ -128,7 +128,9 @@ function renderSubscriptionDays(){
     const endAngle=(index+1)*slot-gap/2;
     const [x1,y1]=polar(startAngle),[x2,y2]=polar(endAngle);
     const opacity=count===0?.42:(.72+.28*count/maxCount);
-    return '<path d="M '+x1.toFixed(2)+' '+y1.toFixed(2)+' A '+r+' '+r+' 0 0 1 '+x2.toFixed(2)+' '+y2.toFixed(2)+'" fill="none" stroke="'+colors[index]+'" stroke-width="'+stroke+'" stroke-linecap="butt" opacity="'+opacity.toFixed(2)+'"><title>'+labels[index]+'：'+count+' 天</title></path>';
+    const middleAngle=(startAngle+endAngle)/2;
+    const [tx,ty]=polar(middleAngle);
+    return '<path d="M '+x1.toFixed(2)+' '+y1.toFixed(2)+' A '+r+' '+r+' 0 0 1 '+x2.toFixed(2)+' '+y2.toFixed(2)+'" fill="none" stroke="'+colors[index]+'" stroke-width="'+stroke+'" stroke-linecap="butt" opacity="'+opacity.toFixed(2)+'"><title>'+labels[index]+'：'+count+' 天</title></path><text x="'+tx.toFixed(2)+'" y="'+ty.toFixed(2)+'" text-anchor="middle" dominant-baseline="central" font-family="DM Sans, sans-serif" font-size="7.5" font-weight="700" fill="#796653">'+count+'</text>';
   }).join('');
   const accessible=labels.map((label,index)=>label+' '+weekdayCounts[index]+' 天').join('、');
   $('weekdayProgress').querySelector('svg')?.remove();
