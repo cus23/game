@@ -443,3 +443,19 @@
     min-width:66px!important;min-height:66px!important;
   }
 }
+
+
+/* Year selector mirrors the calendar month navigation */
+.year-heading{min-width:0}
+.year-title-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.year-nav{display:flex;align-items:center;gap:7px}
+.year-nav span{min-width:38px;text-align:center;font:11px 'DM Mono',monospace;color:#9e938d;font-variant-numeric:tabular-nums}
+.year-nav button{width:29px;height:29px;border:1px solid var(--line);border-radius:8px;background:#fff;color:#8c817c;font-size:19px;line-height:1;display:grid;place-items:center}
+.year-nav button:disabled{opacity:.28;cursor:default}
+.year-nav button:not(:disabled):hover{background:#faf3ef}
+@media(max-width:700px){
+ .year-title-row{gap:8px}
+ .year-nav{gap:5px}
+ .year-nav button{width:27px;height:27px}
+ .year-nav span{min-width:34px;font-size:10px}
+}
