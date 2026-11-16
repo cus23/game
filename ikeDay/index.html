@@ -53,23 +53,22 @@
         <div class="year-head"><div><h2>一年來了幾次？</h2><p>每個月收到訊息的天數 🐾</p></div><div class="year-total"><strong id="yearTotal">0</strong><span>天有來</span></div></div>
         <div id="yearChart" class="year-chart" role="img" aria-label="2026 每月有收到訊息的天數長條圖"></div>
       </section>
-      <section class="subscription-card" aria-label="訂閱天數">
-        <div class="subscription-copy">
-          <span class="subscribe-label">subscribe by</span>
-          <time datetime="2026-05-09" class="subscribe-date">2026.05.09</time>
-        </div>
-        <div class="subscription-count">
+      <section class="subscription-card" aria-label="訂閱天數與統計">
+        <div class="stat-orbit year-orbit">
           <div class="year-progress" id="yearProgress" role="img" aria-label="今年已經過去的比例">
             <div class="year-progress-inner">
-              <strong id="subscriptionDays">+192</strong>
-              <span>days</span>
+              <span id="yearPercentValue" class="year-percent-value">88</span><span class="year-percent-symbol">%</span>
             </div>
           </div>
-          <span id="yearProgressLabel" class="year-progress-label">2026 · 88%</span>
-          <div class="subscription-face">૮ •𖥦• აᐝ</div>
         </div>
-        <span class="bubble bubble-one" aria-hidden="true"></span>
-        <span class="bubble bubble-two" aria-hidden="true"></span>
+        <div class="stat-orbit weekday-orbit">
+          <div class="weekday-progress" id="weekdayProgress" role="img" aria-label="週一至週日收到訊息的分布"></div>
+        </div>
+        <div class="subscription-count">
+          <strong id="subscriptionDays">+192</strong>
+          <span class="days-word">D♡ys</span>
+          <span class="subscribe-date">by 2026.5.9</span>
+        </div>
       </section>
       <section class="backup-card">
         <div><p class="eyebrow">YOUR DATA</p><h2>備份與還原</h2><p>JSON 會以密碼加密，匯入時使用相同密碼。</p></div>
