@@ -105,7 +105,7 @@ function renderSubscriptionDays(){
   // Count all saved "yes" records by weekday. Monday starts at 12 o'clock, clockwise.
   const weekdayCounts=Array(7).fill(0);
   for(const [date,status] of Object.entries(records)){
-    if(status!=='yes'||!/^\\d{4}-\\d{2}-\\d{2}$/.test(date))continue;
+    if(status!=='yes'||!/^\d{4}-\d{2}-\d{2}$/.test(date))continue;
     const [year,month,day]=date.split('-').map(Number);
     const dateUTC=Date.UTC(year,month-1,day);
     const check=new Date(dateUTC);
