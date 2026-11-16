@@ -260,3 +260,80 @@
   .subscription-card .weekday-progress-inner strong,
   .subscription-card .subscription-count strong{font-size:25px!important}
 }
+
+
+/* High-contrast Old Style Figures for the primary date counters */
+@import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,500;6..96,600;6..96,700;6..96,800&display=swap');
+.year-total strong,
+.subscription-card .year-percent-value,
+.subscription-card .subscription-count strong{
+  font-family:'Bodoni Moda',Georgia,serif!important;
+  font-variant-numeric:oldstyle-nums!important;
+  font-feature-settings:"onum" 1!important;
+  font-optical-sizing:auto!important;
+  font-weight:700!important;
+  font-size:25px!important;
+  line-height:1!important;
+  letter-spacing:-.4px!important;
+}
+.subscription-card .weekday-progress-inner{display:none!important}
+.subscription-card .weekday-progress{
+  position:relative!important;
+  display:block!important;
+  width:84px!important;height:84px!important;
+  min-width:84px!important;min-height:84px!important;
+  max-width:84px!important;max-height:84px!important;
+  flex:0 0 84px!important;
+  overflow:visible!important;
+}
+.subscription-card .weekday-progress svg{
+  display:block!important;
+  position:absolute!important;inset:0!important;
+  width:100%!important;height:100%!important;
+  overflow:visible!important;
+}
+.subscription-card .subscription-count{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:6px!important;
+  min-width:0!important;
+}
+.subscription-card .days-bubble{
+  width:76px;height:76px;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 34% 27%,#f8e5d9 0%,#e9bdb2 66%,#d99b94 100%);
+  box-shadow:inset -5px -6px 13px #b77f7930,inset 3px 3px 9px #fff9;
+}
+.subscription-card .days-bubble strong{
+  display:block;
+  width:100%;
+  text-align:center;
+  font-family:'Bodoni Moda',Georgia,serif!important;
+  font-variant-numeric:oldstyle-nums!important;
+  font-feature-settings:"onum" 1!important;
+  font-size:25px!important;
+  font-weight:700!important;
+  line-height:1!important;
+  letter-spacing:-.4px!important;
+  color:#865e59!important;
+}
+.subscription-card .subscription-count .subscribe-date{
+  margin:0!important;
+  font-family:'DM Sans','Noto Sans TC',sans-serif!important;
+  font-size:9px!important;
+  letter-spacing:.3px!important;
+}
+@media(max-width:700px){
+  .subscription-card .weekday-progress{
+    width:72px!important;height:72px!important;
+    min-width:72px!important;min-height:72px!important;
+    max-width:72px!important;max-height:72px!important;
+    flex-basis:72px!important;
+  }
+  .subscription-card .days-bubble{width:66px;height:66px}
+  .subscription-card .days-bubble strong{font-size:25px!important}
+  .subscription-card .subscription-count .subscribe-date{font-size:7px!important}
+}
