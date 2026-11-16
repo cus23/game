@@ -232,3 +232,31 @@
  .subscription-card .subscription-count .days-word{font-size:19px!important}
  .subscription-card .subscription-count .subscribe-date{font-size:7px!important}
 }
+
+
+/* Shared old-style numerals for the four attendance/count figures */
+@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&display=swap');
+.year-total strong,
+.subscription-card .year-percent-value,
+.subscription-card .weekday-progress-inner strong,
+.subscription-card .subscription-count strong {
+  font-family:'Source Serif 4', Georgia, serif!important;
+  font-size:25px!important;
+  font-weight:500!important;
+  font-variant-numeric:oldstyle-nums!important;
+  font-feature-settings:"onum" 1!important;
+  font-optical-sizing:auto;
+  font-variant-ligatures:common-ligatures;
+  line-height:1!important;
+  letter-spacing:0!important;
+}
+.year-total strong{font-size:25px!important}
+.subscription-card .year-percent-value{font-size:25px!important}
+.subscription-card .weekday-progress-inner strong{font-size:25px!important}
+.subscription-card .subscription-count strong{font-size:25px!important}
+@media(max-width:700px){
+  .year-total strong,
+  .subscription-card .year-percent-value,
+  .subscription-card .weekday-progress-inner strong,
+  .subscription-card .subscription-count strong{font-size:25px!important}
+}
