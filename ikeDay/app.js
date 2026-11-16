@@ -103,11 +103,10 @@ function renderSubscriptionDays(){
   yearRing.setAttribute('aria-label','今年已經過去 '+percent+'%');
   $('yearPercentValue').textContent=String(percent);
 
-  // Count every saved "yes" attendance by weekday (Monday first), across all recorded dates.
-  // UTC parsing keeps the weekday stable regardless of the device timezone.
+  // Count all valid saved attendance dates by weekday, Monday first.
   const weekdayCounts=Array(7).fill(0);
   for(const [date,status] of Object.entries(records)){
-    if(status!=='yes'||!/^\d{4}-\d{2}-\d{2}$/.test(date))continue;
+    if(status!=='yes'||date.length!==10||date[4]!=='-'||date[7]!=='-')continue;
     const [year,month,day]=date.split('-').map(Number);
     const dateUTC=Date.UTC(year,month-1,day);
     const check=new Date(dateUTC);
@@ -115,32 +114,46 @@ function renderSubscriptionDays(){
     const mondayFirstIndex=(check.getUTCDay()+6)%7;
     weekdayCounts[mondayFirstIndex]++;
   }
-  const total=weekdayCounts.reduce((sum,count)=>sum+count,0);
-  $('weekdayTotal').textContent=String(total);
 
+  // True proportional doughnut chart: Monday starts at 12 o'clock, clockwise.
   const labels=['週一','週二','週三','週四','週五','週六','週日'];
   const colors=['#E9C9A8','#D9B98F','#F0D9B5','#D8C7A8','#E5BDAF','#CDBD9F','#F1DCC7'];
-  const maxCount=Math.max(1,...weekdayCounts);
-  const size=104,cx=52,cy=52,r=45.2,stroke=13.6,gap=4,slot=360/7;
-  const polar=(angle)=>{const rad=(angle-90)*Math.PI/180;return [cx+r*Math.cos(rad),cy+r*Math.sin(rad)]};
-  const arcs=weekdayCounts.map((count,index)=>{
-    const startAngle=index*slot+gap/2;
-    const endAngle=(index+1)*slot-gap/2;
-    const [x1,y1]=polar(startAngle),[x2,y2]=polar(endAngle);
-    const opacity=count===0?.42:(.72+.28*count/maxCount);
-    const middleAngle=(startAngle+endAngle)/2;
-    const [tx,ty]=polar(middleAngle);
-    return '<path d="M '+x1.toFixed(2)+' '+y1.toFixed(2)+' A '+r+' '+r+' 0 0 1 '+x2.toFixed(2)+' '+y2.toFixed(2)+'" fill="none" stroke="'+colors[index]+'" stroke-width="'+stroke+'" stroke-linecap="butt" opacity="'+opacity.toFixed(2)+'"><title>'+labels[index]+'：'+count+' 天</title></path><text x="'+tx.toFixed(2)+'" y="'+ty.toFixed(2)+'" text-anchor="middle" dominant-baseline="central" font-family="DM Sans, sans-serif" font-size="7.5" font-weight="700" fill="#796653">'+count+'</text>';
-  }).join('');
+  const total=weekdayCounts.reduce((sum,count)=>sum+count,0);
+  const size=104,cx=52,cy=52,outerR=49,innerR=32;
+  const polar=(radius,angle)=>{const rad=angle*Math.PI/180;return [cx+radius*Math.cos(rad),cy+radius*Math.sin(rad)]};
+  let cumulative=0;
+  let slices='';
+  if(total>0){
+    weekdayCounts.forEach((count,index)=>{
+      if(count<=0)return;
+      const portion=count/total;
+      const sliceAngle=portion*360;
+      const gap=Math.min(2,sliceAngle*.08);
+      const startAngle=-90+cumulative+gap/2;
+      const endAngle=-90+cumulative+sliceAngle-gap/2;
+      cumulative+=sliceAngle;
+      const [ox1,oy1]=polar(outerR,startAngle);
+      const [ox2,oy2]=polar(outerR,endAngle);
+      const [ix1,iy1]=polar(innerR,startAngle);
+      const [ix2,iy2]=polar(innerR,endAngle);
+      const largeArc=sliceAngle>180?1:0;
+      const path='M '+ox1.toFixed(2)+' '+oy1.toFixed(2)+' A '+outerR+' '+outerR+' 0 '+largeArc+' 1 '+ox2.toFixed(2)+' '+oy2.toFixed(2)+' L '+ix2.toFixed(2)+' '+iy2.toFixed(2)+' A '+innerR+' '+innerR+' 0 '+largeArc+' 0 '+ix1.toFixed(2)+' '+iy1.toFixed(2)+' Z';
+      const midAngle=-90+cumulative-sliceAngle/2;
+      const [tx,ty]=polar((outerR+innerR)/2,midAngle);
+      const countLabel=sliceAngle>=13?'<text x="'+tx.toFixed(2)+'" y="'+ty.toFixed(2)+'" text-anchor="middle" dominant-baseline="central" font-family="Bodoni Moda, Georgia, serif" font-size="8" font-weight="700" fill="#655447">'+count+'</text>':'';
+      slices+='<path d="'+path+'" fill="'+colors[index]+'"><title>'+labels[index]+'：'+count+' 天，占 '+(portion*100).toFixed(1)+'%</title></path>'+countLabel;
+    });
+  }else{
+    slices='<circle cx="52" cy="52" r="49" fill="#eee5d9"/>';
+  }
   const accessible=labels.map((label,index)=>label+' '+weekdayCounts[index]+' 天').join('、');
-  $('weekdayProgress').querySelector('svg')?.remove();
   const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
   svg.setAttribute('viewBox','0 0 '+size+' '+size);
   svg.setAttribute('role','img');
-  svg.setAttribute('aria-label',accessible);
-  svg.innerHTML=arcs;
-  $('weekdayProgress').prepend(svg);
-  $('weekdayProgress').setAttribute('aria-label','星期一至星期日有來次數：'+accessible);
+  svg.setAttribute('aria-label','星期出席比例：'+accessible);
+  svg.innerHTML=slices+'<circle cx="52" cy="52" r="'+innerR+'" fill="#fffdfa"/>';
+  $('weekdayProgress').replaceChildren(svg);
+  $('weekdayProgress').setAttribute('aria-label','星期一至星期日出席比例：'+accessible);
 }
 function renderCalendar(){
   const year=view.getFullYear(),month=view.getMonth(),first=new Date(year,month,1).getDay(),count=new Date(year,month+1,0).getDate();
