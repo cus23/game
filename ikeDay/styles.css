@@ -357,8 +357,8 @@
   min-width:76px!important;min-height:76px!important;
   display:flex!important;align-items:center!important;justify-content:center!important;
   border-radius:50%!important;
-  background:radial-gradient(circle at 34% 27%,#f8e5d9 0%,#e9bdb2 66%,#d99b94 100%)!important;
-  box-shadow:inset -5px -6px 13px #b77f7930,inset 3px 3px 9px #fff9!important;
+  background:#E9DCC7!important;
+  box-shadow:none!important;
 }
 .subscription-card .days-bubble strong{
   display:block!important;width:100%!important;
