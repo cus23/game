@@ -87,11 +87,20 @@ function render(){
   renderYearChart();
 }
 function renderSubscriptionDays(){
-  const start=new Date(Date.UTC(2026,4,9));
   const now=new Date();
+  const start=Date.UTC(2026,4,9);
   const todayUTC=Date.UTC(now.getFullYear(),now.getMonth(),now.getDate());
-  const days=Math.max(1,Math.floor((todayUTC-start.getTime())/86400000)+1);
+  const days=Math.max(1,Math.floor((todayUTC-start)/86400000)+1);
   $('subscriptionDays').textContent='+'+days;
+
+  const yearStart=Date.UTC(now.getFullYear(),0,1);
+  const nextYear=Date.UTC(now.getFullYear()+1,0,1);
+  const elapsed=Math.min(1,Math.max(0,(todayUTC-yearStart)/(nextYear-yearStart)));
+  const percent=Math.round(elapsed*1000)/10;
+  const ring=$('yearProgress');
+  ring.style.background='conic-gradient(#d99b94 0 '+(elapsed*360)+'deg, #f2e4e0 '+(elapsed*360)+'deg 360deg)';
+  ring.setAttribute('aria-label','今年已經過去 '+percent+'%');
+  $('yearProgressLabel').textContent=now.getFullYear()+' · '+Math.round(percent)+'%';
 }
 function renderCalendar(){
   const year=view.getFullYear(),month=view.getMonth(),first=new Date(year,month,1).getDay(),count=new Date(year,month+1,0).getDate();
