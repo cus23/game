@@ -5,6 +5,8 @@ const te=new TextEncoder(),td=new TextDecoder();
 const PASSWORD_CHECK='15WclAORKD85Z3ymfYxpJbqbJ1obv4WDSf1OP9hzzQk=';
 const SEED_DATA={"salt":"nLqy2rUtg/0x0szn3bXceg==","iv":"uwNJ1nGIfzHqHCyj","ciphertext":"HzCYncEb0R00XJRfTUjKtPzXnkqvrph+DPz1DuLbvMB8S4x9odJSufGFb4dDsw5Z1DGmkUaD+gkGaFpPcz61nINxMtQOWlSgHCiGUuNsq8QaqWYZQ6Q+NciyorqIMN2XtkninnPw3EtaVzWUvp7mtY8tO4VGcep3NHVhxhQqTRepUy7iD3VCR2wY9OwD+GV6cd4Fi0lqCZG7+kgHcFqr/oIHy+WPXm62zn86nO6V5ydxjVjpkKr/gO5hFaoBF5krNyzTurqv/x9u1onvcF6NyUtJN/v8RQ7ie+/2fzSAJ4XVWM86jJhji93vraCHIl90TBbsBDRW2k+4zXTYMMzuqv8Q2w8f5ZAYmUWuk/IBdUVSdiKU3aoNOp+YLgW0fd1n3FPYoUIvOzCKBh3ry4PWaeFKT7pAjimJ4AgKuPdOrrnbTehvuNCS6tc0iN4u0o68812Yj1SUWFAHqwY+IAtCXs9VA13PtSWyiY5Gkym24JvwStha9vqSKEe+HI19vcAb7uOw2TVHITeLoL63XLprvr45qNobMG30cV4dDm8LU9Ja3XzNayyzBaJb6KiQzKX3nxYN9S9Sh8qlCwQGE8w44PPwips1EZ5zZTZwCzlyHjk+Wm898kjQ5awqymzRgVRPAeyg7Vjw4GVI937zMl4Lp1zIU2e1p0E4YdvfseQiG+Q2hSFrpI79q31y8rASTpUN9km9RnWC/EPUeHmKVSHMsf3BmW0N0rHqnRzZhG6K1FOIs5qpXWW9XLQhrhWhnjqTa8S28AoxoQJEtee3MiOryG0eNINEJQVu/QzXqxvGu3++/6m0UzqOMTZMnXGjzyRcGz2A33t+hV1rFp6YhYiDiV2UnH/Z0u+NrXXFXTHeZKGo9UOM5RRozPdNoaBxMqpSyH+tEr1rWwyod+Z49741HcvXiY9fUBdoUiT7GNK88LSyT/cuwORffuXYl2RpxxG0OmVvs671RmXA4UUleAQGDwAKRSIlkbKf9oyVCH4zJcuQKu9UKFUzoFcFW0TVUbx4BtRrynz+FpK1BBxxvV8sGf53YPA7RK04NlWEm0IgYyTZ0t+r/3csOGky8mwNrXv9Rn0o3uEvBl3/A607QMCSTUtLl9KPA/r30tpNSAgUpwaGJf/N9tKo2wkarKGVVAlw28H8hHcRzNYrOFRoDp2Pe/BF6A62UJb/aYRvMVzYH32OUSirwoeO4mCrBdzQvFhNQCfSYI0/WkbBia8TgguUj8rqmrWov3hmuAFiaQgsgK9GpBTmw98+vVMW+I6+LKDjthC7e3vDHKFornFscomScg=="};
 let records={},key=null,view=new Date(),selected=null,salt=null,sessionPassword="",seedVersion=0;
+let statsYear=new Date().getFullYear();
+const FIRST_STATS_YEAR=2026;
 
 function b64(bytes){return btoa(String.fromCharCode(...new Uint8Array(bytes)))}
 function unb64(value){return Uint8Array.from(atob(value),c=>c.charCodeAt(0))}
@@ -196,16 +198,32 @@ $('clearMark').addEventListener('click',async()=>{
 $('prevMonth').addEventListener('click',()=>{view=new Date(view.getFullYear(),view.getMonth()-1,1);renderCalendar()});
 $('nextMonth').addEventListener('click',()=>{const next=new Date(view.getFullYear(),view.getMonth()+1,1);if(next<=new Date(new Date().getFullYear(),new Date().getMonth(),1)){view=next;renderCalendar()}});
 function renderYearChart(){
+  const currentYear=new Date().getFullYear();
+  if(statsYear>currentYear)statsYear=currentYear;
+  if(statsYear<FIRST_STATS_YEAR)statsYear=FIRST_STATS_YEAR;
+  $('yearLabel').textContent=String(statsYear);
+  $('prevYear').disabled=statsYear<=FIRST_STATS_YEAR;
+  $('nextYear').disabled=statsYear>=currentYear;
+
   const counts=Array(12).fill(0);
-  for(const [date,status] of Object.entries(records)){if(status==='yes'&&date.startsWith('2026-'))counts[Number(date.slice(5,7))-1]++}
-  const total=counts.reduce((a,b)=>a+b,0);$('yearTotal').textContent=total;
+  const todayDate=today();
+  for(const [date,status] of Object.entries(records)){
+    if(status!=='yes'||!/^\\d{4}-\\d{2}-\\d{2}$/.test(date))continue;
+    if(!date.startsWith(String(statsYear)+'-')||date>todayDate)continue;
+    const month=Number(date.slice(5,7));
+    if(month>=1&&month<=12)counts[month-1]++;
+  }
+  const total=counts.reduce((a,b)=>a+b,0);
+  $('yearTotal').textContent=total;
   const max=Math.max(5,Math.ceil(Math.max(...counts)/5)*5),base=142,chartHeight=112,barW=26,gap=25,startX=31;
-  let svg='<svg viewBox="0 0 650 190" role="img" aria-label="2026 每月有來天數：'+counts.join('、')+'">';
+  let svg='<svg viewBox="0 0 650 190" role="img" aria-label="'+statsYear+' 每月有來天數：'+counts.join('、')+'">';
   for(let v=0;v<=max;v+=5){const y=base-(v/max)*chartHeight;svg+='<line x1="27" y1="'+y+'" x2="635" y2="'+y+'" stroke="#f0e8e2" stroke-dasharray="3 5"/><text x="18" y="'+(y+3)+'" text-anchor="end" fill="#b4a9a2" font-size="9">'+v+'</text>'}
   counts.forEach((value,i)=>{const x=startX+i*(barW+gap),h=value/max*chartHeight,y=base-h;svg+='<rect x="'+x+'" y="'+(value?y:base-2)+'" width="'+barW+'" height="'+Math.max(value?4:2,h)+'" rx="8" fill="'+(value?'#dfa39a':'#eee8e3')+'"/>';if(value)svg+='<text x="'+(x+barW/2)+'" y="'+(y-8)+'" text-anchor="middle" fill="#a8756e" font-size="10" font-weight="600">'+value+'</text>';svg+='<text x="'+(x+barW/2)+'" y="164" text-anchor="middle" fill="#9e938d" font-size="10">'+(i+1)+'月</text>'});
-  svg+='<text x="635" y="184" text-anchor="end" fill="#c1b5ae" font-size="8">2026 · MONTHLY DAYS</text></svg>';
+  svg+='<text x="635" y="184" text-anchor="end" fill="#c1b5ae" font-size="8">'+statsYear+' · MONTHLY DAYS</text></svg>';
   $('yearChart').innerHTML=svg;
 }
+$('prevYear').addEventListener('click',()=>{if(statsYear>FIRST_STATS_YEAR){statsYear--;renderYearChart()}});
+$('nextYear').addEventListener('click',()=>{if(statsYear<new Date().getFullYear()){statsYear++;renderYearChart()}});
 $('exportBtn').addEventListener('click',()=>{
   const data=localStorage.getItem(STORE);if(!data){toast('目前沒有可匯出的資料');return}
   const url=URL.createObjectURL(new Blob([JSON.stringify(JSON.parse(data),null,2)],{type:'application/json'}));
