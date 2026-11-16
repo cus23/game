@@ -93,7 +93,6 @@ function renderSubscriptionDays(){
   const subscriptionDays=Math.max(1,Math.floor((todayUTC-startDate)/86400000)+1);
   $('subscriptionDays').textContent='+'+subscriptionDays;
 
-  // Calendar-year progress, using UTC date boundaries to avoid timezone drift.
   const yearStart=Date.UTC(now.getFullYear(),0,1);
   const nextYear=Date.UTC(now.getFullYear()+1,0,1);
   const elapsed=Math.min(1,Math.max(0,(todayUTC-yearStart)/(nextYear-yearStart)));
@@ -103,7 +102,7 @@ function renderSubscriptionDays(){
   yearRing.setAttribute('aria-label','今年已經過去 '+percent+'%');
   $('yearPercentValue').textContent=String(percent);
 
-  // Count all valid saved attendance dates by weekday, Monday first.
+  // Count saved attendance dates by weekday, with Monday at the 12 o'clock position.
   const weekdayCounts=Array(7).fill(0);
   for(const [date,status] of Object.entries(records)){
     if(status!=='yes'||date.length!==10||date[4]!=='-'||date[7]!=='-')continue;
@@ -111,15 +110,13 @@ function renderSubscriptionDays(){
     const dateUTC=Date.UTC(year,month-1,day);
     const check=new Date(dateUTC);
     if(check.getUTCFullYear()!==year||check.getUTCMonth()!==month-1||check.getUTCDate()!==day||dateUTC>todayUTC)continue;
-    const mondayFirstIndex=(check.getUTCDay()+6)%7;
-    weekdayCounts[mondayFirstIndex]++;
+    weekdayCounts[(check.getUTCDay()+6)%7]++;
   }
 
-  // True proportional doughnut chart: Monday starts at 12 o'clock, clockwise.
   const labels=['週一','週二','週三','週四','週五','週六','週日'];
   const colors=['#E9C9A8','#D9B98F','#F0D9B5','#D8C7A8','#E5BDAF','#CDBD9F','#F1DCC7'];
   const total=weekdayCounts.reduce((sum,count)=>sum+count,0);
-  const size=104,cx=52,cy=52,outerR=49,innerR=32;
+  const size=104,cx=52,cy=52,r=49;
   const polar=(radius,angle)=>{const rad=angle*Math.PI/180;return [cx+radius*Math.cos(rad),cy+radius*Math.sin(rad)]};
   let cumulative=0;
   let slices='';
@@ -128,32 +125,31 @@ function renderSubscriptionDays(){
       if(count<=0)return;
       const portion=count/total;
       const sliceAngle=portion*360;
-      const gap=Math.min(2,sliceAngle*.08);
+      const gap=Math.min(1.6,sliceAngle*.045);
       const startAngle=-90+cumulative+gap/2;
       const endAngle=-90+cumulative+sliceAngle-gap/2;
+      const midAngle=-90+cumulative+sliceAngle/2;
       cumulative+=sliceAngle;
-      const [ox1,oy1]=polar(outerR,startAngle);
-      const [ox2,oy2]=polar(outerR,endAngle);
-      const [ix1,iy1]=polar(innerR,startAngle);
-      const [ix2,iy2]=polar(innerR,endAngle);
+      const [x1,y1]=polar(r,startAngle);
+      const [x2,y2]=polar(r,endAngle);
       const largeArc=sliceAngle>180?1:0;
-      const path='M '+ox1.toFixed(2)+' '+oy1.toFixed(2)+' A '+outerR+' '+outerR+' 0 '+largeArc+' 1 '+ox2.toFixed(2)+' '+oy2.toFixed(2)+' L '+ix2.toFixed(2)+' '+iy2.toFixed(2)+' A '+innerR+' '+innerR+' 0 '+largeArc+' 0 '+ix1.toFixed(2)+' '+iy1.toFixed(2)+' Z';
-      const midAngle=-90+cumulative-sliceAngle/2;
-      const [tx,ty]=polar((outerR+innerR)/2,midAngle);
-      const countLabel=sliceAngle>=13?'<text x="'+tx.toFixed(2)+'" y="'+ty.toFixed(2)+'" text-anchor="middle" dominant-baseline="central" font-family="Bodoni Moda, Georgia, serif" font-size="8" font-weight="700" fill="#655447">'+count+'</text>':'';
-      slices+='<path d="'+path+'" fill="'+colors[index]+'"><title>'+labels[index]+'：'+count+' 天，占 '+(portion*100).toFixed(1)+'%</title></path>'+countLabel;
+      const path='M '+cx+' '+cy+' L '+x1.toFixed(2)+' '+y1.toFixed(2)+' A '+r+' '+r+' 0 '+largeArc+' 1 '+x2.toFixed(2)+' '+y2.toFixed(2)+' Z';
+      const [tx,ty]=polar(r*.57,midAngle);
+      const labelFont=sliceAngle<22?7:9;
+      const countLabel='<text x="'+tx.toFixed(2)+'" y="'+ty.toFixed(2)+'" text-anchor="middle" dominant-baseline="central" font-family="Bodoni Moda, Georgia, serif" font-size="'+labelFont+'" font-weight="800" font-variant-numeric="oldstyle-nums" fill="#59483d">'+count+'</text>';
+      slices+='<path d="'+path+'" fill="'+colors[index]+'" stroke="#fffdfa" stroke-width="1.1"><title>'+labels[index]+'：'+count+' 天，占 '+(portion*100).toFixed(1)+'%</title></path>'+countLabel;
     });
   }else{
-    slices='<circle cx="52" cy="52" r="49" fill="#eee5d9"/>';
+    slices='<circle cx="52" cy="52" r="49" fill="#eee5d9"/><text x="52" y="52" text-anchor="middle" dominant-baseline="central" font-family="Bodoni Moda, Georgia, serif" font-size="12" font-weight="800" fill="#9b826e">0</text>';
   }
   const accessible=labels.map((label,index)=>label+' '+weekdayCounts[index]+' 天').join('、');
   const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
   svg.setAttribute('viewBox','0 0 '+size+' '+size);
   svg.setAttribute('role','img');
-  svg.setAttribute('aria-label','星期出席比例：'+accessible);
-  svg.innerHTML=slices+'<circle cx="52" cy="52" r="'+innerR+'" fill="#fffdfa"/>';
+  svg.setAttribute('aria-label','星期出席圓餅圖：'+accessible);
+  svg.innerHTML=slices;
   $('weekdayProgress').replaceChildren(svg);
-  $('weekdayProgress').setAttribute('aria-label','星期一至星期日出席比例：'+accessible);
+  $('weekdayProgress').setAttribute('aria-label','星期一至星期日出席次數：'+accessible);
 }
 function renderCalendar(){
   const year=view.getFullYear(),month=view.getMonth(),first=new Date(year,month,1).getDay(),count=new Date(year,month+1,0).getDate();
