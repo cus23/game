@@ -48,6 +48,10 @@ async function applySeedIfNeeded(){
     if(records['2026-08-20']!=='yes'){records['2026-08-20']='yes';changed=true}
     seedVersion=4;changed=true;
   }
+  if(seedVersion<5){
+    if(records['2026-11-14']!=='yes'){records['2026-11-14']='yes';changed=true}
+    seedVersion=5;changed=true;
+  }
   if(changed)await persist();
 }
 async function persist(){
@@ -77,9 +81,17 @@ $('unlockForm').addEventListener('submit',async event=>{
 $('lockBtn').addEventListener('click',lock);
 function render(){
   renderCalendar();
+  renderSubscriptionDays();
   $('markPanel').hidden=!selected;
   if(selected){$('selectedDate').textContent=selected.replaceAll('-','.');$('markYes').textContent=records[selected]==='yes'?'🐾 已標記有來':'🐾 有來';}
   renderYearChart();
+}
+function renderSubscriptionDays(){
+  const start=new Date(Date.UTC(2026,4,9));
+  const now=new Date();
+  const todayUTC=Date.UTC(now.getFullYear(),now.getMonth(),now.getDate());
+  const days=Math.max(1,Math.floor((todayUTC-start.getTime())/86400000)+1);
+  $('subscriptionDays').textContent='+'+days;
 }
 function renderCalendar(){
   const year=view.getFullYear(),month=view.getMonth(),first=new Date(year,month,1).getDay(),count=new Date(year,month+1,0).getDate();
