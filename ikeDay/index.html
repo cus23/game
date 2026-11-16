@@ -53,25 +53,30 @@
         <div class="year-head"><div><h2>一年來了幾次？</h2><p>每個月收到訊息的天數 🐾</p></div><div class="year-total"><strong id="yearTotal">0</strong><span>天有來</span></div></div>
         <div id="yearChart" class="year-chart" role="img" aria-label="2026 每月有收到訊息的天數長條圖"></div>
       </section>
-      <section class="backup-card">
-        <div><p class="eyebrow">YOUR DATA</p><h2>備份與還原</h2><p>JSON 會以密碼加密，匯入時使用相同密碼。</p></div>
-        <div class="backup-actions"><button id="exportBtn">↓ 匯出 JSON</button><label class="import-button">↑ 匯入 JSON<input id="importFile" type="file" accept=".json,application/json"></label></div>
-      </section>
-      <button id="lockBtn" class="lock-button">鎖定日曆</button>
       <section class="subscription-card" aria-label="訂閱天數">
         <div class="subscription-copy">
-          <p class="eyebrow">OUR LITTLE COUNT</p>
-          <h2>一起走過的日子</h2>
-          <p>從 2026.05.09 開始訂閱</p>
+          <span class="subscribe-label">subscribe by</span>
+          <time datetime="2026-05-09" class="subscribe-date">2026.05.09</time>
         </div>
         <div class="subscription-count">
-          <strong id="subscriptionDays">+192</strong>
-          <span>days</span>
+          <div class="year-progress" id="yearProgress" role="img" aria-label="今年已經過去的比例">
+            <div class="year-progress-inner">
+              <strong id="subscriptionDays">+192</strong>
+              <span>days</span>
+            </div>
+          </div>
+          <span id="yearProgressLabel" class="year-progress-label">2026 · 88%</span>
           <div class="subscription-face">૮ •𖥦• აᐝ</div>
         </div>
         <span class="bubble bubble-one" aria-hidden="true"></span>
         <span class="bubble bubble-two" aria-hidden="true"></span>
       </section>
+      <section class="backup-card">
+        <div><p class="eyebrow">YOUR DATA</p><h2>備份與還原</h2><p>JSON 會以密碼加密，匯入時使用相同密碼。</p></div>
+        <div class="backup-actions"><button id="exportBtn">↓ 匯出 JSON</button><label class="import-button">↑ 匯入 JSON<input id="importFile" type="file" accept=".json,application/json"></label></div>
+      </section>
+      <button id="lockBtn" class="lock-button">鎖定日曆</button>
+
     </section>
   </main>
   <div id="toast" role="status"></div>
