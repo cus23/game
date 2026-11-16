@@ -337,3 +337,53 @@
   .subscription-card .days-bubble strong{font-size:25px!important}
   .subscription-card .subscription-count .subscribe-date{font-size:7px!important}
 }
+
+
+/* Final numeric typography: stronger Bodoni contrast with old-style figures */
+.year-total strong,
+.subscription-card .year-percent-value,
+.subscription-card .subscription-count strong{
+  font-family:'Bodoni Moda',Georgia,serif!important;
+  font-variant-numeric:oldstyle-nums!important;
+  font-feature-settings:"onum" 1!important;
+  font-optical-sizing:auto!important;
+  font-weight:800!important;
+  font-size:25px!important;
+  line-height:1!important;
+  letter-spacing:-.35px!important;
+}
+.subscription-card .days-bubble{
+  width:76px!important;height:76px!important;
+  min-width:76px!important;min-height:76px!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  border-radius:50%!important;
+  background:radial-gradient(circle at 34% 27%,#f8e5d9 0%,#e9bdb2 66%,#d99b94 100%)!important;
+  box-shadow:inset -5px -6px 13px #b77f7930,inset 3px 3px 9px #fff9!important;
+}
+.subscription-card .days-bubble strong{
+  display:block!important;width:100%!important;
+  margin:0!important;padding:0!important;text-align:center!important;
+  font-family:'Bodoni Moda',Georgia,serif!important;
+  font-variant-numeric:oldstyle-nums!important;
+  font-feature-settings:"onum" 1!important;
+  font-size:25px!important;font-weight:800!important;
+  line-height:1!important;letter-spacing:-.35px!important;
+  color:#865e59!important;
+}
+.subscription-card .weekday-progress{
+  width:84px!important;height:84px!important;
+  min-width:84px!important;min-height:84px!important;
+  max-width:84px!important;max-height:84px!important;
+  flex:0 0 84px!important;overflow:hidden!important;
+  border-radius:50%!important;
+}
+.subscription-card .weekday-progress svg{
+  position:static!important;display:block!important;
+  width:100%!important;height:100%!important;overflow:hidden!important;
+}
+@media(max-width:700px){
+  .subscription-card .days-bubble{width:66px!important;height:66px!important;min-width:66px!important;min-height:66px!important}
+  .subscription-card .weekday-progress{width:72px!important;height:72px!important;min-width:72px!important;min-height:72px!important;max-width:72px!important;max-height:72px!important;flex-basis:72px!important}
+  .subscription-card .weekday-progress svg{width:100%!important;height:100%!important}
+  .subscription-card .days-bubble strong{font-size:25px!important}
+}
