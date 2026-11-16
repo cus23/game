@@ -102,10 +102,10 @@ function renderSubscriptionDays(){
   yearRing.setAttribute('aria-label','今年已經過去 '+percent+'%');
   $('yearPercentValue').textContent=String(percent);
 
-  // Count saved attendance dates by weekday, with Monday at the 12 o'clock position.
+  // Count all saved "yes" records by weekday. Monday starts at 12 o'clock, clockwise.
   const weekdayCounts=Array(7).fill(0);
   for(const [date,status] of Object.entries(records)){
-    if(status!=='yes'||date.length!==10||date[4]!=='-'||date[7]!=='-')continue;
+    if(status!=='yes'||!/^\\d{4}-\\d{2}-\\d{2}$/.test(date))continue;
     const [year,month,day]=date.split('-').map(Number);
     const dateUTC=Date.UTC(year,month-1,day);
     const check=new Date(dateUTC);
@@ -116,31 +116,42 @@ function renderSubscriptionDays(){
   const labels=['週一','週二','週三','週四','週五','週六','週日'];
   const colors=['#E9C9A8','#D9B98F','#F0D9B5','#D8C7A8','#E5BDAF','#CDBD9F','#F1DCC7'];
   const total=weekdayCounts.reduce((sum,count)=>sum+count,0);
-  const size=104,cx=52,cy=52,r=49;
+  const size=104,cx=52,cy=52,r=50;
   const polar=(radius,angle)=>{const rad=angle*Math.PI/180;return [cx+radius*Math.cos(rad),cy+radius*Math.sin(rad)]};
   let cumulative=0;
   let slices='';
+  const nonzero=weekdayCounts.filter(count=>count>0).length;
   if(total>0){
     weekdayCounts.forEach((count,index)=>{
-      if(count<=0)return;
+      if(count===0)return;
       const portion=count/total;
       const sliceAngle=portion*360;
-      const gap=Math.min(1.6,sliceAngle*.045);
-      const startAngle=-90+cumulative+gap/2;
-      const endAngle=-90+cumulative+sliceAngle-gap/2;
-      const midAngle=-90+cumulative+sliceAngle/2;
+      const startAngle=-90+cumulative;
+      const endAngle=startAngle+sliceAngle;
+      const midAngle=startAngle+sliceAngle/2;
       cumulative+=sliceAngle;
-      const [x1,y1]=polar(r,startAngle);
-      const [x2,y2]=polar(r,endAngle);
-      const largeArc=sliceAngle>180?1:0;
-      const path='M '+cx+' '+cy+' L '+x1.toFixed(2)+' '+y1.toFixed(2)+' A '+r+' '+r+' 0 '+largeArc+' 1 '+x2.toFixed(2)+' '+y2.toFixed(2)+' Z';
-      const [tx,ty]=polar(r*.57,midAngle);
-      const labelFont=sliceAngle<22?7:9;
-      const countLabel='<text x="'+tx.toFixed(2)+'" y="'+ty.toFixed(2)+'" text-anchor="middle" dominant-baseline="central" font-family="Bodoni Moda, Georgia, serif" font-size="'+labelFont+'" font-weight="800" font-variant-numeric="oldstyle-nums" fill="#59483d">'+count+'</text>';
-      slices+='<path d="'+path+'" fill="'+colors[index]+'" stroke="#fffdfa" stroke-width="1.1"><title>'+labels[index]+'：'+count+' 天，占 '+(portion*100).toFixed(1)+'%</title></path>'+countLabel;
+      let path;
+      if(nonzero===1){
+        path='';
+      }else{
+        const gap=Math.min(1.2,sliceAngle*.025);
+        const a0=startAngle+gap/2,a1=endAngle-gap/2;
+        const [x1,y1]=polar(r,a0),[x2,y2]=polar(r,a1);
+        const largeArc=(sliceAngle-gap)>180?1:0;
+        path='M '+cx+' '+cy+' L '+x1.toFixed(2)+' '+y1.toFixed(2)+' A '+r+' '+r+' 0 '+largeArc+' 1 '+x2.toFixed(2)+' '+y2.toFixed(2)+' Z';
+      }
+      const [tx,ty]=polar(r*.59,midAngle);
+      const labelFont=sliceAngle<12?6.5:(sliceAngle<24?7.5:10);
+      const label='<text x="'+tx.toFixed(2)+'" y="'+ty.toFixed(2)+'" text-anchor="middle" dominant-baseline="central" font-family="Bodoni Moda, Georgia, serif" font-size="'+labelFont+'" font-weight="900" font-variant-numeric="oldstyle-nums" font-feature-settings="\'onum\' 1" fill="#59483d" pointer-events="none">'+count+'</text>';
+      const title='<title>'+labels[index]+'：'+count+' 天（'+(portion*100).toFixed(1)+'%）</title>';
+      if(nonzero===1){
+        slices+='<circle cx="52" cy="52" r="50" fill="'+colors[index]+'">'+title+'</circle>'+label;
+      }else{
+        slices+='<path d="'+path+'" fill="'+colors[index]+'" stroke="#fffdfa" stroke-width="1.2">'+title+'</path>'+label;
+      }
     });
   }else{
-    slices='<circle cx="52" cy="52" r="49" fill="#eee5d9"/><text x="52" y="52" text-anchor="middle" dominant-baseline="central" font-family="Bodoni Moda, Georgia, serif" font-size="12" font-weight="800" fill="#9b826e">0</text>';
+    slices='<circle cx="52" cy="52" r="50" fill="#eee5d9"/>';
   }
   const accessible=labels.map((label,index)=>label+' '+weekdayCounts[index]+' 天').join('、');
   const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
