@@ -96,11 +96,34 @@ function renderSubscriptionDays(){
   const yearStart=Date.UTC(now.getFullYear(),0,1);
   const nextYear=Date.UTC(now.getFullYear()+1,0,1);
   const elapsed=Math.min(1,Math.max(0,(todayUTC-yearStart)/(nextYear-yearStart)));
-  const percent=Math.round(elapsed*1000)/10;
+  const percent=Math.round(elapsed*100);
   const ring=$('yearProgress');
   ring.style.background='conic-gradient(#d99b94 0 '+(elapsed*360)+'deg, #f2e4e0 '+(elapsed*360)+'deg 360deg)';
   ring.setAttribute('aria-label','今年已經過去 '+percent+'%');
-  $('yearProgressLabel').textContent=now.getFullYear()+' · '+Math.round(percent)+'%';
+  $('yearPercentValue').textContent=String(percent);
+
+  const weekdayCounts=Array(7).fill(0);
+  for(const [date,status] of Object.entries(records)){
+    if(status!=='yes'||date>today())continue;
+    const [y,m,d]=date.split('-').map(Number);
+    const weekday=(new Date(y,m-1,d).getDay()+6)%7;
+    weekdayCounts[weekday]++;
+  }
+  const maxCount=Math.max(1,...weekdayCounts);
+  const labels=['週一','週二','週三','週四','週五','週六','週日'];
+  const colors=['#91aeb6','#9bb7bd','#a6c0c4','#8daab3','#9bb4bc','#88a5ae','#a9c1c5'];
+  const size=104,cx=52,cy=52,r=41,stroke=8,gap=5,slot=360/7;
+  const polar=(angle)=>{const rad=(angle-90)*Math.PI/180;return [cx+r*Math.cos(rad),cy+r*Math.sin(rad)]};
+  const arcs=weekdayCounts.map((count,i)=>{
+    const startAngle=i*slot+gap/2;
+    const endAngle=(i+1)*slot-gap/2;
+    const [x1,y1]=polar(startAngle),[x2,y2]=polar(endAngle);
+    const opacity=count===0?.16:(.38+.62*count/maxCount);
+    return '<path d="M '+x1.toFixed(2)+' '+y1.toFixed(2)+' A '+r+' '+r+' 0 0 1 '+x2.toFixed(2)+' '+y2.toFixed(2)+'" fill="none" stroke="'+colors[i]+'" stroke-width="'+stroke+'" stroke-linecap="round" opacity="'+opacity.toFixed(2)+'"/>';
+  }).join('');
+  const accessible=labels.map((label,i)=>label+' '+weekdayCounts[i]+' 天').join('、');
+  $('weekdayProgress').innerHTML='<svg viewBox="0 0 '+size+' '+size+'" role="img" aria-label="'+accessible+'"><circle cx="52" cy="52" r="29" fill="#fffdfa"/>'+arcs+'</svg>';
+  $('weekdayProgress').setAttribute('aria-label','星期一至星期日有來次數：'+accessible);
 }
 function renderCalendar(){
   const year=view.getFullYear(),month=view.getMonth(),first=new Date(year,month,1).getDay(),count=new Date(year,month+1,0).getDate();
