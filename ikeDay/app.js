@@ -204,21 +204,22 @@ function renderYearChart(){
   $('yearLabel').textContent=String(statsYear);
   $('prevYear').disabled=statsYear<=FIRST_STATS_YEAR;
   $('nextYear').disabled=statsYear>=currentYear;
-
   const counts=Array(12).fill(0);
   const todayDate=today();
   for(const [date,status] of Object.entries(records)){
-    if(status!=='yes'||!/^\\d{4}-\\d{2}-\\d{2}$/.test(date))continue;
-    if(!date.startsWith(String(statsYear)+'-')||date>todayDate)continue;
-    const month=Number(date.slice(5,7));
-    if(month>=1&&month<=12)counts[month-1]++;
+    if(status!=='yes'||typeof date!=='string'||date.length!==10||date[4]!=='-'||date[7]!=='-')continue;
+    const year=Number(date.slice(0,4)),month=Number(date.slice(5,7)),day=Number(date.slice(8,10));
+    if(year!==statsYear||month<1||month>12||day<1||day>31||date>todayDate)continue;
+    const check=new Date(Date.UTC(year,month-1,day));
+    if(check.getUTCFullYear()!==year||check.getUTCMonth()!==month-1||check.getUTCDate()!==day)continue;
+    counts[month-1]++;
   }
   const total=counts.reduce((a,b)=>a+b,0);
   $('yearTotal').textContent=total;
   const max=Math.max(5,Math.ceil(Math.max(...counts)/5)*5),base=142,chartHeight=112,barW=26,gap=25,startX=31;
   let svg='<svg viewBox="0 0 650 190" role="img" aria-label="'+statsYear+' 每月有來天數：'+counts.join('、')+'">';
-  for(let v=0;v<=max;v+=5){const y=base-(v/max)*chartHeight;svg+='<line x1="27" y1="'+y+'" x2="635" y2="'+y+'" stroke="#f0e8e2" stroke-dasharray="3 5"/><text x="18" y="'+(y+3)+'" text-anchor="end" fill="#b4a9a2" font-size="9">'+v+'</text>'}
-  counts.forEach((value,i)=>{const x=startX+i*(barW+gap),h=value/max*chartHeight,y=base-h;svg+='<rect x="'+x+'" y="'+(value?y:base-2)+'" width="'+barW+'" height="'+Math.max(value?4:2,h)+'" rx="8" fill="'+(value?'#dfa39a':'#eee8e3')+'"/>';if(value)svg+='<text x="'+(x+barW/2)+'" y="'+(y-8)+'" text-anchor="middle" fill="#a8756e" font-size="10" font-weight="600">'+value+'</text>';svg+='<text x="'+(x+barW/2)+'" y="164" text-anchor="middle" fill="#9e938d" font-size="10">'+(i+1)+'月</text>'});
+  for(let v=0;v<=max;v+=5){const y=base-(v/max)*chartHeight;svg+='<line x1="27" y1="'+y+'" x2="635" y2="'+y+'" stroke="#f0e8e2" stroke-dasharray="3 5"/><text x="18" y="'+(y+3)+'" text-anchor="end" fill="#b4a9a2" font-size="9">'+v+'</text>';}
+  counts.forEach((value,i)=>{const x=startX+i*(barW+gap),h=value/max*chartHeight,y=base-h;svg+='<rect x="'+x+'" y="'+(value?y:base-2)+'" width="'+barW+'" height="'+Math.max(value?4:2,h)+'" rx="8" fill="'+(value?'#dfa39a':'#eee8e3')+'"/>';if(value)svg+='<text x="'+(x+barW/2)+'" y="'+(y-8)+'" text-anchor="middle" fill="#a8756e" font-size="10" font-weight="600">'+value+'</text>';svg+='<text x="'+(x+barW/2)+'" y="164" text-anchor="middle" fill="#9e938d" font-size="10">'+(i+1)+'月</text>';});
   svg+='<text x="635" y="184" text-anchor="end" fill="#c1b5ae" font-size="8">'+statsYear+' · MONTHLY DAYS</text></svg>';
   $('yearChart').innerHTML=svg;
 }
