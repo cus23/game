@@ -112,3 +112,38 @@
  .subscription-count .days-word{font-size:13px}
  .subscription-count .subscribe-date{font-size:8px;letter-spacing:0}
 }
+
+/* Final donut alignment and high-contrast serif wordmark */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&display=swap');
+.brand,.lock-copy .lock-brand{font-family:'Playfair Display',Georgia,serif!important;font-weight:600!important;letter-spacing:-.35px!important}
+.brand{font-size:22px!important}
+.lock-copy .lock-brand{font-size:66px!important;letter-spacing:-1.5px!important}
+.subscription-card{grid-template-columns:1fr 1fr 1.12fr;align-items:center;justify-items:stretch;min-height:126px;padding:16px 12px;gap:0}
+.stat-orbit{width:100%;min-width:0;display:flex;align-items:center;justify-content:center}
+.year-progress,.weekday-progress{position:relative;width:84px!important;height:84px!important;min-width:84px;min-height:84px;max-width:84px;max-height:84px;aspect-ratio:1/1;border-radius:50%;flex:0 0 84px;display:grid;place-items:center;overflow:hidden}
+.year-progress{padding:11px!important;box-shadow:none}
+.year-progress-inner,.weekday-progress-inner{position:relative;z-index:1;width:100%;height:100%;min-width:0;min-height:0;border-radius:50%;background:#fffdfa;display:flex;flex-direction:row;align-items:center;justify-content:center;padding:0!important;gap:1px;box-shadow:none}
+.year-percent-value{font:600 23px/1 'DM Sans',sans-serif!important;letter-spacing:-1px;color:#a8756e}
+.year-percent-symbol{font:500 10px/1 'DM Sans',sans-serif!important;color:#b99a96;margin:0!important;align-self:center;transform:translateY(4px)}
+.weekday-progress svg{position:absolute;inset:0;display:block;width:100%;height:100%;overflow:visible;z-index:0}
+.weekday-progress-inner{position:absolute;inset:11px;width:auto;height:auto;z-index:1;flex-direction:column;gap:1px}
+.weekday-progress-inner strong{font:600 20px/1 'DM Sans',sans-serif;color:#9b826e}
+.weekday-progress-inner span{font:8px/1 'DM Mono',monospace;letter-spacing:.7px;color:#b6a18e;text-transform:uppercase}
+.subscription-count{width:100%;min-width:0;display:flex;align-items:center;justify-content:center;gap:2px}
+.subscription-count strong{font:600 31px/1 'Playfair Display',Georgia,serif;letter-spacing:-.8px}
+.subscription-count .days-word{font:600 23px/1 'Playfair Display',Georgia,serif;font-style:normal;color:#b58e83;margin-top:1px}
+.subscription-count .subscribe-date{font:9px/1.3 'DM Mono',monospace;letter-spacing:.4px;color:#b5a09a;margin-top:5px}
+@media(max-width:700px){
+ .subscription-card{min-height:108px;padding:12px 5px;grid-template-columns:1fr 1fr 1.12fr}
+ .year-progress,.weekday-progress{width:72px!important;height:72px!important;min-width:72px;min-height:72px;max-width:72px;max-height:72px;flex-basis:72px}
+ .year-progress{padding:9px!important}
+ .weekday-progress-inner{inset:9px}
+ .year-percent-value{font-size:20px!important}
+ .year-percent-symbol{font-size:9px!important}
+ .weekday-progress-inner strong{font-size:17px}
+ .subscription-count strong{font-size:25px}
+ .subscription-count .days-word{font-size:20px}
+ .subscription-count .subscribe-date{font-size:7px;letter-spacing:0}
+ .brand{font-size:19px!important}
+ .lock-copy .lock-brand{font-size:60px!important}
+}
