@@ -38,3 +38,18 @@
   .lock-screen{min-height:calc(100vh - 125px);padding:0 8px}
   .lock-copy .lock-brand{font-size:58px;margin-bottom:34px}
 }
+
+/* Subscription day counter — soft bubble card */
+.subscription-card{position:relative;isolation:isolate;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:20px;margin:12px 0 24px;padding:23px 27px;border:1px solid #f0dcd8;border-radius:22px;background:linear-gradient(125deg,#fffaf8 0%,#f9e9e6 54%,#edf2f1 100%);box-shadow:0 7px 24px #59483c08}
+.subscription-copy{position:relative;z-index:1}
+.subscription-copy .eyebrow{margin-bottom:8px;color:#bd8d87}
+.subscription-copy h2{margin:0 0 6px;font-size:17px;letter-spacing:.02em;color:#65565a}
+.subscription-copy p:last-child{margin:0;font-size:10px;color:#a28f8c}
+.subscription-count{position:relative;z-index:1;min-width:116px;text-align:center;color:#a8756e}
+.subscription-count strong{display:block;font:500 38px/1 'DM Sans',sans-serif;letter-spacing:-1.5px}
+.subscription-count>span{display:block;margin-top:3px;font:9px 'DM Mono',monospace;letter-spacing:2px;text-transform:uppercase;color:#b99a96}
+.subscription-face{margin-top:8px;font-size:13px;color:#a88988;letter-spacing:.5px}
+.subscription-card .bubble{position:absolute;z-index:-1;border-radius:50%;background:#fff9;box-shadow:inset 0 0 0 1px #fff9}
+.subscription-card .bubble-one{width:82px;height:82px;right:105px;top:-39px}
+.subscription-card .bubble-two{width:35px;height:35px;right:25px;bottom:-12px}
+@media(max-width:700px){.subscription-card{margin:10px 0 20px;padding:19px 17px;border-radius:18px;gap:10px}.subscription-copy h2{font-size:15px}.subscription-copy p:last-child{font-size:9px}.subscription-count{min-width:100px}.subscription-count strong{font-size:34px}.subscription-face{font-size:12px}}
