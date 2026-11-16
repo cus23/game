@@ -110,19 +110,27 @@ function renderSubscriptionDays(){
     weekdayCounts[weekday]++;
   }
   const maxCount=Math.max(1,...weekdayCounts);
+  const totalWeekdays=weekdayCounts.reduce((sum,count)=>sum+count,0);
+  $('weekdayTotal').textContent=String(totalWeekdays);
   const labels=['週一','週二','週三','週四','週五','週六','週日'];
-  const colors=['#91aeb6','#9bb7bd','#a6c0c4','#8daab3','#9bb4bc','#88a5ae','#a9c1c5'];
-  const size=104,cx=52,cy=52,r=41,stroke=8,gap=5,slot=360/7;
+  const colors=['#E9C9A8','#D9B98F','#F0D9B5','#D8C7A8','#E5BDAF','#CDBD9F','#F1DCC7'];
+  const size=104,cx=52,cy=52,r=40,stroke=11,gap=5,slot=360/7;
   const polar=(angle)=>{const rad=(angle-90)*Math.PI/180;return [cx+r*Math.cos(rad),cy+r*Math.sin(rad)]};
   const arcs=weekdayCounts.map((count,i)=>{
     const startAngle=i*slot+gap/2;
     const endAngle=(i+1)*slot-gap/2;
     const [x1,y1]=polar(startAngle),[x2,y2]=polar(endAngle);
-    const opacity=count===0?.16:(.38+.62*count/maxCount);
-    return '<path d="M '+x1.toFixed(2)+' '+y1.toFixed(2)+' A '+r+' '+r+' 0 0 1 '+x2.toFixed(2)+' '+y2.toFixed(2)+'" fill="none" stroke="'+colors[i]+'" stroke-width="'+stroke+'" stroke-linecap="round" opacity="'+opacity.toFixed(2)+'"/>';
+    const opacity=count===0?.52:(.78+.22*count/maxCount);
+    return '<path d="M '+x1.toFixed(2)+' '+y1.toFixed(2)+' A '+r+' '+r+' 0 0 1 '+x2.toFixed(2)+' '+y2.toFixed(2)+'" fill="none" stroke="'+colors[i]+'" stroke-width="'+stroke+'" stroke-linecap="butt" opacity="'+opacity.toFixed(2)+'"/>';
   }).join('');
   const accessible=labels.map((label,i)=>label+' '+weekdayCounts[i]+' 天').join('、');
-  $('weekdayProgress').innerHTML='<svg viewBox="0 0 '+size+' '+size+'" role="img" aria-label="'+accessible+'"><circle cx="52" cy="52" r="29" fill="#fffdfa"/>'+arcs+'</svg>';
+  $('weekdayProgress').querySelector('svg')?.remove();
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('viewBox','0 0 '+size+' '+size);
+  svg.setAttribute('role','img');
+  svg.setAttribute('aria-label',accessible);
+  svg.innerHTML=arcs;
+  $('weekdayProgress').prepend(svg);
   $('weekdayProgress').setAttribute('aria-label','星期一至星期日有來次數：'+accessible);
 }
 function renderCalendar(){
