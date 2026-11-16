@@ -88,42 +88,49 @@ function render(){
 }
 function renderSubscriptionDays(){
   const now=new Date();
-  const start=Date.UTC(2026,4,9);
+  const startDate=Date.UTC(2026,4,9);
   const todayUTC=Date.UTC(now.getFullYear(),now.getMonth(),now.getDate());
-  const days=Math.max(1,Math.floor((todayUTC-start)/86400000)+1);
-  $('subscriptionDays').textContent='+'+days;
+  const subscriptionDays=Math.max(1,Math.floor((todayUTC-startDate)/86400000)+1);
+  $('subscriptionDays').textContent='+'+subscriptionDays;
 
+  // Calendar-year progress, using UTC date boundaries to avoid timezone drift.
   const yearStart=Date.UTC(now.getFullYear(),0,1);
   const nextYear=Date.UTC(now.getFullYear()+1,0,1);
   const elapsed=Math.min(1,Math.max(0,(todayUTC-yearStart)/(nextYear-yearStart)));
   const percent=Math.round(elapsed*100);
-  const ring=$('yearProgress');
-  ring.style.background='conic-gradient(#d99b94 0 '+(elapsed*360)+'deg, #f2e4e0 '+(elapsed*360)+'deg 360deg)';
-  ring.setAttribute('aria-label','今年已經過去 '+percent+'%');
+  const yearRing=$('yearProgress');
+  yearRing.style.background='conic-gradient(#d99b94 0 '+(elapsed*360)+'deg, #f2e4e0 '+(elapsed*360)+'deg 360deg)';
+  yearRing.setAttribute('aria-label','今年已經過去 '+percent+'%');
   $('yearPercentValue').textContent=String(percent);
 
+  // Count every saved "yes" attendance by weekday (Monday first), across all recorded dates.
+  // UTC parsing keeps the weekday stable regardless of the device timezone.
   const weekdayCounts=Array(7).fill(0);
   for(const [date,status] of Object.entries(records)){
-    if(status!=='yes'||date>today())continue;
-    const [y,m,d]=date.split('-').map(Number);
-    const weekday=(new Date(y,m-1,d).getDay()+6)%7;
-    weekdayCounts[weekday]++;
+    if(status!=='yes'||!/^\\d{4}-\\d{2}-\\d{2}$/.test(date))continue;
+    const [year,month,day]=date.split('-').map(Number);
+    const dateUTC=Date.UTC(year,month-1,day);
+    const check=new Date(dateUTC);
+    if(check.getUTCFullYear()!==year||check.getUTCMonth()!==month-1||check.getUTCDate()!==day||dateUTC>todayUTC)continue;
+    const mondayFirstIndex=(check.getUTCDay()+6)%7;
+    weekdayCounts[mondayFirstIndex]++;
   }
-  const maxCount=Math.max(1,...weekdayCounts);
-  const totalWeekdays=weekdayCounts.reduce((sum,count)=>sum+count,0);
-  $('weekdayTotal').textContent=String(totalWeekdays);
+  const total=weekdayCounts.reduce((sum,count)=>sum+count,0);
+  $('weekdayTotal').textContent=String(total);
+
   const labels=['週一','週二','週三','週四','週五','週六','週日'];
   const colors=['#E9C9A8','#D9B98F','#F0D9B5','#D8C7A8','#E5BDAF','#CDBD9F','#F1DCC7'];
-  const size=104,cx=52,cy=52,r=40,stroke=11,gap=5,slot=360/7;
+  const maxCount=Math.max(1,...weekdayCounts);
+  const size=104,cx=52,cy=52,r=45.2,stroke=13.6,gap=4,slot=360/7;
   const polar=(angle)=>{const rad=(angle-90)*Math.PI/180;return [cx+r*Math.cos(rad),cy+r*Math.sin(rad)]};
-  const arcs=weekdayCounts.map((count,i)=>{
-    const startAngle=i*slot+gap/2;
-    const endAngle=(i+1)*slot-gap/2;
+  const arcs=weekdayCounts.map((count,index)=>{
+    const startAngle=index*slot+gap/2;
+    const endAngle=(index+1)*slot-gap/2;
     const [x1,y1]=polar(startAngle),[x2,y2]=polar(endAngle);
-    const opacity=count===0?.52:(.78+.22*count/maxCount);
-    return '<path d="M '+x1.toFixed(2)+' '+y1.toFixed(2)+' A '+r+' '+r+' 0 0 1 '+x2.toFixed(2)+' '+y2.toFixed(2)+'" fill="none" stroke="'+colors[i]+'" stroke-width="'+stroke+'" stroke-linecap="butt" opacity="'+opacity.toFixed(2)+'"/>';
+    const opacity=count===0?.42:(.72+.28*count/maxCount);
+    return '<path d="M '+x1.toFixed(2)+' '+y1.toFixed(2)+' A '+r+' '+r+' 0 0 1 '+x2.toFixed(2)+' '+y2.toFixed(2)+'" fill="none" stroke="'+colors[index]+'" stroke-width="'+stroke+'" stroke-linecap="butt" opacity="'+opacity.toFixed(2)+'"><title>'+labels[index]+'：'+count+' 天</title></path>';
   }).join('');
-  const accessible=labels.map((label,i)=>label+' '+weekdayCounts[i]+' 天').join('、');
+  const accessible=labels.map((label,index)=>label+' '+weekdayCounts[index]+' 天').join('、');
   $('weekdayProgress').querySelector('svg')?.remove();
   const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
   svg.setAttribute('viewBox','0 0 '+size+' '+size);
