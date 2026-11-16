@@ -53,3 +53,29 @@
 .subscription-card .bubble-one{width:82px;height:82px;right:105px;top:-39px}
 .subscription-card .bubble-two{width:35px;height:35px;right:25px;bottom:-12px}
 @media(max-width:700px){.subscription-card{margin:10px 0 20px;padding:19px 17px;border-radius:18px;gap:10px}.subscription-copy h2{font-size:15px}.subscription-copy p:last-child{font-size:9px}.subscription-count{min-width:100px}.subscription-count strong{font-size:34px}.subscription-face{font-size:12px}}
+
+
+/* Subscription counter repositioned under yearly attendance chart */
+.subscription-card{margin:0 0 15px;padding:21px 26px;min-height:158px}
+.subscription-copy{display:flex;flex-direction:column;align-items:flex-start;gap:5px}
+.subscribe-label{font:italic 500 23px/1.15 Georgia,'Times New Roman',serif;letter-spacing:.15px;color:#8d7778}
+.subscribe-date{font:500 12px 'DM Mono',monospace;letter-spacing:2px;color:#b18a83}
+.subscription-count{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:130px}
+.year-progress{width:112px;height:112px;border-radius:50%;display:grid;place-items:center;padding:7px;box-shadow:0 4px 14px #b8877b16}
+.year-progress-inner{width:100%;height:100%;border-radius:50%;background:#fffaf8;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:inset 0 0 0 1px #fff}
+.year-progress-inner strong{font:500 29px/1 'DM Sans',sans-serif;letter-spacing:-1px;color:#a8756e}
+.year-progress-inner span{margin-top:4px;font:9px 'DM Mono',monospace;letter-spacing:1.5px;color:#b99a96;text-transform:uppercase}
+.year-progress-label{font:9px 'DM Mono',monospace;letter-spacing:1px;color:#b99a96}
+.subscription-face{margin-top:3px}
+.subscription-card .bubble-one{right:118px;top:-39px}
+.subscription-card .bubble-two{right:25px;bottom:-12px}
+@media(max-width:700px){
+  .subscription-card{min-height:138px;padding:17px 16px;gap:8px}
+  .subscribe-label{font-size:19px}
+  .subscribe-date{font-size:10px;letter-spacing:1.3px}
+  .subscription-count{min-width:105px}
+  .year-progress{width:94px;height:94px;padding:6px}
+  .year-progress-inner strong{font-size:25px}
+  .year-progress-label{font-size:8px}
+  .subscription-face{font-size:11px}
+}
