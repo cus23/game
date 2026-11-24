@@ -54,6 +54,11 @@ async function applySeedIfNeeded(){
     if(records['2026-11-14']!=='yes'){records['2026-11-14']='yes';changed=true}
     seedVersion=5;changed=true;
   }
+  if(seedVersion<6){
+    if(records['2026-11-17']!=='yes'){records['2026-11-17']='yes';changed=true}
+    if(records['2026-11-24']!=='yes'){records['2026-11-24']='yes';changed=true}
+    seedVersion=6;changed=true;
+  }
   if(changed)await persist();
 }
 async function persist(){
